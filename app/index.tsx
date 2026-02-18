@@ -36,8 +36,6 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.helloText}>Hallo</Text>
-        
         <View style={styles.titleContainer}>
           <Text style={styles.titleWhite}>Hi! Ich bin </Text>
           <Text style={styles.titleGreen}>Easy Budget</Text>
@@ -46,6 +44,10 @@ export default function WelcomeScreen() {
 
         <Text style={styles.subtitle}>
           Behalte alle Ausgaben und Abos in einem Blick.
+        </Text>
+
+        <Text style={styles.premiumText}>
+          Du erhältst 2 Wochen Premium geschenkt zum Testen.
         </Text>
 
         <TouchableOpacity style={styles.goButton} onPress={handleGoPress}>
@@ -73,7 +75,7 @@ export default function WelcomeScreen() {
             </TouchableOpacity>
           </View>
           
-          <ScrollView style={styles.modalContent}>
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
             <Text style={styles.sectionTitle}>Datenschutzerklärung</Text>
             <Text style={styles.sectionText}>
               Easy Budget 10 respektiert Ihre Privatsphäre. Alle Ihre Finanzdaten werden ausschliesslich lokal auf Ihrem Gerät gespeichert. Wir sammeln, übertragen oder speichern keine persönlichen Daten auf externen Servern.
@@ -138,55 +140,61 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   content: {
-    alignItems: 'center',
-    paddingHorizontal: 30,
-  },
-  helloText: {
-    fontSize: 24,
-    color: '#34C759',
-    fontWeight: '600',
-    marginBottom: 20,
+    alignItems: 'flex-start',
+    paddingHorizontal: 40,
+    width: '100%',
   },
   titleContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
     marginBottom: 30,
   },
   titleWhite: {
-    fontSize: 36,
+    fontSize: 42,
     color: '#FFFFFF',
     fontWeight: 'bold',
+    lineHeight: 50,
   },
   titleGreen: {
     fontSize: 42,
-    color: '#34C759',
+    color: '#BFFE84',
     fontWeight: 'bold',
+    lineHeight: 50,
   },
   subtitle: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 60,
-    lineHeight: 28,
-  },
-  goButton: {
-    backgroundColor: '#34C759',
-    paddingHorizontal: 80,
-    paddingVertical: 16,
-    borderRadius: 30,
-    marginBottom: 30,
-  },
-  goButtonText: {
     fontSize: 24,
     color: '#FFFFFF',
     fontWeight: 'bold',
+    marginBottom: 40,
+    lineHeight: 32,
+  },
+  premiumText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    marginBottom: 30,
+    lineHeight: 22,
+  },
+  goButton: {
+    backgroundColor: '#BFFE84',
+    paddingHorizontal: 80,
+    paddingVertical: 18,
+    borderRadius: 30,
+    marginBottom: 30,
+    alignSelf: 'center',
+    width: '100%',
+    alignItems: 'center',
+  },
+  goButtonText: {
+    fontSize: 26,
+    color: '#000000',
+    fontWeight: 'bold',
   },
   legalText: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#8E8E93',
     textAlign: 'center',
+    alignSelf: 'center',
   },
   modalContainer: {
     flex: 1,
@@ -212,7 +220,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 16,
-    color: '#34C759',
+    color: '#BFFE84',
     fontWeight: '600',
   },
   modalContent: {

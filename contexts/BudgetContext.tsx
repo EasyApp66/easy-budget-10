@@ -48,6 +48,8 @@ interface BudgetContextType {
   togglePinExpense: (monthId: string, expenseId: string) => void;
   addSubscription: (name: string, amount: number) => void;
   deleteSubscription: (id: string) => void;
+  updateSubscription: (id: string, name: string, amount: number) => void;
+  duplicateSubscription: (id: string) => void;
   togglePinSubscription: (id: string) => void;
   loadData: () => Promise<void>;
   saveData: () => Promise<void>;
@@ -60,7 +62,7 @@ const STORAGE_KEY = '@easy_budget_data';
 export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const [hasSeenWelcome, setHasSeenWelcome] = useState(false);
   const [budgetName, setBudgetName] = useState('Budget');
-  const [budgetAmount, setBudgetAmount] = useState(2000);
+  const [budgetAmount, setBudgetAmount] = useState(0);
   const [months, setMonths] = useState<Month[]>([]);
   const [activeMonthId, setActiveMonthId] = useState('');
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -75,7 +77,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         console.log('Data loaded successfully:', data);
         setHasSeenWelcome(data.hasSeenWelcome || false);
         setBudgetName(data.budgetName || 'Budget');
-        setBudgetAmount(data.budgetAmount || 2000);
+        setBudgetAmount(data.budgetAmount || 0);
         setMonths(data.months || []);
         setActiveMonthId(data.activeMonthId || '');
         setSubscriptions(data.subscriptions || []);
@@ -121,24 +123,19 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       id: Date.now().toString(),
       name: currentMonthName,
       isPinned: false,
-      expenses: [
-        { id: Date.now().toString() + '1', name: 'Lebensmittel', amount: 350, isPinned: false },
-        { id: Date.now().toString() + '2', name: 'Transport', amount: 120, isPinned: false },
-      ],
+      expenses: [],
     };
 
     const month2: Month = {
       id: (Date.now() + 1).toString(),
       name: nextMonthName,
       isPinned: false,
-      expenses: [
-        { id: Date.now().toString() + '3', name: 'Miete', amount: 1200, isPinned: false },
-        { id: Date.now().toString() + '4', name: 'Strom', amount: 80, isPinned: false },
-      ],
+      expenses: [],
     };
 
     setMonths([month1, month2]);
     setActiveMonthId(month1.id);
+    setBudgetAmount(0);
   };
 
   useEffect(() => {
@@ -288,6 +285,24 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     console.log('Subscription deleted:', id);
   };
 
+  const updateSubscription = (id: string, name: string, amount: number) => {
+    setSubscriptions(subscriptions.map(s => s.id === id ? { ...s, name, amount } : s));
+    console.log('Subscription updated:', id, name, amount);
+  };
+
+  const duplicateSubscription = (id: string) => {
+    const subToDuplicate = subscriptions.find(s => s.id === id);
+    if (subToDuplicate) {
+      const newSub: Subscription = {
+        ...subToDuplicate,
+        id: Date.now().toString(),
+        name: subToDuplicate.name + ' (Kopie)',
+      };
+      setSubscriptions([...subscriptions, newSub]);
+      console.log('Subscription duplicated:', subToDuplicate.name);
+    }
+  };
+
   const togglePinSubscription = (id: string) => {
     setSubscriptions(subscriptions.map(s => s.id === id ? { ...s, isPinned: !s.isPinned } : s));
     console.log('Subscription pin toggled:', id);
@@ -320,6 +335,8 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         togglePinExpense,
         addSubscription,
         deleteSubscription,
+        updateSubscription,
+        duplicateSubscription,
         togglePinSubscription,
         loadData,
         saveData,

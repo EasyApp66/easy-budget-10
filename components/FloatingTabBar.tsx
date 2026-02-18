@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconSymbol } from '@/components/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Href } from 'expo-router';
+import { useBudget } from '@/contexts/BudgetContext';
 
 export interface TabBarItem {
   name: string;
@@ -22,9 +23,10 @@ export interface TabBarItem {
 
 interface FloatingTabBarProps {
   tabs: TabBarItem[];
+  onAddPress?: () => void;
 }
 
-export default function FloatingTabBar({ tabs }: FloatingTabBarProps) {
+export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -74,8 +76,8 @@ export default function FloatingTabBar({ tabs }: FloatingTabBarProps) {
                   <IconSymbol
                     android_material_icon_name={tab.icon}
                     ios_icon_name={tab.icon}
-                    size={24}
-                    color={isActive ? '#9FE870' : '#666666'}
+                    size={26}
+                    color={isActive ? '#BFFE84' : '#666666'}
                   />
                   <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
                     {tab.label}
@@ -88,23 +90,18 @@ export default function FloatingTabBar({ tabs }: FloatingTabBarProps) {
           
           <TouchableOpacity
             style={styles.addButtonTab}
-            onPress={() => {
-              console.log('Add button pressed from tab bar');
-              if (pathname.includes('budget')) {
-                console.log('Triggering add expense');
-              } else if (pathname.includes('subscriptions')) {
-                console.log('Triggering add subscription');
-              }
-            }}
+            onPress={onAddPress}
             activeOpacity={0.7}
           >
-            <View style={styles.addButton}>
-              <IconSymbol
-                android_material_icon_name="add"
-                ios_icon_name="plus"
-                size={32}
-                color="#000000"
-              />
+            <View style={styles.addButtonGlow}>
+              <View style={styles.addButton}>
+                <IconSymbol
+                  android_material_icon_name="add"
+                  ios_icon_name="plus"
+                  size={32}
+                  color="#000000"
+                />
+              </View>
             </View>
           </TouchableOpacity>
         </View>
@@ -128,7 +125,7 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(44, 44, 46, 0.95)',
+    backgroundColor: 'rgba(28, 28, 30, 0.95)',
     borderRadius: 30,
     height: 70,
     alignItems: 'center',
@@ -157,22 +154,30 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   tabLabel: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '500',
     color: '#666666',
   },
   tabLabelActive: {
-    color: '#9FE870',
+    color: '#BFFE84',
     fontWeight: '600',
   },
   addButtonTab: {
     marginLeft: 10,
   },
+  addButtonGlow: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(191, 254, 132, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   addButton: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#9FE870',
+    backgroundColor: '#BFFE84',
     justifyContent: 'center',
     alignItems: 'center',
   },

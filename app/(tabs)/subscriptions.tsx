@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,18 +8,33 @@ import {
   TouchableOpacity,
   TextInput,
   Modal,
+  Pressable,
 } from 'react-native';
 import { useBudget } from '@/contexts/BudgetContext';
 import { IconSymbol } from '@/components/IconSymbol';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function SubscriptionsScreen() {
-  const { subscriptions, addSubscription, deleteSubscription, togglePinSubscription } = useBudget();
+  const params = useLocalSearchParams();
+  const { subscriptions, addSubscription, deleteSubscription, togglePinSubscription, updateSubscription, duplicateSubscription } = useBudget();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newSubName, setNewSubName] = useState('');
   const [newSubAmount, setNewSubAmount] = useState('');
+
+  const [showOptionsModal, setShowOptionsModal] = useState(false);
+  const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editSubName, setEditSubName] = useState('');
+  const [editSubAmount, setEditSubAmount] = useState('');
+
+  useEffect(() => {
+    if (params.triggerAdd) {
+      handleAddSubscription();
+    }
+  }, [params.triggerAdd]);
 
   const totalCost = subscriptions.reduce((sum, sub) => sum + sub.amount, 0);
   const subCount = subscriptions.length;
@@ -40,11 +55,71 @@ export default function SubscriptionsScreen() {
     }
   };
 
+  const handleSubLongPress = (subId: string) => {
+    setSelectedSubId(subId);
+    setShowOptionsModal(true);
+    console.log('Subscription long pressed:', subId);
+  };
+
+  const handleSubEdit = () => {
+    if (selectedSubId) {
+      const sub = subscriptions.find(s => s.id === selectedSubId);
+      if (sub) {
+        setEditSubName(sub.name);
+        setEditSubAmount(sub.amount.toString());
+        setShowOptionsModal(false);
+        setShowEditModal(true);
+      }
+    }
+  };
+
+  const submitSubEdit = () => {
+    const amount = parseFloat(editSubAmount);
+    if (selectedSubId && editSubName.trim() && !isNaN(amount) && amount >= 0) {
+      updateSubscription(selectedSubId, editSubName.trim(), amount);
+      setShowEditModal(false);
+      setSelectedSubId(null);
+      console.log('Subscription updated:', editSubName, amount);
+    }
+  };
+
+  const handleSubDuplicate = () => {
+    if (selectedSubId) {
+      duplicateSubscription(selectedSubId);
+      setShowOptionsModal(false);
+      setSelectedSubId(null);
+      console.log('Subscription duplicated');
+    }
+  };
+
+  const handleSubTogglePin = () => {
+    if (selectedSubId) {
+      togglePinSubscription(selectedSubId);
+      setShowOptionsModal(false);
+      setSelectedSubId(null);
+      console.log('Subscription pin toggled');
+    }
+  };
+
+  const handleSubDelete = () => {
+    if (selectedSubId) {
+      deleteSubscription(selectedSubId);
+      setShowOptionsModal(false);
+      setSelectedSubId(null);
+      console.log('Subscription deleted');
+    }
+  };
+
   const totalCostText = totalCost.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const selectedSub = selectedSubId ? subscriptions.find(s => s.id === selectedSubId) : null;
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.summaryCard}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>ABO KOSTEN</Text>
@@ -72,6 +147,7 @@ export default function SubscriptionsScreen() {
                 togglePinSubscription(sub.id);
                 console.log('Subscription pin toggled:', sub.id);
               }}
+              onLongPress={() => handleSubLongPress(sub.id)}
             />
             </React.Fragment>
           ))}
@@ -94,12 +170,12 @@ export default function SubscriptionsScreen() {
             </TouchableOpacity>
           </View>
           <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>Name</Text>
+            <Text style={styles.inputLabel}>Name (z.B. NETFLIX)</Text>
             <TextInput
               style={styles.input}
               value={newSubName}
               onChangeText={setNewSubName}
-              placeholder="z.B. Netflix"
+              placeholder="z.B. NETFLIX"
               placeholderTextColor="#666666"
             />
             <Text style={styles.inputLabel}>Betrag</Text>
@@ -117,6 +193,74 @@ export default function SubscriptionsScreen() {
           </View>
         </View>
       </Modal>
+
+      <Modal
+        visible={showOptionsModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowOptionsModal(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setShowOptionsModal(false)}>
+          <View style={styles.optionsModal}>
+            <Text style={styles.optionsTitle}>{selectedSub?.name}</Text>
+            <TouchableOpacity style={styles.optionButton} onPress={handleSubTogglePin}>
+              <Text style={styles.optionButtonText}>
+                {selectedSub?.isPinned ? 'Lösen' : 'Fixieren'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.optionButton} onPress={handleSubDuplicate}>
+              <Text style={styles.optionButtonText}>Duplizieren</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.optionButton} onPress={handleSubEdit}>
+              <Text style={styles.optionButtonText}>Namen anpassen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.optionButton} onPress={handleSubEdit}>
+              <Text style={styles.optionButtonText}>Zahl anpassen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleSubDelete}>
+              <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>Löschen</Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Modal>
+
+      <Modal
+        visible={showEditModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowEditModal(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Abo bearbeiten</Text>
+            <TouchableOpacity onPress={() => setShowEditModal(false)}>
+              <Text style={styles.modalCloseText}>Abbrechen</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.modalContent}>
+            <Text style={styles.inputLabel}>Name</Text>
+            <TextInput
+              style={styles.input}
+              value={editSubName}
+              onChangeText={setEditSubName}
+              placeholder="Name"
+              placeholderTextColor="#666666"
+            />
+            <Text style={styles.inputLabel}>Betrag</Text>
+            <TextInput
+              style={styles.input}
+              value={editSubAmount}
+              onChangeText={setEditSubAmount}
+              placeholder="0"
+              placeholderTextColor="#666666"
+              keyboardType="decimal-pad"
+            />
+            <TouchableOpacity style={styles.submitButton} onPress={submitSubEdit}>
+              <Text style={styles.submitButtonText}>Speichern</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -125,10 +269,12 @@ function SubscriptionCard({
   subscription,
   onDelete,
   onTogglePin,
+  onLongPress,
 }: {
   subscription: { id: string; name: string; amount: number; isPinned: boolean };
   onDelete: () => void;
   onTogglePin: () => void;
+  onLongPress: () => void;
 }) {
   const translateX = useSharedValue(0);
 
@@ -143,10 +289,10 @@ function SubscriptionCard({
     .onEnd((event) => {
       if (event.translationX < -100) {
         translateX.value = withTiming(0);
-        onDelete();
+        runOnJS(onDelete)();
       } else if (event.translationX > 100) {
         translateX.value = withTiming(0);
-        onTogglePin();
+        runOnJS(onTogglePin)();
       } else {
         translateX.value = withTiming(0);
       }
@@ -163,10 +309,12 @@ function SubscriptionCard({
   return (
     <View style={styles.cardWrapper}>
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={[styles.subscriptionCard, subscription.isPinned && styles.subscriptionCardPinned, animatedStyle]}>
-          <Text style={styles.subscriptionName}>{subscription.name}</Text>
-          <Text style={styles.subscriptionAmount}>{amountText}</Text>
-        </Animated.View>
+        <Pressable onLongPress={onLongPress}>
+          <Animated.View style={[styles.subscriptionCard, subscription.isPinned && styles.subscriptionCardPinned, animatedStyle]}>
+            <Text style={styles.subscriptionName}>{subscription.name}</Text>
+            <Text style={styles.subscriptionAmount}>{amountText}</Text>
+          </Animated.View>
+        </Pressable>
       </GestureDetector>
     </View>
   );
@@ -187,7 +335,7 @@ const styles = StyleSheet.create({
   summaryCard: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
-    padding: 20,
+    padding: 24,
     marginBottom: 20,
   },
   summaryRow: {
@@ -196,20 +344,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   summaryLabel: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   summaryValue: {
-    fontSize: 32,
+    fontSize: 36,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
   totalCard: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
-    padding: 20,
+    padding: 24,
     marginBottom: 30,
   },
   totalRow: {
@@ -218,13 +366,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   totalLabel: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   totalValue: {
-    fontSize: 32,
+    fontSize: 36,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -237,25 +385,27 @@ const styles = StyleSheet.create({
   subscriptionCard: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
-    padding: 20,
+    padding: 24,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   subscriptionCardPinned: {
     borderWidth: 2,
-    borderColor: '#9FE870',
+    borderColor: '#BFFE84',
   },
   subscriptionName: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFFFFF',
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: 30,
+    flex: 1,
   },
   subscriptionAmount: {
-    fontSize: 48,
+    fontSize: 32,
     color: '#FFFFFF',
     fontWeight: 'bold',
-    textAlign: 'right',
   },
   bottomSpacer: {
     height: 120,
@@ -275,20 +425,20 @@ const styles = StyleSheet.create({
     borderBottomColor: '#2C2C2E',
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 22,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
   modalCloseText: {
-    fontSize: 16,
-    color: '#9FE870',
+    fontSize: 17,
+    color: '#BFFE84',
     fontWeight: '600',
   },
   modalContent: {
     padding: 20,
   },
   inputLabel: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#FFFFFF',
     marginBottom: 8,
     marginTop: 16,
@@ -297,20 +447,58 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: '#2C2C2E',
     borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
+    padding: 18,
+    fontSize: 17,
     color: '#FFFFFF',
   },
   submitButton: {
-    backgroundColor: '#9FE870',
+    backgroundColor: '#BFFE84',
     borderRadius: 12,
-    padding: 16,
+    padding: 18,
     alignItems: 'center',
     marginTop: 24,
   },
   submitButtonText: {
-    fontSize: 16,
+    fontSize: 17,
     color: '#000000',
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  optionsModal: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 20,
+    padding: 20,
+    width: '80%',
+    maxWidth: 400,
+  },
+  optionsTitle: {
+    fontSize: 20,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  optionButton: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  optionButtonDanger: {
+    backgroundColor: '#FF3B30',
+  },
+  optionButtonText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  optionButtonTextDanger: {
+    color: '#FFFFFF',
   },
 });
