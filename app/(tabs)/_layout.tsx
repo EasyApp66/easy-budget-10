@@ -14,7 +14,7 @@ export default function TabLayout() {
     {
       name: 'subscriptions',
       route: '/(tabs)/subscriptions',
-      icon: 'subscriptions',
+      icon: 'autorenew',
       label: 'Abos',
     },
     {

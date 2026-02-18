@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   TextInput,
   Modal,
-  Alert,
 } from 'react-native';
 import { useBudget } from '@/contexts/BudgetContext';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -42,22 +41,6 @@ export default function BudgetScreen() {
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
   const [newExpenseName, setNewExpenseName] = useState('');
   const [newExpenseAmount, setNewExpenseAmount] = useState('');
-
-  const [showMonthOptionsModal, setShowMonthOptionsModal] = useState(false);
-  const [selectedMonthId, setSelectedMonthId] = useState('');
-
-  const [showExpenseOptionsModal, setShowExpenseOptionsModal] = useState(false);
-  const [selectedExpenseId, setSelectedExpenseId] = useState('');
-
-  const [showAddMonthModal, setShowAddMonthModal] = useState(false);
-  const [newMonthName, setNewMonthName] = useState('');
-
-  const [showRenameMonthModal, setShowRenameMonthModal] = useState(false);
-  const [renameMonthValue, setRenameMonthValue] = useState('');
-
-  const [showEditExpenseModal, setShowEditExpenseModal] = useState(false);
-  const [editExpenseName, setEditExpenseName] = useState('');
-  const [editExpenseAmount, setEditExpenseAmount] = useState('');
 
   const activeMonth = months.find(m => m.id === activeMonthId);
   const totalExpenses = activeMonth?.expenses.reduce((sum, e) => sum + e.amount, 0) || 0;
@@ -96,115 +79,15 @@ export default function BudgetScreen() {
     }
   };
 
-  const handleLongPressMonth = (monthId: string) => {
-    console.log('Month long pressed:', monthId);
-    setSelectedMonthId(monthId);
-    setShowMonthOptionsModal(true);
-  };
-
-  const handleMonthDuplicate = () => {
-    duplicateMonth(selectedMonthId);
-    setShowMonthOptionsModal(false);
-  };
-
-  const handleMonthRename = () => {
-    const month = months.find(m => m.id === selectedMonthId);
-    if (month) {
-      setRenameMonthValue(month.name);
-      setShowMonthOptionsModal(false);
-      setShowRenameMonthModal(true);
-    }
-  };
-
-  const submitRenameMonth = () => {
-    if (renameMonthValue.trim()) {
-      renameMonth(selectedMonthId, renameMonthValue.trim());
-      setShowRenameMonthModal(false);
-      console.log('Month renamed:', renameMonthValue);
-    }
-  };
-
-  const handleMonthTogglePin = () => {
-    togglePinMonth(selectedMonthId);
-    setShowMonthOptionsModal(false);
-  };
-
-  const handleMonthDelete = () => {
-    if (months.length <= 1) {
-      setShowMonthOptionsModal(false);
-      return;
-    }
-    deleteMonth(selectedMonthId);
-    setShowMonthOptionsModal(false);
-  };
-
-  const handleLongPressExpense = (expenseId: string) => {
-    console.log('Expense long pressed:', expenseId);
-    setSelectedExpenseId(expenseId);
-    setShowExpenseOptionsModal(true);
-  };
-
-  const handleExpenseEdit = () => {
-    const expense = activeMonth?.expenses.find(e => e.id === selectedExpenseId);
-    if (expense) {
-      setEditExpenseName(expense.name);
-      setEditExpenseAmount(expense.amount.toString());
-      setShowExpenseOptionsModal(false);
-      setShowEditExpenseModal(true);
-    }
-  };
-
-  const submitEditExpense = () => {
-    const amount = parseFloat(editExpenseAmount);
-    if (editExpenseName.trim() && !isNaN(amount) && amount >= 0 && activeMonthId) {
-      updateExpense(activeMonthId, selectedExpenseId, editExpenseName.trim(), amount);
-      setShowEditExpenseModal(false);
-      console.log('Expense updated:', editExpenseName, amount);
-    }
-  };
-
-  const handleExpenseDuplicate = () => {
-    if (activeMonthId) {
-      duplicateExpense(activeMonthId, selectedExpenseId);
-      setShowExpenseOptionsModal(false);
-    }
-  };
-
-  const handleExpenseTogglePin = () => {
-    if (activeMonthId) {
-      togglePinExpense(activeMonthId, selectedExpenseId);
-      setShowExpenseOptionsModal(false);
-    }
-  };
-
-  const handleExpenseDelete = () => {
-    if (activeMonthId) {
-      deleteExpense(activeMonthId, selectedExpenseId);
-      setShowExpenseOptionsModal(false);
-    }
-  };
-
-  const handleAddMonth = () => {
-    console.log('Add month button pressed');
-    setShowAddMonthModal(true);
-  };
-
-  const submitAddMonth = () => {
-    if (newMonthName.trim()) {
-      addMonth(newMonthName.trim());
-      setNewMonthName('');
-      setShowAddMonthModal(false);
-      console.log('Month added:', newMonthName);
-    }
-  };
-
-  const remainingColor = remaining >= 0 ? '#34C759' : '#FF3B30';
-  const remainingText = remaining >= 0 ? remaining.toFixed(2) : `${remaining.toFixed(2)}`;
+  const remainingColor = remaining >= 0 ? '#9FE870' : '#FF3B30';
+  const totalText = totalExpenses.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const remainingText = Math.abs(remaining).toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const budgetText = budgetAmount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
+        <View style={styles.budgetHeader}>
           {editingBudgetName ? (
             <TextInput
               style={styles.budgetNameInput}
@@ -219,7 +102,7 @@ export default function BudgetScreen() {
               setTempBudgetName(budgetName);
               setEditingBudgetName(true);
             }}>
-              <Text style={styles.budgetName}>{budgetName}</Text>
+              <Text style={styles.budgetLabel}>BUDGET</Text>
             </TouchableOpacity>
           )}
 
@@ -238,85 +121,58 @@ export default function BudgetScreen() {
               setTempBudgetAmount(budgetAmount.toString());
               setEditingBudgetAmount(true);
             }}>
-              <Text style={styles.budgetAmount}>CHF {budgetAmount.toFixed(2)}</Text>
+              <Text style={styles.budgetAmount}>{budgetText.replace(/\s/g, "'")}</Text>
             </TouchableOpacity>
           )}
         </View>
 
-        <View style={styles.summaryBubble}>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Total</Text>
-            <Text style={styles.summaryValue}>CHF {totalExpenses.toFixed(2)}</Text>
+        <View style={styles.summaryCard}>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>TOTAL</Text>
+            <Text style={styles.summaryValue}>{totalText.replace(/\s/g, "'")}</Text>
           </View>
-          <View style={styles.summaryDivider} />
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Bleibt</Text>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>BLEIBT</Text>
             <Text style={[styles.summaryValue, { color: remainingColor }]}>
-              CHF {remainingText}
+              {remaining < 0 ? '-' : ''}{remainingText.replace(/\s/g, "'")}
             </Text>
           </View>
         </View>
 
-        <View style={styles.monthsSection}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.monthsScroll}>
-            <TouchableOpacity style={styles.addMonthButton} onPress={handleAddMonth}>
-              <IconSymbol android_material_icon_name="add" size={24} color="#34C759" />
-            </TouchableOpacity>
-
-            {months.map((month) => {
-              const isActive = month.id === activeMonthId;
-              const monthStyle = isActive ? styles.monthChipActive : styles.monthChip;
-              const monthTextStyle = isActive ? styles.monthTextActive : styles.monthText;
-
-              return (
-                <TouchableOpacity
-                  key={month.id}
-                  style={[monthStyle, month.isPinned && styles.monthChipPinned]}
-                  onPress={() => {
-                    setActiveMonthId(month.id);
-                    console.log('Active month changed:', month.name);
-                  }}
-                  onLongPress={() => handleLongPressMonth(month.id)}
-                >
-                  <Text style={monthTextStyle}>{month.name}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+        <View style={styles.addButtonRow}>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddExpense}>
+            <IconSymbol android_material_icon_name="add" ios_icon_name="plus" size={28} color="#000000" />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.expensesSection}>
-          {activeMonth?.expenses.map((expense) => (
-            <TouchableOpacity
-              key={expense.id}
+          {activeMonth?.expenses.map((expense, index) => (
+            <React.Fragment key={expense.id}>
+            <View
               style={[styles.expenseCard, expense.isPinned && styles.expenseCardPinned]}
-              onLongPress={() => handleLongPressExpense(expense.id)}
             >
               <View style={styles.expenseContent}>
                 <Text style={styles.expenseName}>{expense.name}</Text>
-                <Text style={styles.expenseAmount}>CHF {expense.amount.toFixed(2)}</Text>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => {
+                    if (activeMonthId) {
+                      deleteExpense(activeMonthId, expense.id);
+                      console.log('Expense deleted:', expense.id);
+                    }
+                  }}
+                >
+                  <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={20} color="#FF3B30" />
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => {
-                  if (activeMonthId) {
-                    deleteExpense(activeMonthId, expense.id);
-                    console.log('Expense deleted via X button:', expense.id);
-                  }
-                }}
-              >
-                <IconSymbol android_material_icon_name="close" size={20} color="#FF3B30" />
-              </TouchableOpacity>
-            </TouchableOpacity>
+              <Text style={styles.expenseAmount}>{expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
+            </View>
+            </React.Fragment>
           ))}
         </View>
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
-
-      <TouchableOpacity style={styles.floatingAddButton} onPress={handleAddExpense}>
-        <IconSymbol android_material_icon_name="add" size={32} color="#FFFFFF" />
-      </TouchableOpacity>
 
       <Modal
         visible={showAddExpenseModal}
@@ -338,183 +194,19 @@ export default function BudgetScreen() {
               value={newExpenseName}
               onChangeText={setNewExpenseName}
               placeholder="z.B. Lebensmittel"
-              placeholderTextColor="#8E8E93"
+              placeholderTextColor="#666666"
             />
-            <Text style={styles.inputLabel}>Betrag (CHF)</Text>
+            <Text style={styles.inputLabel}>Betrag</Text>
             <TextInput
               style={styles.input}
               value={newExpenseAmount}
               onChangeText={setNewExpenseAmount}
-              placeholder="0.00"
-              placeholderTextColor="#8E8E93"
+              placeholder="0"
+              placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
             <TouchableOpacity style={styles.submitButton} onPress={submitAddExpense}>
               <Text style={styles.submitButtonText}>Hinzufügen</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={showMonthOptionsModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowMonthOptionsModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Monat Optionen</Text>
-            <TouchableOpacity onPress={() => setShowMonthOptionsModal(false)}>
-              <Text style={styles.modalCloseText}>Schliessen</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.optionsContent}>
-            <TouchableOpacity style={styles.optionButton} onPress={handleMonthDuplicate}>
-              <Text style={styles.optionButtonText}>Duplizieren</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleMonthTogglePin}>
-              <Text style={styles.optionButtonText}>
-                {months.find(m => m.id === selectedMonthId)?.isPinned ? 'Fixierung aufheben' : 'Fixieren'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleMonthRename}>
-              <Text style={styles.optionButtonText}>Umbenennen</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.optionButton, months.length <= 1 && styles.optionButtonDisabled]}
-              onPress={handleMonthDelete}
-              disabled={months.length <= 1}
-            >
-              <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>Löschen</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={showExpenseOptionsModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowExpenseOptionsModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Ausgabe Optionen</Text>
-            <TouchableOpacity onPress={() => setShowExpenseOptionsModal(false)}>
-              <Text style={styles.modalCloseText}>Schliessen</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.optionsContent}>
-            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseEdit}>
-              <Text style={styles.optionButtonText}>Bearbeiten</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseDuplicate}>
-              <Text style={styles.optionButtonText}>Duplizieren</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseTogglePin}>
-              <Text style={styles.optionButtonText}>
-                {activeMonth?.expenses.find(e => e.id === selectedExpenseId)?.isPinned ? 'Fixierung aufheben' : 'Fixieren'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseDelete}>
-              <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>Löschen</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={showAddMonthModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowAddMonthModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Neuer Monat</Text>
-            <TouchableOpacity onPress={() => setShowAddMonthModal(false)}>
-              <Text style={styles.modalCloseText}>Abbrechen</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>Name</Text>
-            <TextInput
-              style={styles.input}
-              value={newMonthName}
-              onChangeText={setNewMonthName}
-              placeholder="z.B. Januar 2024"
-              placeholderTextColor="#8E8E93"
-            />
-            <TouchableOpacity style={styles.submitButton} onPress={submitAddMonth}>
-              <Text style={styles.submitButtonText}>Hinzufügen</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={showRenameMonthModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowRenameMonthModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Monat umbenennen</Text>
-            <TouchableOpacity onPress={() => setShowRenameMonthModal(false)}>
-              <Text style={styles.modalCloseText}>Abbrechen</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>Neuer Name</Text>
-            <TextInput
-              style={styles.input}
-              value={renameMonthValue}
-              onChangeText={setRenameMonthValue}
-              placeholder="Monat Name"
-              placeholderTextColor="#8E8E93"
-            />
-            <TouchableOpacity style={styles.submitButton} onPress={submitRenameMonth}>
-              <Text style={styles.submitButtonText}>Speichern</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={showEditExpenseModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowEditExpenseModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Ausgabe bearbeiten</Text>
-            <TouchableOpacity onPress={() => setShowEditExpenseModal(false)}>
-              <Text style={styles.modalCloseText}>Abbrechen</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>Name</Text>
-            <TextInput
-              style={styles.input}
-              value={editExpenseName}
-              onChangeText={setEditExpenseName}
-              placeholder="Name"
-              placeholderTextColor="#8E8E93"
-            />
-            <Text style={styles.inputLabel}>Betrag (CHF)</Text>
-            <TextInput
-              style={styles.input}
-              value={editExpenseAmount}
-              onChangeText={setEditExpenseAmount}
-              placeholder="0.00"
-              placeholderTextColor="#8E8E93"
-              keyboardType="decimal-pad"
-            />
-            <TouchableOpacity style={styles.submitButton} onPress={submitEditExpense}>
-              <Text style={styles.submitButtonText}>Speichern</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -535,166 +227,117 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: 20,
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  budgetName: {
-    fontSize: 28,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  budgetNameInput: {
-    fontSize: 28,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#34C759',
-    paddingHorizontal: 10,
-    textAlign: 'center',
-  },
-  budgetAmount: {
-    fontSize: 24,
-    color: '#34C759',
-    fontWeight: '600',
-  },
-  budgetAmountInput: {
-    fontSize: 24,
-    color: '#34C759',
-    fontWeight: '600',
-    borderBottomWidth: 1,
-    borderBottomColor: '#34C759',
-    paddingHorizontal: 10,
-    textAlign: 'center',
-  },
-  summaryBubble: {
-    flexDirection: 'row',
-    backgroundColor: '#1C1C1E',
+  budgetHeader: {
+    backgroundColor: '#2C2C2E',
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    alignItems: 'center',
-    justifyContent: 'space-around',
-  },
-  summaryItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  summaryLabel: {
-    fontSize: 14,
-    color: '#8E8E93',
-    marginBottom: 4,
-  },
-  summaryValue: {
+  budgetLabel: {
     fontSize: 18,
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
-  summaryDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#3A3A3C',
+  budgetNameInput: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#9FE870',
+    paddingHorizontal: 5,
   },
-  monthsSection: {
+  budgetAmount: {
+    fontSize: 32,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  budgetAmountInput: {
+    fontSize: 32,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    borderBottomWidth: 1,
+    borderBottomColor: '#9FE870',
+    paddingHorizontal: 5,
+    textAlign: 'right',
+  },
+  summaryCard: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 20,
+    padding: 20,
     marginBottom: 20,
   },
-  monthsScroll: {
+  summaryRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
   },
-  addMonthButton: {
+  summaryLabel: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  summaryValue: {
+    fontSize: 28,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  addButtonRow: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  addButton: {
     width: 50,
-    height: 40,
-    backgroundColor: '#1C1C1E',
-    borderRadius: 20,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#9FE870',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
-  },
-  monthChip: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#1C1C1E',
-    borderRadius: 20,
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  monthChipActive: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#1C1C1E',
-    borderRadius: 20,
-    marginRight: 10,
-    borderWidth: 2,
-    borderColor: '#34C759',
-  },
-  monthChipPinned: {
-    borderWidth: 2,
-    borderColor: '#34C759',
-  },
-  monthText: {
-    fontSize: 14,
-    color: '#FFFFFF',
-  },
-  monthTextActive: {
-    fontSize: 14,
-    color: '#34C759',
-    fontWeight: '600',
   },
   expensesSection: {
     marginBottom: 20,
   },
   expenseCard: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 20,
+    padding: 20,
     marginBottom: 12,
-    position: 'relative',
   },
   expenseCardPinned: {
     borderWidth: 2,
-    borderColor: '#34C759',
+    borderColor: '#9FE870',
   },
   expenseContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    marginBottom: 30,
   },
   expenseName: {
     fontSize: 16,
     color: '#FFFFFF',
     fontWeight: '600',
-  },
-  expenseAmount: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    flex: 1,
   },
   deleteButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
     padding: 4,
+  },
+  expenseAmount: {
+    fontSize: 48,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    textAlign: 'right',
   },
   bottomSpacer: {
     height: 120,
-  },
-  floatingAddButton: {
-    position: 'absolute',
-    bottom: 100,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#34C759',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   modalContainer: {
     flex: 1,
@@ -717,7 +360,7 @@ const styles = StyleSheet.create({
   },
   modalCloseText: {
     fontSize: 16,
-    color: '#34C759',
+    color: '#9FE870',
     fontWeight: '600',
   },
   modalContent: {
@@ -725,19 +368,20 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#FFFFFF',
     marginBottom: 8,
     marginTop: 16,
+    fontWeight: '600',
   },
   input: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#2C2C2E',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
     color: '#FFFFFF',
   },
   submitButton: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#9FE870',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -745,28 +389,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-  optionsContent: {
-    padding: 20,
-  },
-  optionButton: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  optionButtonDisabled: {
-    opacity: 0.5,
-  },
-  optionButtonText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  optionButtonTextDanger: {
-    color: '#FF3B30',
+    color: '#000000',
+    fontWeight: 'bold',
   },
 });

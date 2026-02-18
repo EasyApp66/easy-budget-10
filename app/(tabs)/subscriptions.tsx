@@ -23,7 +23,6 @@ export default function SubscriptionsScreen() {
 
   const totalCost = subscriptions.reduce((sum, sub) => sum + sub.amount, 0);
   const subCount = subscriptions.length;
-  const subCountText = subCount === 1 ? '1 Abo' : `${subCount} Abos`;
 
   const handleAddSubscription = () => {
     console.log('Add subscription button pressed');
@@ -41,27 +40,29 @@ export default function SubscriptionsScreen() {
     }
   };
 
+  const totalCostText = totalCost.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Abos</Text>
-
         <View style={styles.summaryCard}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Totale Ausgaben</Text>
-            <Text style={styles.summaryValue}>CHF {totalCost.toFixed(2)}</Text>
+            <Text style={styles.summaryLabel}>ABO KOSTEN</Text>
+            <Text style={styles.summaryValue}>{totalCostText}</Text>
           </View>
-          <View style={styles.summaryDivider} />
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Abo Kosten</Text>
-            <Text style={styles.summaryValue}>{subCountText}</Text>
+        </View>
+
+        <View style={styles.totalCard}>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>TOTAL</Text>
+            <Text style={styles.totalValue}>{subCount}</Text>
           </View>
         </View>
 
         <View style={styles.subscriptionsSection}>
-          {subscriptions.map((sub) => (
+          {subscriptions.map((sub, index) => (
+            <React.Fragment key={sub.id}>
             <SubscriptionCard
-              key={sub.id}
               subscription={sub}
               onDelete={() => {
                 deleteSubscription(sub.id);
@@ -72,15 +73,12 @@ export default function SubscriptionsScreen() {
                 console.log('Subscription pin toggled:', sub.id);
               }}
             />
+            </React.Fragment>
           ))}
         </View>
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
-
-      <TouchableOpacity style={styles.floatingAddButton} onPress={handleAddSubscription}>
-        <IconSymbol android_material_icon_name="add" size={32} color="#FFFFFF" />
-      </TouchableOpacity>
 
       <Modal
         visible={showAddModal}
@@ -102,15 +100,15 @@ export default function SubscriptionsScreen() {
               value={newSubName}
               onChangeText={setNewSubName}
               placeholder="z.B. Netflix"
-              placeholderTextColor="#8E8E93"
+              placeholderTextColor="#666666"
             />
-            <Text style={styles.inputLabel}>Betrag (CHF)</Text>
+            <Text style={styles.inputLabel}>Betrag</Text>
             <TextInput
               style={styles.input}
               value={newSubAmount}
               onChangeText={setNewSubAmount}
-              placeholder="0.00"
-              placeholderTextColor="#8E8E93"
+              placeholder="0"
+              placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
             <TouchableOpacity style={styles.submitButton} onPress={submitAddSubscription}>
@@ -160,12 +158,14 @@ function SubscriptionCard({
     };
   });
 
+  const amountText = subscription.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
   return (
     <View style={styles.cardWrapper}>
       <GestureDetector gesture={panGesture}>
         <Animated.View style={[styles.subscriptionCard, subscription.isPinned && styles.subscriptionCardPinned, animatedStyle]}>
           <Text style={styles.subscriptionName}>{subscription.name}</Text>
-          <Text style={styles.subscriptionAmount}>CHF {subscription.amount.toFixed(2)}</Text>
+          <Text style={styles.subscriptionAmount}>{amountText}</Text>
         </Animated.View>
       </GestureDetector>
     </View>
@@ -184,37 +184,49 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 32,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
   summaryCard: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#2C2C2E',
     borderRadius: 20,
     padding: 20,
-    marginBottom: 30,
+    marginBottom: 20,
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
   },
   summaryLabel: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
   summaryValue: {
-    fontSize: 18,
+    fontSize: 32,
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
-  summaryDivider: {
-    height: 1,
-    backgroundColor: '#3A3A3C',
-    marginVertical: 8,
+  totalCard: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 30,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  totalLabel: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  totalValue: {
+    fontSize: 32,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
   subscriptionsSection: {
     marginBottom: 20,
@@ -223,45 +235,30 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   subscriptionCard: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 16,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 20,
     padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   subscriptionCardPinned: {
     borderWidth: 2,
-    borderColor: '#34C759',
+    borderColor: '#9FE870',
   },
   subscriptionName: {
     fontSize: 16,
     color: '#FFFFFF',
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 30,
   },
   subscriptionAmount: {
-    fontSize: 16,
+    fontSize: 48,
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: 'bold',
+    textAlign: 'right',
   },
   bottomSpacer: {
     height: 120,
-  },
-  floatingAddButton: {
-    position: 'absolute',
-    bottom: 100,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#34C759',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   modalContainer: {
     flex: 1,
@@ -284,7 +281,7 @@ const styles = StyleSheet.create({
   },
   modalCloseText: {
     fontSize: 16,
-    color: '#34C759',
+    color: '#9FE870',
     fontWeight: '600',
   },
   modalContent: {
@@ -292,19 +289,20 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#FFFFFF',
     marginBottom: 8,
     marginTop: 16,
+    fontWeight: '600',
   },
   input: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#2C2C2E',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
     color: '#FFFFFF',
   },
   submitButton: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#9FE870',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -312,7 +310,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    color: '#000000',
+    fontWeight: 'bold',
   },
 });
