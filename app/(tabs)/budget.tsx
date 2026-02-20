@@ -12,12 +12,14 @@ import {
   Animated,
 } from 'react-native';
 import { useBudget } from '@/contexts/BudgetContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { IconSymbol } from '@/components/IconSymbol';
 import { useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 
 export default function BudgetScreen() {
   const params = useLocalSearchParams();
+  const { t } = useLanguage();
   const {
     budgetName,
     setBudgetName,
@@ -272,7 +274,7 @@ export default function BudgetScreen() {
               setTempBudgetName(budgetName);
               setEditingBudgetName(true);
             }}>
-              <Text style={styles.budgetLabel}>BUDGET</Text>
+              <Text style={styles.budgetLabel}>{t('budget')}</Text>
             </TouchableOpacity>
           )}
 
@@ -299,11 +301,11 @@ export default function BudgetScreen() {
 
         <View style={styles.summaryCard}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>TOTAL</Text>
+            <Text style={styles.summaryLabel}>{t('total')}</Text>
             <Text style={styles.summaryValue}>{totalText.replace(/\s/g, "'")}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>BLEIBT</Text>
+            <Text style={styles.summaryLabel}>{t('remaining')}</Text>
             <Text style={[styles.summaryValue, { color: remainingColor }]}>
               {remaining < 0 ? '-' : ''}{remainingText.replace(/\s/g, "'")}
             </Text>
@@ -401,41 +403,53 @@ export default function BudgetScreen() {
 
       <Modal
         visible={showAddExpenseModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
+        animationType="fade"
+        transparent
         onRequestClose={() => setShowAddExpenseModal(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Neue Ausgabe</Text>
-            <TouchableOpacity onPress={async () => {
-              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setShowAddExpenseModal(false);
-            }}>
-              <Text style={styles.modalCloseText}>Abbrechen</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>Name (z.B. ESSEN)</Text>
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.compactModal}>
+            <Text style={styles.compactModalTitle}>{t('newExpense')}</Text>
+            
+            <Text style={styles.compactInputLabel}>{t('nameExample')}</Text>
             <TextInput
-              style={styles.input}
+              style={styles.compactInput}
               value={newExpenseName}
               onChangeText={setNewExpenseName}
               placeholder="z.B. ESSEN"
               placeholderTextColor="#666666"
             />
-            <Text style={styles.inputLabel}>Betrag</Text>
+            
+            <Text style={styles.compactInputLabel}>{t('amount')}</Text>
             <TextInput
-              style={styles.input}
+              style={styles.compactInput}
               value={newExpenseAmount}
               onChangeText={setNewExpenseAmount}
               placeholder="0"
               placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
-            <TouchableOpacity style={styles.submitButton} onPress={submitAddExpense} activeOpacity={0.8}>
-              <Text style={styles.submitButtonText}>Hinzufügen</Text>
-            </TouchableOpacity>
+            
+            <View style={styles.compactModalButtons}>
+              <TouchableOpacity 
+                style={styles.compactCancelButton} 
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowAddExpenseModal(false);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.compactCancelButtonText}>{t('cancel')}</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.compactSubmitButton} 
+                onPress={submitAddExpense}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.compactSubmitButtonText}>{t('add')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -453,19 +467,19 @@ export default function BudgetScreen() {
           <View style={styles.optionsModal}>
             <Text style={styles.optionsTitle}>{selectedMonth?.name}</Text>
             <TouchableOpacity style={styles.optionButton} onPress={handleMonthRename} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>Namen anpassen</Text>
+              <Text style={styles.optionButtonText}>{t('rename')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} onPress={handleMonthDuplicate} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>Duplizieren</Text>
+              <Text style={styles.optionButtonText}>{t('duplicate')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} onPress={handleMonthTogglePin} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>
-                {selectedMonth?.isPinned ? 'Lösen' : 'Fixieren'}
+                {selectedMonth?.isPinned ? t('unpin') : t('pin')}
               </Text>
             </TouchableOpacity>
             {months.length > 1 && (
               <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleMonthDelete} activeOpacity={0.7}>
-                <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>Löschen</Text>
+                <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>{t('delete')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -480,16 +494,16 @@ export default function BudgetScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Monat umbenennen</Text>
+            <Text style={styles.modalTitle}>{t('rename')}</Text>
             <TouchableOpacity onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setShowRenameMonthModal(false);
             }}>
-              <Text style={styles.modalCloseText}>Abbrechen</Text>
+              <Text style={styles.modalCloseText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>Name</Text>
+            <Text style={styles.inputLabel}>{t('nameExample')}</Text>
             <TextInput
               style={styles.input}
               value={tempMonthName}
@@ -498,7 +512,7 @@ export default function BudgetScreen() {
               placeholderTextColor="#666666"
             />
             <TouchableOpacity style={styles.submitButton} onPress={submitMonthRename} activeOpacity={0.8}>
-              <Text style={styles.submitButtonText}>Speichern</Text>
+              <Text style={styles.submitButtonText}>{t('save')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -517,30 +531,30 @@ export default function BudgetScreen() {
           <View style={styles.optionsModal}>
             <Text style={styles.optionsTitle}>{selectedExpense?.name}</Text>
             <TouchableOpacity style={styles.optionButton} onPress={handleExpenseEdit} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>Namen anpassen</Text>
+              <Text style={styles.optionButtonText}>{t('rename')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} onPress={handleExpenseEdit} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>Zahl anpassen</Text>
+              <Text style={styles.optionButtonText}>{t('adjustNumber')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} onPress={handleExpenseDuplicate} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>Duplizieren</Text>
+              <Text style={styles.optionButtonText}>{t('duplicate')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} onPress={handleExpenseTogglePin} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>
-                {selectedExpense?.isPinned ? 'Lösen' : 'Fixieren'}
+                {selectedExpense?.isPinned ? t('unpin') : t('pin')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>Ansicht ändern</Text>
+              <Text style={styles.optionButtonText}>{t('changeView')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleExpenseDelete} activeOpacity={0.7}>
-              <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>Löschen</Text>
+              <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>{t('delete')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setShowExpenseOptionsModal(false);
             }} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>Abbrechen</Text>
+              <Text style={styles.optionButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </Pressable>
@@ -554,16 +568,16 @@ export default function BudgetScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Ausgabe bearbeiten</Text>
+            <Text style={styles.modalTitle}>{t('editExpense')}</Text>
             <TouchableOpacity onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setShowEditExpenseModal(false);
             }}>
-              <Text style={styles.modalCloseText}>Abbrechen</Text>
+              <Text style={styles.modalCloseText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>Name</Text>
+            <Text style={styles.inputLabel}>{t('nameExample')}</Text>
             <TextInput
               style={styles.input}
               value={editExpenseName}
@@ -571,7 +585,7 @@ export default function BudgetScreen() {
               placeholder="Name"
               placeholderTextColor="#666666"
             />
-            <Text style={styles.inputLabel}>Betrag</Text>
+            <Text style={styles.inputLabel}>{t('amount')}</Text>
             <TextInput
               style={styles.input}
               value={editExpenseAmount}
@@ -581,7 +595,7 @@ export default function BudgetScreen() {
               keyboardType="decimal-pad"
             />
             <TouchableOpacity style={styles.submitButton} onPress={submitExpenseEdit} activeOpacity={0.8}>
-              <Text style={styles.submitButtonText}>Speichern</Text>
+              <Text style={styles.submitButtonText}>{t('save')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -760,6 +774,70 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 120,
+  },
+  centeredModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  compactModal: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 24,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+  },
+  compactModalTitle: {
+    fontSize: 24,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  compactInputLabel: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginBottom: 8,
+    marginTop: 12,
+    fontWeight: '600',
+  },
+  compactInput: {
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: '#FFFFFF',
+  },
+  compactModalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 24,
+  },
+  compactCancelButton: {
+    flex: 1,
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  compactCancelButtonText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  compactSubmitButton: {
+    flex: 1,
+    backgroundColor: '#BFFE84',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  compactSubmitButtonText: {
+    fontSize: 16,
+    color: '#000000',
+    fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,

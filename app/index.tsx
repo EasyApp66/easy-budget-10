@@ -3,11 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useBudget } from '@/contexts/BudgetContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { hasSeenWelcome, setHasSeenWelcome } = useBudget();
+  const { t } = useLanguage();
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
@@ -19,7 +21,7 @@ export default function WelcomeScreen() {
       console.log('User has seen welcome, redirecting to budget...');
       router.replace('/(tabs)/budget');
     }
-  }, [hasSeenWelcome]);
+  }, [hasSeenWelcome, router]);
 
   useEffect(() => {
     if (showLoading) {
@@ -44,7 +46,7 @@ export default function WelcomeScreen() {
 
       return () => clearTimeout(timer);
     }
-  }, [showLoading]);
+  }, [showLoading, fadeAnim, scaleAnim, router, setHasSeenWelcome]);
 
   const handleGoPress = async () => {
     console.log('Go button pressed');
@@ -82,28 +84,29 @@ export default function WelcomeScreen() {
     );
   }
 
-  const ausgabenText = 'Ausgaben';
-  const abosText = 'Abos';
-  const fullText = 'Behalte alle Ausgaben und Abos in einem Blick.';
-  const beforeAusgaben = 'Behalte alle ';
-  const afterAusgaben = ' und ';
-  const afterAbos = ' in einem Blick.';
+  const hiIAmText = t('hiIAm');
+  const easyBudgetText = t('easyBudget');
+  const keepTrackText = t('keepTrack');
+  const expensesText = t('expenses');
+  const andText = t('and');
+  const subscriptionsText = t('subscriptions');
+  const inOneGlanceText = t('inOneGlance');
+  const goText = t('go');
+  const privacyText = t('privacy');
+  const termsText = t('terms');
+  const agbText = t('agb');
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.titleContainer}>
-          <Text style={styles.titleWhite}>Hi ich bin </Text>
-          <Text style={styles.titleGreen}>EASY BUDGET</Text>
+          <Text style={styles.titleWhite}>{hiIAmText} </Text>
+          <Text style={styles.titleGreen}>{easyBudgetText}</Text>
         </View>
 
         <View style={styles.subtitleContainer}>
           <Text style={styles.subtitle}>
-            {beforeAusgaben}
-            <Text style={styles.subtitleGreen}>{ausgabenText}</Text>
-            {afterAusgaben}
-            <Text style={styles.subtitleGreen}>{abosText}</Text>
-            {afterAbos}
+            {keepTrackText} <Text style={styles.subtitleGreen}>{expensesText}</Text> {andText} <Text style={styles.subtitleGreen}>{subscriptionsText}</Text> {inOneGlanceText}
           </Text>
         </View>
       </View>
@@ -114,12 +117,12 @@ export default function WelcomeScreen() {
           onPress={handleGoPress}
           activeOpacity={0.8}
         >
-          <Text style={styles.goButtonText}>Go</Text>
+          <Text style={styles.goButtonText}>{goText}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleLegalPress} activeOpacity={0.7}>
           <Text style={styles.legalText}>
-            Datenschutz · Nutzungsbedingungen · AGB
+            {privacyText} · {termsText} · {agbText}
           </Text>
         </TouchableOpacity>
       </View>
@@ -132,61 +135,39 @@ export default function WelcomeScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Rechtliches</Text>
+            <Text style={styles.modalTitle}>{t('legal')}</Text>
             <TouchableOpacity onPress={closeLegalModal} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Schliessen</Text>
+              <Text style={styles.closeButtonText}>{t('close')}</Text>
             </TouchableOpacity>
           </View>
           
           <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
-            <Text style={styles.sectionTitle}>Datenschutzerklärung</Text>
+            <Text style={styles.sectionTitle}>{t('imprint')}</Text>
             <Text style={styles.sectionText}>
-              Easy Budget 10 respektiert Ihre Privatsphäre. Alle Ihre Finanzdaten werden ausschliesslich lokal auf Ihrem Gerät gespeichert. Wir sammeln, übertragen oder speichern keine persönlichen Daten auf externen Servern.
-            </Text>
-            <Text style={styles.sectionText}>
-              Die App benötigt keine Internetverbindung und sendet keine Daten an Dritte. Ihre Budgets, Ausgaben und Abonnements bleiben vollständig privat und unter Ihrer Kontrolle.
-            </Text>
-
-            <Text style={styles.sectionTitle}>Nutzungsbedingungen</Text>
-            <Text style={styles.sectionText}>
-              Durch die Nutzung von Easy Budget 10 erklären Sie sich mit folgenden Bedingungen einverstanden:
-            </Text>
-            <Text style={styles.sectionText}>
-              1. Die App wird "wie besehen" bereitgestellt ohne jegliche Garantien.{'\n'}
-              2. Sie sind selbst für die Sicherung Ihrer Daten verantwortlich.{'\n'}
-              3. Die App dient ausschliesslich zu Informationszwecken und ersetzt keine professionelle Finanzberatung.{'\n'}
-              4. Wir haften nicht für Verluste oder Schäden, die durch die Nutzung der App entstehen.
+              Easy Budget 10{'\n'}
+              Ivan Mirosnic{'\n'}
+              Ahornstrasse{'\n'}
+              8600 Dübendorf{'\n'}
+              CH - Switzerland
             </Text>
 
-            <Text style={styles.sectionTitle}>Allgemeine Geschäftsbedingungen</Text>
+            <Text style={styles.sectionTitle}>{t('privacyPolicy')}</Text>
             <Text style={styles.sectionText}>
-              Easy Budget 10 ist eine kostenlose Anwendung zur persönlichen Budgetverwaltung. Die Nutzung erfolgt auf eigene Verantwortung.
+              {t('privacyText1')}
             </Text>
             <Text style={styles.sectionText}>
-              Änderungen: Wir behalten uns das Recht vor, diese Bedingungen jederzeit zu ändern. Änderungen werden in der App bekannt gegeben.
-            </Text>
-            <Text style={styles.sectionText}>
-              Anwendbares Recht: Diese Bedingungen unterliegen dem Schweizer Recht. Gerichtsstand ist Zürich, Schweiz.
+              {t('privacyText2')}
             </Text>
 
-            <Text style={styles.sectionTitle}>Datensammlung</Text>
+            <Text style={styles.sectionTitle}>{t('termsOfUse')}</Text>
             <Text style={styles.sectionText}>
-              Easy Budget 10 sammelt keine personenbezogenen Daten. Die App:
+              {t('termsText1')}
             </Text>
             <Text style={styles.sectionText}>
-              • Speichert alle Daten lokal auf Ihrem Gerät{'\n'}
-              • Verwendet keine Analyse- oder Tracking-Tools{'\n'}
-              • Sendet keine Daten an externe Server{'\n'}
-              • Benötigt keine Registrierung oder Anmeldung{'\n'}
-              • Greift nicht auf Ihre Kontakte, Fotos oder andere persönliche Informationen zu
+              {t('termsText2')}
             </Text>
             <Text style={styles.sectionText}>
-              Ihre Finanzdaten bleiben vollständig privat und werden niemals mit Dritten geteilt.
-            </Text>
-
-            <Text style={styles.sectionTitle}>Kontakt</Text>
-            <Text style={styles.sectionText}>
-              Bei Fragen zu diesen Bedingungen kontaktieren Sie uns bitte über den App Store.
+              {t('termsText3')}
             </Text>
           </ScrollView>
         </View>
@@ -213,16 +194,16 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   titleWhite: {
-    fontSize: 48,
+    fontSize: 32,
     color: '#FFFFFF',
     fontWeight: 'bold',
-    lineHeight: 58,
+    lineHeight: 42,
   },
   titleGreen: {
-    fontSize: 48,
+    fontSize: 32,
     color: '#BFFE84',
     fontWeight: 'bold',
-    lineHeight: 58,
+    lineHeight: 42,
   },
   subtitleContainer: {
     marginBottom: 40,
@@ -256,7 +237,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   legalText: {
-    fontSize: 13,
+    fontSize: 9,
     color: '#8E8E93',
     textAlign: 'center',
   },
@@ -270,7 +251,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    fontSize: 56,
+    fontSize: 28,
     color: '#BFFE84',
     fontWeight: 'bold',
     letterSpacing: 2,

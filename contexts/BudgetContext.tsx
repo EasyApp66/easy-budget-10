@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface Expense {
@@ -68,50 +68,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const loadData = async () => {
-    try {
-      console.log('Loading budget data from AsyncStorage...');
-      const jsonValue = await AsyncStorage.getItem(STORAGE_KEY);
-      if (jsonValue != null) {
-        const data = JSON.parse(jsonValue);
-        console.log('Data loaded successfully:', data);
-        setHasSeenWelcome(data.hasSeenWelcome || false);
-        setBudgetName(data.budgetName || 'Budget');
-        setBudgetAmount(data.budgetAmount || 0);
-        setMonths(data.months || []);
-        setActiveMonthId(data.activeMonthId || '');
-        setSubscriptions(data.subscriptions || []);
-      } else {
-        console.log('No saved data found, initializing with default data');
-        initializeDefaultData();
-      }
-      setIsLoaded(true);
-    } catch (e) {
-      console.error('Error loading budget data:', e);
-      initializeDefaultData();
-      setIsLoaded(true);
-    }
-  };
-
-  const saveData = async () => {
-    try {
-      const data = {
-        hasSeenWelcome,
-        budgetName,
-        budgetAmount,
-        months,
-        activeMonthId,
-        subscriptions,
-      };
-      const jsonValue = JSON.stringify(data);
-      await AsyncStorage.setItem(STORAGE_KEY, jsonValue);
-      console.log('Budget data saved successfully');
-    } catch (e) {
-      console.error('Error saving budget data:', e);
-    }
-  };
-
-  const initializeDefaultData = () => {
+  const initializeDefaultData = useCallback(() => {
     const currentDate = new Date();
     const currentMonthName = currentDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
     
@@ -136,17 +93,60 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     setMonths([month1, month2]);
     setActiveMonthId(month1.id);
     setBudgetAmount(0);
-  };
+  }, []);
+
+  const loadData = useCallback(async () => {
+    try {
+      console.log('Loading budget data from AsyncStorage...');
+      const jsonValue = await AsyncStorage.getItem(STORAGE_KEY);
+      if (jsonValue != null) {
+        const data = JSON.parse(jsonValue);
+        console.log('Data loaded successfully:', data);
+        setHasSeenWelcome(data.hasSeenWelcome || false);
+        setBudgetName(data.budgetName || 'Budget');
+        setBudgetAmount(data.budgetAmount || 0);
+        setMonths(data.months || []);
+        setActiveMonthId(data.activeMonthId || '');
+        setSubscriptions(data.subscriptions || []);
+      } else {
+        console.log('No saved data found, initializing with default data');
+        initializeDefaultData();
+      }
+      setIsLoaded(true);
+    } catch (e) {
+      console.error('Error loading budget data:', e);
+      initializeDefaultData();
+      setIsLoaded(true);
+    }
+  }, [initializeDefaultData]);
+
+  const saveData = useCallback(async () => {
+    try {
+      const data = {
+        hasSeenWelcome,
+        budgetName,
+        budgetAmount,
+        months,
+        activeMonthId,
+        subscriptions,
+      };
+      const jsonValue = JSON.stringify(data);
+      await AsyncStorage.setItem(STORAGE_KEY, jsonValue);
+      console.log('Budget data saved successfully');
+    } catch (e) {
+      console.error('Error saving budget data:', e);
+    }
+  }, [hasSeenWelcome, budgetName, budgetAmount, months, activeMonthId, subscriptions]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   useEffect(() => {
     if (isLoaded) {
       saveData();
     }
-  }, [hasSeenWelcome, budgetName, budgetAmount, months, activeMonthId, subscriptions, isLoaded]);
+  }, [saveData, isLoaded]);
 
   const addMonth = (name: string) => {
     const newMonth: Month = {

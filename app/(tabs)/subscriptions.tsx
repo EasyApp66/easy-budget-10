@@ -11,6 +11,7 @@ import {
   Pressable,
 } from 'react-native';
 import { useBudget } from '@/contexts/BudgetContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { IconSymbol } from '@/components/IconSymbol';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -19,6 +20,7 @@ import * as Haptics from 'expo-haptics';
 
 export default function SubscriptionsScreen() {
   const params = useLocalSearchParams();
+  const { t } = useLanguage();
   const { subscriptions, addSubscription, deleteSubscription, togglePinSubscription, updateSubscription, duplicateSubscription } = useBudget();
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -131,14 +133,14 @@ export default function SubscriptionsScreen() {
       >
         <View style={styles.summaryCard}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>ABO KOSTEN</Text>
+            <Text style={styles.summaryLabel}>{t('subscriptionCosts')}</Text>
             <Text style={styles.summaryValue}>{totalCostText}</Text>
           </View>
         </View>
 
         <View style={styles.totalCard}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>TOTAL</Text>
+            <Text style={styles.totalLabel}>{t('total')}</Text>
             <Text style={styles.totalValue}>{subCount}</Text>
           </View>
         </View>
@@ -169,41 +171,53 @@ export default function SubscriptionsScreen() {
 
       <Modal
         visible={showAddModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
+        animationType="fade"
+        transparent
         onRequestClose={() => setShowAddModal(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Neues Abo</Text>
-            <TouchableOpacity onPress={async () => {
-              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setShowAddModal(false);
-            }}>
-              <Text style={styles.modalCloseText}>Abbrechen</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>Name (z.B. NETFLIX)</Text>
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.compactModal}>
+            <Text style={styles.compactModalTitle}>{t('newSubscription')}</Text>
+            
+            <Text style={styles.compactInputLabel}>{t('subscriptionNameExample')}</Text>
             <TextInput
-              style={styles.input}
+              style={styles.compactInput}
               value={newSubName}
               onChangeText={setNewSubName}
               placeholder="z.B. NETFLIX"
               placeholderTextColor="#666666"
             />
-            <Text style={styles.inputLabel}>Betrag</Text>
+            
+            <Text style={styles.compactInputLabel}>{t('amount')}</Text>
             <TextInput
-              style={styles.input}
+              style={styles.compactInput}
               value={newSubAmount}
               onChangeText={setNewSubAmount}
               placeholder="0"
               placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
-            <TouchableOpacity style={styles.submitButton} onPress={submitAddSubscription} activeOpacity={0.8}>
-              <Text style={styles.submitButtonText}>Hinzufügen</Text>
-            </TouchableOpacity>
+            
+            <View style={styles.compactModalButtons}>
+              <TouchableOpacity 
+                style={styles.compactCancelButton} 
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowAddModal(false);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.compactCancelButtonText}>{t('cancel')}</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.compactSubmitButton} 
+                onPress={submitAddSubscription}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.compactSubmitButtonText}>{t('add')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -222,20 +236,20 @@ export default function SubscriptionsScreen() {
             <Text style={styles.optionsTitle}>{selectedSub?.name}</Text>
             <TouchableOpacity style={styles.optionButton} onPress={handleSubTogglePin} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>
-                {selectedSub?.isPinned ? 'Lösen' : 'Fixieren'}
+                {selectedSub?.isPinned ? t('unpin') : t('pin')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} onPress={handleSubDuplicate} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>Duplizieren</Text>
+              <Text style={styles.optionButtonText}>{t('duplicate')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} onPress={handleSubEdit} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>Namen anpassen</Text>
+              <Text style={styles.optionButtonText}>{t('rename')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} onPress={handleSubEdit} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>Zahl anpassen</Text>
+              <Text style={styles.optionButtonText}>{t('adjustNumber')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleSubDelete} activeOpacity={0.7}>
-              <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>Löschen</Text>
+              <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>{t('delete')}</Text>
             </TouchableOpacity>
           </View>
         </Pressable>
@@ -249,16 +263,16 @@ export default function SubscriptionsScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Abo bearbeiten</Text>
+            <Text style={styles.modalTitle}>{t('editSubscription')}</Text>
             <TouchableOpacity onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setShowEditModal(false);
             }}>
-              <Text style={styles.modalCloseText}>Abbrechen</Text>
+              <Text style={styles.modalCloseText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>Name</Text>
+            <Text style={styles.inputLabel}>{t('subscriptionNameExample')}</Text>
             <TextInput
               style={styles.input}
               value={editSubName}
@@ -266,7 +280,7 @@ export default function SubscriptionsScreen() {
               placeholder="Name"
               placeholderTextColor="#666666"
             />
-            <Text style={styles.inputLabel}>Betrag</Text>
+            <Text style={styles.inputLabel}>{t('amount')}</Text>
             <TextInput
               style={styles.input}
               value={editSubAmount}
@@ -276,7 +290,7 @@ export default function SubscriptionsScreen() {
               keyboardType="decimal-pad"
             />
             <TouchableOpacity style={styles.submitButton} onPress={submitSubEdit} activeOpacity={0.8}>
-              <Text style={styles.submitButtonText}>Speichern</Text>
+              <Text style={styles.submitButtonText}>{t('save')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -429,6 +443,70 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 120,
+  },
+  centeredModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  compactModal: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 24,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+  },
+  compactModalTitle: {
+    fontSize: 24,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  compactInputLabel: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginBottom: 8,
+    marginTop: 12,
+    fontWeight: '600',
+  },
+  compactInput: {
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: '#FFFFFF',
+  },
+  compactModalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 24,
+  },
+  compactCancelButton: {
+    flex: 1,
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  compactCancelButtonText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  compactSubmitButton: {
+    flex: 1,
+    backgroundColor: '#BFFE84',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  compactSubmitButtonText: {
+    fontSize: 16,
+    color: '#000000',
+    fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,

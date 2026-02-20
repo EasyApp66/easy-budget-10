@@ -1,47 +1,20 @@
 
-import "react-native-reanimated";
-import React, { useEffect } from "react";
-import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
-import { SystemBars } from "react-native-edge-to-edge";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { StatusBar } from "expo-status-bar";
-import { BudgetProvider } from "@/contexts/BudgetContext";
-
-SplashScreen.preventAutoHideAsync();
-
-export const unstable_settings = {
-  initialRouteName: "index",
-};
+import { Stack } from 'expo-router';
+import { BudgetProvider } from '@/contexts/BudgetContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
-  const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
   return (
-    <>
-      <StatusBar style="light" />
-      <BudgetProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <LanguageProvider>
+        <BudgetProvider>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="(tabs)" />
           </Stack>
-          <SystemBars style="light" />
-        </GestureHandlerRootView>
-      </BudgetProvider>
-    </>
+        </BudgetProvider>
+      </LanguageProvider>
+    </GestureHandlerRootView>
   );
 }
