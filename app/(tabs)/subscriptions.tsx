@@ -15,6 +15,7 @@ import { IconSymbol } from '@/components/IconSymbol';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useLocalSearchParams } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 
 export default function SubscriptionsScreen() {
   const params = useLocalSearchParams();
@@ -39,12 +40,14 @@ export default function SubscriptionsScreen() {
   const totalCost = subscriptions.reduce((sum, sub) => sum + sub.amount, 0);
   const subCount = subscriptions.length;
 
-  const handleAddSubscription = () => {
+  const handleAddSubscription = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     console.log('Add subscription button pressed');
     setShowAddModal(true);
   };
 
-  const submitAddSubscription = () => {
+  const submitAddSubscription = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = parseFloat(newSubAmount);
     if (newSubName.trim() && !isNaN(amount) && amount >= 0) {
       addSubscription(newSubName.trim(), amount);
@@ -55,13 +58,15 @@ export default function SubscriptionsScreen() {
     }
   };
 
-  const handleSubLongPress = (subId: string) => {
+  const handleSubLongPress = async (subId: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelectedSubId(subId);
     setShowOptionsModal(true);
     console.log('Subscription long pressed:', subId);
   };
 
-  const handleSubEdit = () => {
+  const handleSubEdit = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedSubId) {
       const sub = subscriptions.find(s => s.id === selectedSubId);
       if (sub) {
@@ -73,7 +78,8 @@ export default function SubscriptionsScreen() {
     }
   };
 
-  const submitSubEdit = () => {
+  const submitSubEdit = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = parseFloat(editSubAmount);
     if (selectedSubId && editSubName.trim() && !isNaN(amount) && amount >= 0) {
       updateSubscription(selectedSubId, editSubName.trim(), amount);
@@ -83,7 +89,8 @@ export default function SubscriptionsScreen() {
     }
   };
 
-  const handleSubDuplicate = () => {
+  const handleSubDuplicate = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedSubId) {
       duplicateSubscription(selectedSubId);
       setShowOptionsModal(false);
@@ -92,7 +99,8 @@ export default function SubscriptionsScreen() {
     }
   };
 
-  const handleSubTogglePin = () => {
+  const handleSubTogglePin = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedSubId) {
       togglePinSubscription(selectedSubId);
       setShowOptionsModal(false);
@@ -101,7 +109,8 @@ export default function SubscriptionsScreen() {
     }
   };
 
-  const handleSubDelete = () => {
+  const handleSubDelete = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedSubId) {
       deleteSubscription(selectedSubId);
       setShowOptionsModal(false);
@@ -139,11 +148,13 @@ export default function SubscriptionsScreen() {
             <React.Fragment key={sub.id}>
             <SubscriptionCard
               subscription={sub}
-              onDelete={() => {
+              onDelete={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 deleteSubscription(sub.id);
                 console.log('Subscription deleted:', sub.id);
               }}
-              onTogglePin={() => {
+              onTogglePin={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 togglePinSubscription(sub.id);
                 console.log('Subscription pin toggled:', sub.id);
               }}
@@ -165,7 +176,10 @@ export default function SubscriptionsScreen() {
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Neues Abo</Text>
-            <TouchableOpacity onPress={() => setShowAddModal(false)}>
+            <TouchableOpacity onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowAddModal(false);
+            }}>
               <Text style={styles.modalCloseText}>Abbrechen</Text>
             </TouchableOpacity>
           </View>
@@ -187,7 +201,7 @@ export default function SubscriptionsScreen() {
               placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
-            <TouchableOpacity style={styles.submitButton} onPress={submitAddSubscription}>
+            <TouchableOpacity style={styles.submitButton} onPress={submitAddSubscription} activeOpacity={0.8}>
               <Text style={styles.submitButtonText}>Hinzufügen</Text>
             </TouchableOpacity>
           </View>
@@ -200,24 +214,27 @@ export default function SubscriptionsScreen() {
         animationType="fade"
         onRequestClose={() => setShowOptionsModal(false)}
       >
-        <Pressable style={styles.modalOverlay} onPress={() => setShowOptionsModal(false)}>
+        <Pressable style={styles.modalOverlay} onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setShowOptionsModal(false);
+        }}>
           <View style={styles.optionsModal}>
             <Text style={styles.optionsTitle}>{selectedSub?.name}</Text>
-            <TouchableOpacity style={styles.optionButton} onPress={handleSubTogglePin}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleSubTogglePin} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>
                 {selectedSub?.isPinned ? 'Lösen' : 'Fixieren'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleSubDuplicate}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleSubDuplicate} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>Duplizieren</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleSubEdit}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleSubEdit} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>Namen anpassen</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleSubEdit}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleSubEdit} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>Zahl anpassen</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleSubDelete}>
+            <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleSubDelete} activeOpacity={0.7}>
               <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>Löschen</Text>
             </TouchableOpacity>
           </View>
@@ -233,7 +250,10 @@ export default function SubscriptionsScreen() {
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Abo bearbeiten</Text>
-            <TouchableOpacity onPress={() => setShowEditModal(false)}>
+            <TouchableOpacity onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowEditModal(false);
+            }}>
               <Text style={styles.modalCloseText}>Abbrechen</Text>
             </TouchableOpacity>
           </View>
@@ -255,7 +275,7 @@ export default function SubscriptionsScreen() {
               placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
-            <TouchableOpacity style={styles.submitButton} onPress={submitSubEdit}>
+            <TouchableOpacity style={styles.submitButton} onPress={submitSubEdit} activeOpacity={0.8}>
               <Text style={styles.submitButtonText}>Speichern</Text>
             </TouchableOpacity>
           </View>
@@ -329,7 +349,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 60,
+    paddingTop: 10,
     paddingHorizontal: 20,
   },
   summaryCard: {

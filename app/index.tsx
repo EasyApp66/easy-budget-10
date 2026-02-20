@@ -1,13 +1,17 @@
 
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useBudget } from '@/contexts/BudgetContext';
+import * as Haptics from 'expo-haptics';
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { hasSeenWelcome, setHasSeenWelcome } = useBudget();
-  const [showLegalModal, setShowLegalModal] = React.useState(false);
+  const [showLegalModal, setShowLegalModal] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+  const fadeAnim = useState(new Animated.Value(0))[0];
+  const scaleAnim = useState(new Animated.Value(0.8))[0];
 
   useEffect(() => {
     console.log('WelcomeScreen mounted, hasSeenWelcome:', hasSeenWelcome);
@@ -17,44 +21,103 @@ export default function WelcomeScreen() {
     }
   }, [hasSeenWelcome]);
 
-  const handleGoPress = () => {
+  useEffect(() => {
+    if (showLoading) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          tension: 50,
+          friction: 7,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      const timer = setTimeout(() => {
+        setHasSeenWelcome(true);
+        router.replace('/(tabs)/budget');
+      }, 800);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showLoading]);
+
+  const handleGoPress = async () => {
     console.log('Go button pressed');
-    setHasSeenWelcome(true);
-    router.replace('/(tabs)/budget');
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setShowLoading(true);
   };
 
-  const handleLegalPress = () => {
+  const handleLegalPress = async () => {
     console.log('Legal link pressed');
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowLegalModal(true);
   };
 
-  const closeLegalModal = () => {
+  const closeLegalModal = async () => {
     console.log('Legal modal closed');
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowLegalModal(false);
   };
+
+  if (showLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Animated.View
+          style={[
+            styles.loadingContent,
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
+          <Text style={styles.loadingText}>EASY BUDGET</Text>
+        </Animated.View>
+      </View>
+    );
+  }
+
+  const ausgabenText = 'Ausgaben';
+  const abosText = 'Abos';
+  const fullText = 'Behalte alle Ausgaben und Abos in einem Blick.';
+  const beforeAusgaben = 'Behalte alle ';
+  const afterAusgaben = ' und ';
+  const afterAbos = ' in einem Blick.';
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.titleContainer}>
-          <Text style={styles.titleWhite}>Hi! Ich bin </Text>
-          <Text style={styles.titleGreen}>Easy Budget</Text>
-          <Text style={styles.titleWhite}>!</Text>
+          <Text style={styles.titleWhite}>Hi ich bin </Text>
+          <Text style={styles.titleGreen}>EASY BUDGET</Text>
         </View>
 
-        <Text style={styles.subtitle}>
-          Behalte alle Ausgaben und Abos in einem Blick.
-        </Text>
+        <View style={styles.subtitleContainer}>
+          <Text style={styles.subtitle}>
+            {beforeAusgaben}
+            <Text style={styles.subtitleGreen}>{ausgabenText}</Text>
+            {afterAusgaben}
+            <Text style={styles.subtitleGreen}>{abosText}</Text>
+            {afterAbos}
+          </Text>
+        </View>
+      </View>
 
-        <Text style={styles.premiumText}>
-          Du erhältst 2 Wochen Premium geschenkt zum Testen.
-        </Text>
-
-        <TouchableOpacity style={styles.goButton} onPress={handleGoPress}>
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity 
+          style={styles.goButton} 
+          onPress={handleGoPress}
+          activeOpacity={0.8}
+        >
           <Text style={styles.goButtonText}>Go</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleLegalPress}>
+        <TouchableOpacity onPress={handleLegalPress} activeOpacity={0.7}>
           <Text style={styles.legalText}>
             Datenschutz · Nutzungsbedingungen · AGB
           </Text>
@@ -136,57 +199,59 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   content: {
-    alignItems: 'flex-start',
-    paddingHorizontal: 40,
-    width: '100%',
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 30,
+    paddingTop: 80,
   },
   titleContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 30,
+    marginBottom: 50,
   },
   titleWhite: {
-    fontSize: 42,
+    fontSize: 48,
     color: '#FFFFFF',
     fontWeight: 'bold',
-    lineHeight: 50,
+    lineHeight: 58,
   },
   titleGreen: {
-    fontSize: 42,
+    fontSize: 48,
     color: '#BFFE84',
     fontWeight: 'bold',
-    lineHeight: 50,
+    lineHeight: 58,
+  },
+  subtitleContainer: {
+    marginBottom: 40,
   },
   subtitle: {
-    fontSize: 24,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
-    marginBottom: 40,
-    lineHeight: 32,
+    lineHeight: 38,
   },
-  premiumText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '600',
-    marginBottom: 30,
-    lineHeight: 22,
+  subtitleGreen: {
+    color: '#BFFE84',
+  },
+  bottomContainer: {
+    paddingHorizontal: 30,
+    paddingBottom: 50,
+    alignItems: 'center',
   },
   goButton: {
     backgroundColor: '#BFFE84',
-    paddingHorizontal: 80,
-    paddingVertical: 18,
+    paddingHorizontal: 100,
+    paddingVertical: 20,
     borderRadius: 30,
-    marginBottom: 30,
-    alignSelf: 'center',
+    marginBottom: 20,
     width: '100%',
     alignItems: 'center',
   },
   goButtonText: {
-    fontSize: 26,
+    fontSize: 28,
     color: '#000000',
     fontWeight: 'bold',
   },
@@ -194,7 +259,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#8E8E93',
     textAlign: 'center',
-    alignSelf: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#000000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingContent: {
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 56,
+    color: '#BFFE84',
+    fontWeight: 'bold',
+    letterSpacing: 2,
   },
   modalContainer: {
     flex: 1,

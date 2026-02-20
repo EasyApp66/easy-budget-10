@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  Animated,
 } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +14,7 @@ import { IconSymbol } from '@/components/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Href } from 'expo-router';
 import { useBudget } from '@/contexts/BudgetContext';
+import * as Haptics from 'expo-haptics';
 
 export interface TabBarItem {
   name: string;
@@ -29,6 +31,10 @@ interface FloatingTabBarProps {
 export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const [scaleAnims] = React.useState(() => 
+    tabs.map(() => new Animated.Value(1))
+  );
+  const [addButtonScale] = React.useState(new Animated.Value(1));
 
   const activeTabIndex = React.useMemo(() => {
     let bestMatch = -1;
@@ -54,8 +60,44 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
     return bestMatch >= 0 ? bestMatch : 0;
   }, [pathname, tabs]);
 
-  const handleTabPress = (route: Href) => {
+  const handleTabPress = async (route: Href, index: number) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    Animated.sequence([
+      Animated.timing(scaleAnims[index], {
+        toValue: 0.9,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnims[index], {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     router.push(route);
+  };
+
+  const handleAddPress = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    Animated.sequence([
+      Animated.timing(addButtonScale, {
+        toValue: 0.9,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(addButtonScale, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    if (onAddPress) {
+      onAddPress();
+    }
   };
 
   return (
@@ -69,10 +111,15 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
               <React.Fragment key={index}>
               <TouchableOpacity
                 style={styles.tab}
-                onPress={() => handleTabPress(tab.route)}
-                activeOpacity={0.7}
+                onPress={() => handleTabPress(tab.route, index)}
+                activeOpacity={1}
               >
-                <View style={styles.tabContent}>
+                <Animated.View 
+                  style={[
+                    styles.tabContent,
+                    { transform: [{ scale: scaleAnims[index] }] }
+                  ]}
+                >
                   <IconSymbol
                     android_material_icon_name={tab.icon}
                     ios_icon_name={tab.icon}
@@ -82,7 +129,7 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
                   <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
                     {tab.label}
                   </Text>
-                </View>
+                </Animated.View>
               </TouchableOpacity>
               </React.Fragment>
             );
@@ -90,10 +137,15 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
           
           <TouchableOpacity
             style={styles.addButtonTab}
-            onPress={onAddPress}
-            activeOpacity={0.7}
+            onPress={handleAddPress}
+            activeOpacity={1}
           >
-            <View style={styles.addButtonGlow}>
+            <Animated.View 
+              style={[
+                styles.addButtonGlow,
+                { transform: [{ scale: addButtonScale }] }
+              ]}
+            >
               <View style={styles.addButton}>
                 <IconSymbol
                   android_material_icon_name="add"
@@ -102,7 +154,7 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
                   color="#000000"
                 />
               </View>
-            </View>
+            </Animated.View>
           </TouchableOpacity>
         </View>
       </View>

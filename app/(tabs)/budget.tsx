@@ -9,10 +9,12 @@ import {
   TextInput,
   Modal,
   Pressable,
+  Animated,
 } from 'react-native';
 import { useBudget } from '@/contexts/BudgetContext';
 import { IconSymbol } from '@/components/IconSymbol';
 import { useLocalSearchParams } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 
 export default function BudgetScreen() {
   const params = useLocalSearchParams();
@@ -56,6 +58,8 @@ export default function BudgetScreen() {
   const [editExpenseName, setEditExpenseName] = useState('');
   const [editExpenseAmount, setEditExpenseAmount] = useState('');
 
+  const [monthCounter, setMonthCounter] = useState(1);
+
   useEffect(() => {
     if (params.triggerAdd) {
       handleAddExpense();
@@ -66,7 +70,8 @@ export default function BudgetScreen() {
   const totalExpenses = activeMonth?.expenses.reduce((sum, e) => sum + e.amount, 0) || 0;
   const remaining = budgetAmount - totalExpenses;
 
-  const saveBudgetName = () => {
+  const saveBudgetName = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (tempBudgetName.trim()) {
       setBudgetName(tempBudgetName.trim());
       console.log('Budget name saved:', tempBudgetName);
@@ -74,7 +79,8 @@ export default function BudgetScreen() {
     setEditingBudgetName(false);
   };
 
-  const saveBudgetAmount = () => {
+  const saveBudgetAmount = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = parseFloat(tempBudgetAmount);
     if (!isNaN(amount) && amount >= 0) {
       setBudgetAmount(amount);
@@ -83,12 +89,14 @@ export default function BudgetScreen() {
     setEditingBudgetAmount(false);
   };
 
-  const handleAddExpense = () => {
+  const handleAddExpense = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     console.log('Add expense button pressed');
     setShowAddExpenseModal(true);
   };
 
-  const submitAddExpense = () => {
+  const submitAddExpense = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = parseFloat(newExpenseAmount);
     if (newExpenseName.trim() && !isNaN(amount) && amount >= 0 && activeMonthId) {
       addExpense(activeMonthId, newExpenseName.trim(), amount);
@@ -99,20 +107,23 @@ export default function BudgetScreen() {
     }
   };
 
-  const handleAddMonth = () => {
-    const currentDate = new Date();
-    const monthName = currentDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
-    addMonth(monthName);
-    console.log('New month added');
+  const handleAddMonth = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const newMonthName = `Neu ${monthCounter}`;
+    addMonth(newMonthName);
+    setMonthCounter(monthCounter + 1);
+    console.log('New month added:', newMonthName);
   };
 
-  const handleMonthLongPress = (monthId: string) => {
+  const handleMonthLongPress = async (monthId: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelectedMonthId(monthId);
     setShowMonthOptionsModal(true);
     console.log('Month long pressed:', monthId);
   };
 
-  const handleMonthRename = () => {
+  const handleMonthRename = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedMonthId) {
       const month = months.find(m => m.id === selectedMonthId);
       if (month) {
@@ -123,7 +134,8 @@ export default function BudgetScreen() {
     }
   };
 
-  const submitMonthRename = () => {
+  const submitMonthRename = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedMonthId && tempMonthName.trim()) {
       renameMonth(selectedMonthId, tempMonthName.trim());
       setShowRenameMonthModal(false);
@@ -132,7 +144,8 @@ export default function BudgetScreen() {
     }
   };
 
-  const handleMonthDuplicate = () => {
+  const handleMonthDuplicate = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedMonthId) {
       duplicateMonth(selectedMonthId);
       setShowMonthOptionsModal(false);
@@ -141,7 +154,8 @@ export default function BudgetScreen() {
     }
   };
 
-  const handleMonthTogglePin = () => {
+  const handleMonthTogglePin = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedMonthId) {
       togglePinMonth(selectedMonthId);
       setShowMonthOptionsModal(false);
@@ -150,7 +164,8 @@ export default function BudgetScreen() {
     }
   };
 
-  const handleMonthDelete = () => {
+  const handleMonthDelete = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedMonthId) {
       deleteMonth(selectedMonthId);
       setShowMonthOptionsModal(false);
@@ -159,13 +174,15 @@ export default function BudgetScreen() {
     }
   };
 
-  const handleExpenseLongPress = (expenseId: string) => {
+  const handleExpenseLongPress = async (expenseId: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelectedExpenseId(expenseId);
     setShowExpenseOptionsModal(true);
     console.log('Expense long pressed:', expenseId);
   };
 
-  const handleExpenseEdit = () => {
+  const handleExpenseEdit = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedExpenseId && activeMonth) {
       const expense = activeMonth.expenses.find(e => e.id === selectedExpenseId);
       if (expense) {
@@ -177,7 +194,8 @@ export default function BudgetScreen() {
     }
   };
 
-  const submitExpenseEdit = () => {
+  const submitExpenseEdit = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = parseFloat(editExpenseAmount);
     if (selectedExpenseId && activeMonthId && editExpenseName.trim() && !isNaN(amount) && amount >= 0) {
       updateExpense(activeMonthId, selectedExpenseId, editExpenseName.trim(), amount);
@@ -187,7 +205,8 @@ export default function BudgetScreen() {
     }
   };
 
-  const handleExpenseDuplicate = () => {
+  const handleExpenseDuplicate = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedExpenseId && activeMonthId) {
       duplicateExpense(activeMonthId, selectedExpenseId);
       setShowExpenseOptionsModal(false);
@@ -196,12 +215,23 @@ export default function BudgetScreen() {
     }
   };
 
-  const handleExpenseTogglePin = () => {
+  const handleExpenseTogglePin = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedExpenseId && activeMonthId) {
       togglePinExpense(activeMonthId, selectedExpenseId);
       setShowExpenseOptionsModal(false);
       setSelectedExpenseId(null);
       console.log('Expense pin toggled');
+    }
+  };
+
+  const handleExpenseDelete = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (selectedExpenseId && activeMonthId) {
+      deleteExpense(activeMonthId, selectedExpenseId);
+      setShowExpenseOptionsModal(false);
+      setSelectedExpenseId(null);
+      console.log('Expense deleted');
     }
   };
 
@@ -212,6 +242,12 @@ export default function BudgetScreen() {
 
   const selectedMonth = selectedMonthId ? months.find(m => m.id === selectedMonthId) : null;
   const selectedExpense = selectedExpenseId && activeMonth ? activeMonth.expenses.find(e => e.id === selectedExpenseId) : null;
+
+  const sortedExpenses = activeMonth?.expenses ? [...activeMonth.expenses].sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    return 0;
+  }) : [];
 
   return (
     <View style={styles.container}>
@@ -231,7 +267,8 @@ export default function BudgetScreen() {
               selectTextOnFocus
             />
           ) : (
-            <TouchableOpacity onPress={() => {
+            <TouchableOpacity onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setTempBudgetName(budgetName);
               setEditingBudgetName(true);
             }}>
@@ -250,7 +287,8 @@ export default function BudgetScreen() {
               selectTextOnFocus
             />
           ) : (
-            <TouchableOpacity onPress={() => {
+            <TouchableOpacity onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setTempBudgetAmount(budgetAmount.toString());
               setEditingBudgetAmount(true);
             }}>
@@ -273,7 +311,7 @@ export default function BudgetScreen() {
         </View>
 
         <View style={styles.monthsRow}>
-          <TouchableOpacity style={styles.addMonthButton} onPress={handleAddMonth}>
+          <TouchableOpacity style={styles.addMonthButton} onPress={handleAddMonth} activeOpacity={0.7}>
             <IconSymbol android_material_icon_name="add" ios_icon_name="plus" size={24} color="#000000" />
           </TouchableOpacity>
           
@@ -285,10 +323,12 @@ export default function BudgetScreen() {
           >
             {months.map((month, index) => {
               const isActive = month.id === activeMonthId;
+              const monthNameOnly = month.name.split(' ')[0];
               return (
                 <React.Fragment key={month.id}>
                 <Pressable
-                  onPress={() => {
+                  onPress={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     setActiveMonthId(month.id);
                     console.log('Month selected:', month.name);
                   }}
@@ -300,8 +340,20 @@ export default function BudgetScreen() {
                   ]}
                 >
                   <Text style={[styles.monthPillText, isActive && styles.monthPillTextActive]}>
-                    {month.name}
+                    {monthNameOnly.toUpperCase()}
                   </Text>
+                  <TouchableOpacity
+                    style={styles.monthDeleteButton}
+                    onPress={async (e) => {
+                      e.stopPropagation();
+                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      if (months.length > 1) {
+                        deleteMonth(month.id);
+                      }
+                    }}
+                  >
+                    <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
+                  </TouchableOpacity>
                 </Pressable>
                 </React.Fragment>
               );
@@ -310,7 +362,7 @@ export default function BudgetScreen() {
         </View>
 
         <View style={styles.expensesSection}>
-          {activeMonth?.expenses.map((expense, index) => {
+          {sortedExpenses.map((expense, index) => {
             const isLeftColumn = index % 2 === 0;
             return (
               <React.Fragment key={expense.id}>
@@ -322,18 +374,19 @@ export default function BudgetScreen() {
                   isLeftColumn ? styles.expenseCardLeft : styles.expenseCardRight,
                 ]}
               >
-                <View style={styles.expenseContent}>
-                  <Text style={styles.expenseName}>{expense.name}</Text>
+                <View style={styles.expenseHeader}>
+                  <Text style={styles.expenseName}>{expense.name.toUpperCase()}</Text>
                   <TouchableOpacity
                     style={styles.deleteButton}
-                    onPress={() => {
+                    onPress={async () => {
+                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                       if (activeMonthId) {
                         deleteExpense(activeMonthId, expense.id);
                         console.log('Expense deleted:', expense.id);
                       }
                     }}
                   >
-                    <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={18} color="#FF3B30" />
+                    <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
                   </TouchableOpacity>
                 </View>
                 <Text style={styles.expenseAmount}>{expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
@@ -355,7 +408,10 @@ export default function BudgetScreen() {
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Neue Ausgabe</Text>
-            <TouchableOpacity onPress={() => setShowAddExpenseModal(false)}>
+            <TouchableOpacity onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowAddExpenseModal(false);
+            }}>
               <Text style={styles.modalCloseText}>Abbrechen</Text>
             </TouchableOpacity>
           </View>
@@ -377,7 +433,7 @@ export default function BudgetScreen() {
               placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
-            <TouchableOpacity style={styles.submitButton} onPress={submitAddExpense}>
+            <TouchableOpacity style={styles.submitButton} onPress={submitAddExpense} activeOpacity={0.8}>
               <Text style={styles.submitButtonText}>Hinzufügen</Text>
             </TouchableOpacity>
           </View>
@@ -390,22 +446,25 @@ export default function BudgetScreen() {
         animationType="fade"
         onRequestClose={() => setShowMonthOptionsModal(false)}
       >
-        <Pressable style={styles.modalOverlay} onPress={() => setShowMonthOptionsModal(false)}>
+        <Pressable style={styles.modalOverlay} onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setShowMonthOptionsModal(false);
+        }}>
           <View style={styles.optionsModal}>
             <Text style={styles.optionsTitle}>{selectedMonth?.name}</Text>
-            <TouchableOpacity style={styles.optionButton} onPress={handleMonthRename}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleMonthRename} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>Namen anpassen</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleMonthDuplicate}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleMonthDuplicate} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>Duplizieren</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleMonthTogglePin}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleMonthTogglePin} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>
                 {selectedMonth?.isPinned ? 'Lösen' : 'Fixieren'}
               </Text>
             </TouchableOpacity>
             {months.length > 1 && (
-              <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleMonthDelete}>
+              <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleMonthDelete} activeOpacity={0.7}>
                 <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>Löschen</Text>
               </TouchableOpacity>
             )}
@@ -422,7 +481,10 @@ export default function BudgetScreen() {
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Monat umbenennen</Text>
-            <TouchableOpacity onPress={() => setShowRenameMonthModal(false)}>
+            <TouchableOpacity onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowRenameMonthModal(false);
+            }}>
               <Text style={styles.modalCloseText}>Abbrechen</Text>
             </TouchableOpacity>
           </View>
@@ -435,7 +497,7 @@ export default function BudgetScreen() {
               placeholder="Monatsname"
               placeholderTextColor="#666666"
             />
-            <TouchableOpacity style={styles.submitButton} onPress={submitMonthRename}>
+            <TouchableOpacity style={styles.submitButton} onPress={submitMonthRename} activeOpacity={0.8}>
               <Text style={styles.submitButtonText}>Speichern</Text>
             </TouchableOpacity>
           </View>
@@ -448,22 +510,37 @@ export default function BudgetScreen() {
         animationType="fade"
         onRequestClose={() => setShowExpenseOptionsModal(false)}
       >
-        <Pressable style={styles.modalOverlay} onPress={() => setShowExpenseOptionsModal(false)}>
+        <Pressable style={styles.modalOverlay} onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setShowExpenseOptionsModal(false);
+        }}>
           <View style={styles.optionsModal}>
             <Text style={styles.optionsTitle}>{selectedExpense?.name}</Text>
-            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseEdit}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseEdit} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>Namen anpassen</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseEdit}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseEdit} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>Zahl anpassen</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseDuplicate}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseDuplicate} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>Duplizieren</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseTogglePin}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleExpenseTogglePin} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>
                 {selectedExpense?.isPinned ? 'Lösen' : 'Fixieren'}
               </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.optionButton} activeOpacity={0.7}>
+              <Text style={styles.optionButtonText}>Ansicht ändern</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleExpenseDelete} activeOpacity={0.7}>
+              <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>Löschen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.optionButton} onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowExpenseOptionsModal(false);
+            }} activeOpacity={0.7}>
+              <Text style={styles.optionButtonText}>Abbrechen</Text>
             </TouchableOpacity>
           </View>
         </Pressable>
@@ -478,7 +555,10 @@ export default function BudgetScreen() {
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Ausgabe bearbeiten</Text>
-            <TouchableOpacity onPress={() => setShowEditExpenseModal(false)}>
+            <TouchableOpacity onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowEditExpenseModal(false);
+            }}>
               <Text style={styles.modalCloseText}>Abbrechen</Text>
             </TouchableOpacity>
           </View>
@@ -500,7 +580,7 @@ export default function BudgetScreen() {
               placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
-            <TouchableOpacity style={styles.submitButton} onPress={submitExpenseEdit}>
+            <TouchableOpacity style={styles.submitButton} onPress={submitExpenseEdit} activeOpacity={0.8}>
               <Text style={styles.submitButtonText}>Speichern</Text>
             </TouchableOpacity>
           </View>
@@ -519,14 +599,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 60,
+    paddingTop: 10,
     paddingHorizontal: 20,
   },
   budgetHeader: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
     padding: 24,
-    marginBottom: 20,
+    marginBottom: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -559,18 +639,19 @@ const styles = StyleSheet.create({
     borderBottomColor: '#BFFE84',
     paddingHorizontal: 5,
     textAlign: 'right',
+    minWidth: 100,
   },
   summaryCard: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
-    padding: 24,
+    padding: 20,
     marginBottom: 20,
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   summaryLabel: {
     fontSize: 18,
@@ -606,9 +687,12 @@ const styles = StyleSheet.create({
   monthPill: {
     backgroundColor: '#2C2C2E',
     borderRadius: 25,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingVertical: 14,
     marginRight: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   monthPillActive: {
     backgroundColor: '#BFFE84',
@@ -620,10 +704,13 @@ const styles = StyleSheet.create({
   monthPillText: {
     fontSize: 16,
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   monthPillTextActive: {
     color: '#000000',
+  },
+  monthDeleteButton: {
+    padding: 2,
   },
   expensesSection: {
     flexDirection: 'row',
@@ -637,6 +724,8 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 12,
     width: '48%',
+    aspectRatio: 1,
+    justifyContent: 'space-between',
   },
   expenseCardLeft: {
     marginRight: '2%',
@@ -648,17 +737,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#BFFE84',
   },
-  expenseContent: {
+  expenseHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 24,
   },
   expenseName: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#FFFFFF',
-    fontWeight: '600',
-    textTransform: 'uppercase',
+    fontWeight: 'bold',
     letterSpacing: 0.5,
     flex: 1,
   },
@@ -666,7 +753,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   expenseAmount: {
-    fontSize: 28,
+    fontSize: 36,
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'right',
