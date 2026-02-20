@@ -35,6 +35,7 @@ export default function SubscriptionsScreen() {
 
   useEffect(() => {
     if (params.triggerAdd) {
+      console.log('triggerAdd detected for subscriptions, opening modal');
       handleAddSubscription();
     }
   }, [params.triggerAdd]);
@@ -44,7 +45,7 @@ export default function SubscriptionsScreen() {
 
   const handleAddSubscription = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    console.log('Add subscription button pressed');
+    console.log('Opening add subscription modal');
     setShowAddModal(true);
   };
 
@@ -179,21 +180,19 @@ export default function SubscriptionsScreen() {
           <View style={styles.compactModal}>
             <Text style={styles.compactModalTitle}>{t('newSubscription')}</Text>
             
-            <Text style={styles.compactInputLabel}>{t('subscriptionNameExample')}</Text>
             <TextInput
               style={styles.compactInput}
               value={newSubName}
               onChangeText={setNewSubName}
-              placeholder="z.B. NETFLIX"
+              placeholder="Name"
               placeholderTextColor="#666666"
             />
             
-            <Text style={styles.compactInputLabel}>{t('amount')}</Text>
             <TextInput
-              style={styles.compactInput}
+              style={[styles.compactInput, { marginTop: 12 }]}
               value={newSubAmount}
               onChangeText={setNewSubAmount}
-              placeholder="0"
+              placeholder="Betrag"
               placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
@@ -455,22 +454,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
     padding: 24,
-    width: '100%',
-    maxWidth: 400,
+    width: '85%',
+    maxWidth: 350,
   },
   compactModalTitle: {
-    fontSize: 24,
+    fontSize: 22,
     color: '#FFFFFF',
     fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: 'center',
-  },
-  compactInputLabel: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    marginBottom: 8,
-    marginTop: 12,
-    fontWeight: '600',
+    textAlign: 'left',
   },
   compactInput: {
     backgroundColor: '#000000',
@@ -482,7 +474,7 @@ const styles = StyleSheet.create({
   compactModalButtons: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 24,
+    marginTop: 20,
   },
   compactCancelButton: {
     flex: 1,

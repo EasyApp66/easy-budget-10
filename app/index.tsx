@@ -194,16 +194,16 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   titleWhite: {
-    fontSize: 32,
+    fontSize: 40,
     color: '#FFFFFF',
     fontWeight: 'bold',
-    lineHeight: 42,
+    lineHeight: 50,
   },
   titleGreen: {
-    fontSize: 32,
+    fontSize: 40,
     color: '#BFFE84',
     fontWeight: 'bold',
-    lineHeight: 42,
+    lineHeight: 50,
   },
   subtitleContainer: {
     marginBottom: 40,

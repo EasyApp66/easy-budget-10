@@ -1,52 +1,77 @@
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert } from 'react-native';
 import { IconSymbol } from '@/components/IconSymbol';
 import * as Haptics from 'expo-haptics';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useBudget } from '@/contexts/BudgetContext';
+import * as MailComposer from 'expo-mail-composer';
 
 export default function ProfileScreen() {
   const [showLegalModal, setShowLegalModal] = useState(false);
-  const [legalSection, setLegalSection] = useState<'terms' | 'privacy' | 'imprint'>('terms');
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showDonationModal, setShowDonationModal] = useState(false);
+  const [premiumCode, setPremiumCode] = useState('');
+  const [selectedDonationAmount, setSelectedDonationAmount] = useState(5);
+  const [customDonationAmount, setCustomDonationAmount] = useState('');
+  
   const { language, setLanguage, t } = useLanguage();
+  const { premiumStatus, applyPremiumCode } = useBudget();
 
-  const handleLegalPress = async (section: 'terms' | 'privacy' | 'imprint') => {
+  const handleLegalPress = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setLegalSection(section);
     setShowLegalModal(true);
+  };
+
+  const handlePremiumPress = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setShowPremiumModal(true);
+  };
+
+  const handleDonationPress = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setShowDonationModal(true);
   };
 
   const handleSupportPress = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const email = 'ivanmirosnic006@gmail.com';
-    const subject = t('supportSubject');
-    const body = t('supportBody');
-    const url = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    
-    try {
-      const canOpen = await Linking.canOpenURL(url);
-      if (canOpen) {
-        await Linking.openURL(url);
-      }
-    } catch (error) {
-      console.error('Error opening email:', error);
+    const isAvailable = await MailComposer.isAvailableAsync();
+    if (isAvailable) {
+      await MailComposer.composeAsync({
+        recipients: ['ivanmirosnic006@gmail.com'],
+        subject: t('supportSubject'),
+        body: t('supportBody'),
+      });
+    } else {
+      Alert.alert(t('error'), t('emailNotAvailable'));
     }
   };
 
   const handleBugReportPress = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const email = 'ivanmirosnic006@gmail.com';
-    const subject = t('bugReportSubject');
-    const body = t('bugReportBody');
-    const url = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    
-    try {
-      const canOpen = await Linking.canOpenURL(url);
-      if (canOpen) {
-        await Linking.openURL(url);
-      }
-    } catch (error) {
-      console.error('Error opening email:', error);
+    const isAvailable = await MailComposer.isAvailableAsync();
+    if (isAvailable) {
+      await MailComposer.composeAsync({
+        recipients: ['ivanmirosnic006@gmail.com'],
+        subject: t('bugReportSubject'),
+        body: t('bugReportBody'),
+      });
+    } else {
+      Alert.alert(t('error'), t('emailNotAvailable'));
+    }
+  };
+
+  const handleSuggestionPress = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const isAvailable = await MailComposer.isAvailableAsync();
+    if (isAvailable) {
+      await MailComposer.composeAsync({
+        recipients: ['ivanmirosnic006@gmail.com'],
+        subject: t('suggestionSubject'),
+        body: t('suggestionBody'),
+      });
+    } else {
+      Alert.alert(t('error'), t('emailNotAvailable'));
     }
   };
 
@@ -57,7 +82,45 @@ export default function ProfileScreen() {
     console.log('Language changed to:', newLanguage);
   };
 
+  const handleApplyCode = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (premiumCode.trim()) {
+      const success = await applyPremiumCode(premiumCode.trim());
+      if (success) {
+        Alert.alert(t('success'), t('premiumActivated'));
+        setPremiumCode('');
+      } else {
+        Alert.alert(t('error'), t('invalidCode'));
+      }
+    }
+  };
+
+  const handleDonation = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const amount = customDonationAmount ? parseFloat(customDonationAmount) : selectedDonationAmount;
+    console.log('Donation amount:', amount);
+    Alert.alert(t('thankYou'), t('donationThankYou'));
+    setShowDonationModal(false);
+  };
+
+  const getPremiumStatusText = () => {
+    if (premiumStatus.type === 'Lifetime') {
+      return t('premiumForever');
+    } else if (premiumStatus.type === 'Trial' && premiumStatus.endDate) {
+      const daysLeft = Math.ceil((new Date(premiumStatus.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+      return `${t('premiumTrial')}: ${daysLeft} ${t('days')}`;
+    } else if (premiumStatus.type === 'Monthly' && premiumStatus.endDate) {
+      const daysLeft = Math.ceil((new Date(premiumStatus.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+      return `${t('premiumMonthly')}: ${daysLeft} ${t('days')}`;
+    } else if (premiumStatus.type === 'Expired') {
+      return t('premiumExpired');
+    } else {
+      return t('premiumNo');
+    }
+  };
+
   const currentLanguageText = language === 'de' ? 'Deutsch' : 'English';
+  const premiumStatusText = getPremiumStatusText();
 
   return (
     <View style={styles.container}>
@@ -71,10 +134,56 @@ export default function ProfileScreen() {
             <IconSymbol android_material_icon_name="person" ios_icon_name="person.fill" size={60} color="#000000" />
           </View>
           <Text style={styles.username}>mirosnic.ivan</Text>
-          <Text style={styles.premiumBadge}>{t('premiumYes')}</Text>
+          <Text style={styles.premiumBadge}>{premiumStatusText}</Text>
+        </View>
+
+        <View style={styles.premiumCodeSection}>
+          <Text style={styles.premiumCodeLabel}>{t('enterPremiumCode')}</Text>
+          <View style={styles.premiumCodeRow}>
+            <TextInput
+              style={styles.premiumCodeInput}
+              value={premiumCode}
+              onChangeText={setPremiumCode}
+              placeholder={t('premiumCodePlaceholder')}
+              placeholderTextColor="#666666"
+              autoCapitalize="none"
+            />
+            <TouchableOpacity 
+              style={styles.applyCodeButton} 
+              onPress={handleApplyCode}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.applyCodeButtonText}>{t('apply')}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.menuSection}>
+          <TouchableOpacity 
+            style={styles.menuItem} 
+            onPress={handlePremiumPress}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuItemLeft}>
+              <IconSymbol android_material_icon_name="star" ios_icon_name="star.fill" size={24} color="#BFFE84" />
+              <Text style={styles.menuItemText}>{t('getPremium')}</Text>
+            </View>
+            <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
+          </TouchableOpacity>
+
+          {premiumStatus.hasAppleSubscription && (
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuItemLeft}>
+                <IconSymbol android_material_icon_name="cancel" ios_icon_name="xmark.circle" size={24} color="#FF3B30" />
+                <Text style={styles.menuItemText}>{t('cancelPremium')}</Text>
+              </View>
+              <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity 
             style={styles.menuItem} 
             onPress={handleLanguageToggle}
@@ -89,36 +198,12 @@ export default function ProfileScreen() {
 
           <TouchableOpacity 
             style={styles.menuItem} 
-            onPress={() => handleLegalPress('terms')}
+            onPress={handleLegalPress}
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
               <IconSymbol android_material_icon_name="description" ios_icon_name="doc.text" size={24} color="#BFFE84" />
-              <Text style={styles.menuItemText}>{t('termsOfUse')}</Text>
-            </View>
-            <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.menuItem} 
-            onPress={() => handleLegalPress('privacy')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.menuItemLeft}>
-              <IconSymbol android_material_icon_name="lock" ios_icon_name="lock.fill" size={24} color="#BFFE84" />
-              <Text style={styles.menuItemText}>{t('privacyPolicy')}</Text>
-            </View>
-            <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.menuItem} 
-            onPress={() => handleLegalPress('imprint')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.menuItemLeft}>
-              <IconSymbol android_material_icon_name="info" ios_icon_name="info.circle" size={24} color="#BFFE84" />
-              <Text style={styles.menuItemText}>{t('imprint')}</Text>
+              <Text style={styles.menuItemText}>{t('legal')}</Text>
             </View>
             <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
           </TouchableOpacity>
@@ -149,6 +234,7 @@ export default function ProfileScreen() {
 
           <TouchableOpacity 
             style={styles.menuItem} 
+            onPress={handleSuggestionPress}
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
@@ -160,6 +246,7 @@ export default function ProfileScreen() {
 
           <TouchableOpacity 
             style={styles.menuItem} 
+            onPress={handleDonationPress}
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
@@ -196,46 +283,179 @@ export default function ProfileScreen() {
           </View>
           
           <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
-            {legalSection === 'imprint' && (
-              <>
-                <Text style={styles.sectionTitle}>{t('imprint')}</Text>
-                <Text style={styles.sectionText}>
-                  Easy Budget 10{'\n'}
-                  Ivan Mirosnic{'\n'}
-                  Ahornstrasse{'\n'}
-                  8600 Dübendorf{'\n'}
-                  CH - Switzerland
-                </Text>
-              </>
-            )}
+            <Text style={styles.sectionTitle}>{t('imprint')}</Text>
+            <Text style={styles.sectionText}>
+              Easy Budget 10{'\n'}
+              Ivan Mirosnic{'\n'}
+              Ahornstrasse{'\n'}
+              8600 Dübendorf{'\n'}
+              CH - Switzerland
+            </Text>
 
-            {legalSection === 'privacy' && (
-              <>
-                <Text style={styles.sectionTitle}>{t('privacyPolicy')}</Text>
-                <Text style={styles.sectionText}>
-                  {t('privacyText1')}
-                </Text>
-                <Text style={styles.sectionText}>
-                  {t('privacyText2')}
-                </Text>
-              </>
-            )}
+            <Text style={styles.sectionTitle}>{t('privacyPolicy')}</Text>
+            <Text style={styles.sectionText}>
+              {t('privacyText1')}
+            </Text>
+            <Text style={styles.sectionText}>
+              {t('privacyText2')}
+            </Text>
 
-            {legalSection === 'terms' && (
-              <>
-                <Text style={styles.sectionTitle}>{t('termsOfUse')}</Text>
-                <Text style={styles.sectionText}>
-                  {t('termsText1')}
-                </Text>
-                <Text style={styles.sectionText}>
-                  {t('termsText2')}
-                </Text>
-                <Text style={styles.sectionText}>
-                  {t('termsText3')}
-                </Text>
-              </>
-            )}
+            <Text style={styles.sectionTitle}>{t('termsOfUse')}</Text>
+            <Text style={styles.sectionText}>
+              {t('termsText1')}
+            </Text>
+            <Text style={styles.sectionText}>
+              {t('termsText2')}
+            </Text>
+            <Text style={styles.sectionText}>
+              {t('termsText3')}
+            </Text>
           </ScrollView>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showPremiumModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowPremiumModal(false)}
+      >
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.premiumModal}>
+            <TouchableOpacity 
+              style={styles.closeModalButton}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowPremiumModal(false);
+              }}
+            >
+              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={28} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            <View style={styles.premiumIconContainer}>
+              <IconSymbol android_material_icon_name="star" ios_icon_name="star.fill" size={60} color="#BFFE84" />
+            </View>
+
+            <Text style={styles.premiumModalTitle}>{t('getPremium')}</Text>
+            <Text style={styles.premiumModalSubtitle}>{t('unlimitedFeatures')}</Text>
+
+            <View style={styles.premiumFeatures}>
+              <View style={styles.premiumFeature}>
+                <Text style={styles.premiumFeatureText}>• {t('unlimitedSubscriptions')}</Text>
+              </View>
+              <View style={styles.premiumFeature}>
+                <Text style={styles.premiumFeatureText}>• {t('unlimitedExpenses')}</Text>
+              </View>
+              <View style={styles.premiumFeature}>
+                <Text style={styles.premiumFeatureText}>• {t('unlimitedMonths')}</Text>
+              </View>
+            </View>
+
+            <View style={styles.premiumPricing}>
+              <View style={styles.pricingOption}>
+                <Text style={styles.pricingTitle}>{t('oneTimePayment')}</Text>
+                <Text style={styles.pricingAmount}>CHF 10.00</Text>
+                <TouchableOpacity 
+                  style={styles.pricingButton}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.pricingButtonText}>{t('pay')}</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.orText}>{t('or')}</Text>
+
+              <View style={styles.pricingOption}>
+                <Text style={styles.pricingTitle}>{t('monthlySubscription')}</Text>
+                <Text style={styles.pricingAmount}>CHF 1.00/{t('month')}</Text>
+                <TouchableOpacity 
+                  style={styles.pricingButton}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.pricingButtonText}>{t('pay')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showDonationModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowDonationModal(false)}
+      >
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.donationModal}>
+            <TouchableOpacity 
+              style={styles.closeModalButton}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowDonationModal(false);
+              }}
+            >
+              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={28} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            <View style={styles.donationIconContainer}>
+              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={60} color="#FF3B30" />
+            </View>
+
+            <Text style={styles.donationModalTitle}>{t('donation')}</Text>
+            <Text style={styles.donationModalSubtitle}>{t('supportDevelopment')}</Text>
+
+            <View style={styles.donationAmounts}>
+              {[1, 5, 10, 20].map((amount) => (
+                <TouchableOpacity
+                  key={amount}
+                  style={[
+                    styles.donationAmountButton,
+                    selectedDonationAmount === amount && styles.donationAmountButtonSelected,
+                  ]}
+                  onPress={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSelectedDonationAmount(amount);
+                    setCustomDonationAmount('');
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[
+                    styles.donationAmountText,
+                    selectedDonationAmount === amount && styles.donationAmountTextSelected,
+                  ]}>
+                    {amount}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.customAmountContainer}>
+              <Text style={styles.customAmountLabel}>CHF {t('customAmount')}</Text>
+              <TextInput
+                style={styles.customAmountInput}
+                value={customDonationAmount}
+                onChangeText={(text) => {
+                  setCustomDonationAmount(text);
+                  setSelectedDonationAmount(0);
+                }}
+                placeholder="0"
+                placeholderTextColor="#666666"
+                keyboardType="decimal-pad"
+              />
+            </View>
+
+            <TouchableOpacity 
+              style={styles.donateButton}
+              onPress={handleDonation}
+              activeOpacity={0.8}
+            >
+              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={20} color="#FFFFFF" />
+              <Text style={styles.donateButtonText}>
+                {t('donate')} CHF {customDonationAmount || selectedDonationAmount}.00
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     </View>
@@ -256,7 +476,7 @@ const styles = StyleSheet.create({
   },
   profileHeader: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
   },
   avatarContainer: {
     width: 120,
@@ -279,6 +499,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#BFFE84',
     fontWeight: '600',
+  },
+  premiumCodeSection: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+  },
+  premiumCodeLabel: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginBottom: 12,
+    fontWeight: '600',
+  },
+  premiumCodeRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  premiumCodeInput: {
+    flex: 1,
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 16,
+    color: '#FFFFFF',
+  },
+  applyCodeButton: {
+    backgroundColor: '#BFFE84',
+    borderRadius: 12,
+    paddingHorizontal: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  applyCodeButtonText: {
+    fontSize: 16,
+    color: '#000000',
+    fontWeight: 'bold',
   },
   menuSection: {
     marginBottom: 30,
@@ -361,5 +617,196 @@ const styles = StyleSheet.create({
     color: '#CCCCCC',
     lineHeight: 22,
     marginBottom: 12,
+  },
+  centeredModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  premiumModal: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 24,
+    padding: 30,
+    width: '100%',
+    maxWidth: 400,
+    position: 'relative',
+  },
+  closeModalButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  premiumIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(191, 254, 132, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  premiumModalTitle: {
+    fontSize: 28,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  premiumModalSubtitle: {
+    fontSize: 16,
+    color: '#CCCCCC',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  premiumFeatures: {
+    backgroundColor: '#000000',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 30,
+  },
+  premiumFeature: {
+    marginBottom: 12,
+  },
+  premiumFeatureText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    lineHeight: 24,
+  },
+  premiumPricing: {
+    gap: 20,
+  },
+  pricingOption: {
+    backgroundColor: '#000000',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: '#BFFE84',
+  },
+  pricingTitle: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  pricingAmount: {
+    fontSize: 24,
+    color: '#BFFE84',
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  pricingButton: {
+    backgroundColor: '#BFFE84',
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+  },
+  pricingButtonText: {
+    fontSize: 16,
+    color: '#000000',
+    fontWeight: 'bold',
+  },
+  orText: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  donationModal: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 24,
+    padding: 30,
+    width: '100%',
+    maxWidth: 400,
+    position: 'relative',
+  },
+  donationIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 59, 48, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  donationModalTitle: {
+    fontSize: 28,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  donationModalSubtitle: {
+    fontSize: 16,
+    color: '#CCCCCC',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  donationAmounts: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    gap: 12,
+  },
+  donationAmountButton: {
+    flex: 1,
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  donationAmountButtonSelected: {
+    backgroundColor: '#BFFE84',
+  },
+  donationAmountText: {
+    fontSize: 20,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  donationAmountTextSelected: {
+    color: '#000000',
+  },
+  customAmountContainer: {
+    marginBottom: 24,
+  },
+  customAmountLabel: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginBottom: 12,
+    fontWeight: '600',
+  },
+  customAmountInput: {
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 18,
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  donateButton: {
+    backgroundColor: '#FF3B30',
+    borderRadius: 12,
+    padding: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  donateButtonText: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
 });

@@ -23,6 +23,12 @@ export interface Subscription {
   isPinned: boolean;
 }
 
+export interface PremiumStatus {
+  type: 'None' | 'Trial' | 'Monthly' | 'Lifetime' | 'Expired';
+  endDate: string | null;
+  hasAppleSubscription?: boolean;
+}
+
 interface BudgetContextType {
   hasSeenWelcome: boolean;
   setHasSeenWelcome: (value: boolean) => void;
@@ -36,6 +42,9 @@ interface BudgetContextType {
   setActiveMonthId: (id: string) => void;
   subscriptions: Subscription[];
   setSubscriptions: (subs: Subscription[]) => void;
+  premiumStatus: PremiumStatus;
+  setPremiumStatus: (status: PremiumStatus) => void;
+  applyPremiumCode: (code: string) => Promise<boolean>;
   addMonth: (name: string) => void;
   deleteMonth: (id: string) => void;
   duplicateMonth: (id: string) => void;
@@ -66,6 +75,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const [months, setMonths] = useState<Month[]>([]);
   const [activeMonthId, setActiveMonthId] = useState('');
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [premiumStatus, setPremiumStatus] = useState<PremiumStatus>({ type: 'None', endDate: null });
   const [isLoaded, setIsLoaded] = useState(false);
 
   const initializeDefaultData = useCallback(() => {
@@ -93,6 +103,11 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     setMonths([month1, month2]);
     setActiveMonthId(month1.id);
     setBudgetAmount(0);
+
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + 14);
+    setPremiumStatus({ type: 'Trial', endDate: trialEndDate.toISOString() });
+    console.log('14-day trial premium activated');
   }, []);
 
   const loadData = useCallback(async () => {
@@ -108,6 +123,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         setMonths(data.months || []);
         setActiveMonthId(data.activeMonthId || '');
         setSubscriptions(data.subscriptions || []);
+        setPremiumStatus(data.premiumStatus || { type: 'None', endDate: null });
       } else {
         console.log('No saved data found, initializing with default data');
         initializeDefaultData();
@@ -129,6 +145,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         months,
         activeMonthId,
         subscriptions,
+        premiumStatus,
       };
       const jsonValue = JSON.stringify(data);
       await AsyncStorage.setItem(STORAGE_KEY, jsonValue);
@@ -136,7 +153,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error('Error saving budget data:', e);
     }
-  }, [hasSeenWelcome, budgetName, budgetAmount, months, activeMonthId, subscriptions]);
+  }, [hasSeenWelcome, budgetName, budgetAmount, months, activeMonthId, subscriptions, premiumStatus]);
 
   useEffect(() => {
     loadData();
@@ -147,6 +164,37 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       saveData();
     }
   }, [saveData, isLoaded]);
+
+  const applyPremiumCode = useCallback(async (code: string): Promise<boolean> => {
+    console.log('Applying premium code:', code);
+    const now = new Date();
+    let newPremiumStatus: PremiumStatus;
+
+    if (code === 'Easy2033') {
+      newPremiumStatus = { type: 'Lifetime', endDate: null };
+      console.log('Lifetime premium activated');
+    } else if (code === 'easy1') {
+      const oneMonthLater = new Date(now);
+      oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+      newPremiumStatus = { type: 'Monthly', endDate: oneMonthLater.toISOString() };
+      console.log('1-month premium activated');
+    } else {
+      console.log('Invalid premium code');
+      return false;
+    }
+
+    setPremiumStatus(newPremiumStatus);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+      hasSeenWelcome,
+      budgetName,
+      budgetAmount,
+      months,
+      activeMonthId,
+      subscriptions,
+      premiumStatus: newPremiumStatus,
+    }));
+    return true;
+  }, [hasSeenWelcome, budgetName, budgetAmount, months, activeMonthId, subscriptions]);
 
   const addMonth = (name: string) => {
     const newMonth: Month = {
@@ -323,6 +371,9 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         setActiveMonthId,
         subscriptions,
         setSubscriptions,
+        premiumStatus,
+        setPremiumStatus,
+        applyPremiumCode,
         addMonth,
         deleteMonth,
         duplicateMonth,

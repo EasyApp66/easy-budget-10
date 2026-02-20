@@ -1,69 +1,65 @@
 
-import React, { useState } from 'react';
 import { Tabs } from 'expo-router';
-import FloatingTabBar, { TabBarItem } from '@/components/FloatingTabBar';
-import { Href } from 'expo-router';
-import { usePathname } from 'expo-router';
+import React, { useState } from 'react';
+import FloatingTabBar from '@/components/FloatingTabBar';
+import { useRouter, usePathname } from 'expo-router';
 
 export default function TabLayout() {
+  const router = useRouter();
   const pathname = usePathname();
-  const [triggerAdd, setTriggerAdd] = useState(0);
 
-  const tabs: TabBarItem[] = [
+  const handleAddPress = () => {
+    console.log('Add button pressed, current path:', pathname);
+    
+    if (pathname.includes('/budget')) {
+      console.log('Triggering budget add expense');
+      router.push({
+        pathname: '/(tabs)/budget',
+        params: { triggerAdd: Date.now().toString() }
+      });
+    } else if (pathname.includes('/subscriptions')) {
+      console.log('Triggering subscriptions add');
+      router.push({
+        pathname: '/(tabs)/subscriptions',
+        params: { triggerAdd: Date.now().toString() }
+      });
+    }
+  };
+
+  const tabs = [
     {
       name: 'budget',
-      route: '/(tabs)/budget' as Href,
-      icon: 'attach-money',
+      route: '/(tabs)/budget' as any,
+      icon: 'attach-money' as any,
       label: 'Budget',
     },
     {
       name: 'subscriptions',
-      route: '/(tabs)/subscriptions' as Href,
-      icon: 'sync',
+      route: '/(tabs)/subscriptions' as any,
+      icon: 'subscriptions' as any,
       label: 'Abos',
     },
     {
       name: 'profile',
-      route: '/(tabs)/profile' as Href,
-      icon: 'person',
+      route: '/(tabs)/profile' as any,
+      icon: 'person' as any,
       label: 'Profil',
     },
   ];
-
-  const handleAddPress = () => {
-    console.log('Add button pressed, current path:', pathname);
-    setTriggerAdd(prev => prev + 1);
-  };
 
   return (
     <>
       <Tabs
         screenOptions={{
           headerShown: false,
+          tabBarStyle: { display: 'none' },
         }}
-        tabBar={() => <FloatingTabBar tabs={tabs} onAddPress={handleAddPress} />}
       >
-        <Tabs.Screen
-          name="budget"
-          options={{
-            title: 'Budget',
-          }}
-          initialParams={{ triggerAdd }}
-        />
-        <Tabs.Screen
-          name="subscriptions"
-          options={{
-            title: 'Abos',
-          }}
-          initialParams={{ triggerAdd }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: 'Profil',
-          }}
-        />
+        <Tabs.Screen name="budget" options={{ headerShown: false }} />
+        <Tabs.Screen name="subscriptions" options={{ headerShown: false }} />
+        <Tabs.Screen name="profile" options={{ headerShown: false }} />
       </Tabs>
+      <FloatingTabBar tabs={tabs} onAddPress={handleAddPress} />
     </>
   );
 }
