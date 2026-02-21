@@ -251,12 +251,6 @@ export default function SubscriptionsScreen() {
             <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleSubDelete} activeOpacity={0.7}>
               <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>{t('delete')}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={async () => {
-              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setShowOptionsModal(false);
-            }} activeOpacity={0.7}>
-              <Text style={styles.optionButtonText}>{t('cancel')}</Text>
-            </TouchableOpacity>
           </View>
         </Pressable>
       </Modal>
@@ -415,7 +409,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   safeZone: {
-    height: 60,
+    height: 20,
     backgroundColor: '#000000',
   },
   scrollView: {
@@ -423,14 +417,13 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 10,
-    paddingHorizontal: 0,
+    paddingHorizontal: 20,
   },
   summaryCard: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
     padding: 24,
     marginBottom: 20,
-    marginHorizontal: 0,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -438,13 +431,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   summaryLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   summaryValue: {
-    fontSize: 24,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -453,7 +446,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     marginBottom: 30,
-    marginHorizontal: 0,
   },
   totalRow: {
     flexDirection: 'row',
@@ -461,19 +453,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   totalLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   totalValue: {
-    fontSize: 24,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
   subscriptionsSection: {
     marginBottom: 20,
-    paddingHorizontal: 0,
   },
   cardWrapper: {
     marginBottom: 12,
@@ -510,7 +501,7 @@ const styles = StyleSheet.create({
     borderColor: '#BFFE84',
   },
   subscriptionName: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#FFFFFF',
     fontWeight: '600',
     textTransform: 'uppercase',
@@ -518,7 +509,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   subscriptionAmount: {
-    fontSize: 22,
+    fontSize: 26,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -536,12 +527,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
     padding: 24,
-    width: '96%',
-<<<<<<< HEAD
-    maxWidth: 500,
-=======
-    maxWidth: 450,
->>>>>>> origin/main
+    width: '92%',
+    maxWidth: 400,
   },
   compactModalTitle: {
     fontSize: 22,
