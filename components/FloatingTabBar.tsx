@@ -9,7 +9,6 @@ import {
   Animated,
 } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconSymbol } from '@/components/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Href } from 'expo-router';
@@ -101,79 +100,75 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-      <View style={styles.container}>
-        <View style={styles.tabBar}>
-          {tabs.map((tab, index) => {
-            const isActive = activeTabIndex === index;
+    <View style={styles.container}>
+      <View style={styles.tabBar}>
+        {tabs.map((tab, index) => {
+          const isActive = activeTabIndex === index;
 
-            return (
-              <React.Fragment key={index}>
-              <TouchableOpacity
-                style={styles.tab}
-                onPress={() => handleTabPress(tab.route, index)}
-                activeOpacity={1}
-              >
-                <Animated.View 
-                  style={[
-                    styles.tabContent,
-                    { transform: [{ scale: scaleAnims[index] }] }
-                  ]}
-                >
-                  <IconSymbol
-                    android_material_icon_name={tab.icon}
-                    ios_icon_name={tab.icon}
-                    size={26}
-                    color={isActive ? '#BFFE84' : '#666666'}
-                  />
-                  <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
-                    {tab.label}
-                  </Text>
-                </Animated.View>
-              </TouchableOpacity>
-              </React.Fragment>
-            );
-          })}
-          
-          <TouchableOpacity
-            style={styles.addButtonTab}
-            onPress={handleAddPress}
-            activeOpacity={1}
-          >
-            <Animated.View 
-              style={[
-                styles.addButtonGlow,
-                { transform: [{ scale: addButtonScale }] }
-              ]}
+          return (
+            <React.Fragment key={index}>
+            <TouchableOpacity
+              style={styles.tab}
+              onPress={() => handleTabPress(tab.route, index)}
+              activeOpacity={1}
             >
-              <View style={styles.addButton}>
+              <Animated.View 
+                style={[
+                  styles.tabContent,
+                  { transform: [{ scale: scaleAnims[index] }] }
+                ]}
+              >
                 <IconSymbol
-                  android_material_icon_name="add"
-                  ios_icon_name="plus"
-                  size={32}
-                  color="#000000"
+                  android_material_icon_name={tab.icon}
+                  ios_icon_name={tab.icon}
+                  size={22}
+                  color={isActive ? '#BFFE84' : '#666666'}
                 />
-              </View>
-            </Animated.View>
-          </TouchableOpacity>
-        </View>
+                <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
+                  {tab.label}
+                </Text>
+              </Animated.View>
+            </TouchableOpacity>
+            </React.Fragment>
+          );
+        })}
+        
+        <TouchableOpacity
+          style={styles.addButtonTab}
+          onPress={handleAddPress}
+          activeOpacity={1}
+        >
+          <Animated.View 
+            style={[
+              styles.addButtonGlow,
+              { transform: [{ scale: addButtonScale }] }
+            ]}
+          >
+            <View style={styles.addButton}>
+              <IconSymbol
+                android_material_icon_name="add"
+                ios_icon_name="plus"
+                size={32}
+                color="#000000"
+              />
+            </View>
+          </Animated.View>
+        </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     zIndex: 1000,
     backgroundColor: 'transparent',
-  },
-  container: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: 0,
+    paddingBottom: 0,
   },
   tabBar: {
     flexDirection: 'row',
@@ -182,6 +177,8 @@ const styles = StyleSheet.create({
     height: 70,
     alignItems: 'center',
     paddingHorizontal: 10,
+    marginHorizontal: 20,
+    marginBottom: 10,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -206,7 +203,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   tabLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
     color: '#666666',
   },
