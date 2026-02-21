@@ -251,6 +251,12 @@ export default function SubscriptionsScreen() {
             <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleSubDelete} activeOpacity={0.7}>
               <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>{t('delete')}</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.optionButton} onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowOptionsModal(false);
+            }} activeOpacity={0.7}>
+              <Text style={styles.optionButtonText}>{t('cancel')}</Text>
+            </TouchableOpacity>
           </View>
         </Pressable>
       </Modal>
@@ -409,7 +415,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   safeZone: {
-    height: 20,
+    height: 60,
     backgroundColor: '#000000',
   },
   scrollView: {
@@ -417,13 +423,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
   },
   summaryCard: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
     padding: 24,
     marginBottom: 20,
+    marginHorizontal: 0,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -446,6 +453,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     marginBottom: 30,
+    marginHorizontal: 0,
   },
   totalRow: {
     flexDirection: 'row',
@@ -465,6 +473,7 @@ const styles = StyleSheet.create({
   },
   subscriptionsSection: {
     marginBottom: 20,
+    paddingHorizontal: 0,
   },
   cardWrapper: {
     marginBottom: 12,
@@ -527,8 +536,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
     padding: 24,
-    width: '92%',
-    maxWidth: 400,
+    width: '100%',
+    maxWidth: 500,
   },
   compactModalTitle: {
     fontSize: 22,

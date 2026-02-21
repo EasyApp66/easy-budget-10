@@ -482,6 +482,12 @@ export default function BudgetScreen() {
                 <Text style={[styles.optionButtonText, styles.optionButtonTextDanger]}>{t('delete')}</Text>
               </TouchableOpacity>
             )}
+            <TouchableOpacity style={styles.optionButton} onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowMonthOptionsModal(false);
+            }} activeOpacity={0.7}>
+              <Text style={styles.optionButtonText}>{t('cancel')}</Text>
+            </TouchableOpacity>
           </View>
         </Pressable>
       </Modal>
@@ -630,7 +636,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   safeZone: {
-    height: 20,
+    height: 60,
     backgroundColor: '#000000',
   },
   scrollView: {
@@ -638,7 +644,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
   },
   budgetHeader: {
     backgroundColor: '#2C2C2E',
@@ -648,6 +654,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginHorizontal: 0,
   },
   budgetLabel: {
     fontSize: 20,
@@ -684,6 +691,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginBottom: 20,
+    marginHorizontal: 0,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -706,6 +714,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 24,
+    paddingHorizontal: 0,
   },
   addMonthButton: {
     width: 50,
@@ -755,6 +764,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginBottom: 20,
+    paddingHorizontal: 0,
   },
   expenseCard: {
     backgroundColor: '#2C2C2E',
@@ -810,8 +820,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
     padding: 24,
-    width: '92%',
-    maxWidth: 400,
+    width: '100%',
+    maxWidth: 500,
   },
   compactModalTitle: {
     fontSize: 22,

@@ -192,7 +192,7 @@ export default function ProfileScreen() {
           >
             <View style={styles.menuItemLeft}>
               <IconSymbol android_material_icon_name="language" ios_icon_name="globe" size={24} color="#BFFE84" />
-              <Text style={styles.menuItemText}>{t('changeLanguage')}: {currentLanguageText}</Text>
+              <Text style={styles.menuItemText}>{t('language')}: {currentLanguageText}</Text>
             </View>
             <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
           </TouchableOpacity>
@@ -330,26 +330,20 @@ export default function ProfileScreen() {
                 setShowPremiumModal(false);
               }}
             >
-              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={28} color="#FFFFFF" />
+              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={24} color="#FFFFFF" />
             </TouchableOpacity>
 
             <View style={styles.premiumIconContainer}>
-              <IconSymbol android_material_icon_name="star" ios_icon_name="star.fill" size={60} color="#BFFE84" />
+              <IconSymbol android_material_icon_name="star" ios_icon_name="star.fill" size={40} color="#BFFE84" />
             </View>
 
             <Text style={styles.premiumModalTitle}>{t('getPremium')}</Text>
             <Text style={styles.premiumModalSubtitle}>{t('unlimitedFeatures')}</Text>
 
             <View style={styles.premiumFeatures}>
-              <View style={styles.premiumFeature}>
-                <Text style={styles.premiumFeatureText}>• {t('unlimitedSubscriptions')}</Text>
-              </View>
-              <View style={styles.premiumFeature}>
-                <Text style={styles.premiumFeatureText}>• {t('unlimitedExpenses')}</Text>
-              </View>
-              <View style={styles.premiumFeature}>
-                <Text style={styles.premiumFeatureText}>• {t('unlimitedMonths')}</Text>
-              </View>
+              <Text style={styles.premiumFeatureText}>• {t('unlimitedSubscriptions')}</Text>
+              <Text style={styles.premiumFeatureText}>• {t('unlimitedExpenses')}</Text>
+              <Text style={styles.premiumFeatureText}>• {t('unlimitedMonths')}</Text>
             </View>
 
             <View style={styles.premiumPricing}>
@@ -396,11 +390,11 @@ export default function ProfileScreen() {
                 setShowDonationModal(false);
               }}
             >
-              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={28} color="#FFFFFF" />
+              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={24} color="#FFFFFF" />
             </TouchableOpacity>
 
             <View style={styles.donationIconContainer}>
-              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={60} color="#FF3B30" />
+              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={40} color="#FF3B30" />
             </View>
 
             <Text style={styles.donationModalTitle}>{t('donation')}</Text>
@@ -451,7 +445,7 @@ export default function ProfileScreen() {
               onPress={handleDonation}
               activeOpacity={0.8}
             >
-              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={20} color="#FFFFFF" />
+              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={18} color="#FFFFFF" />
               <Text style={styles.donateButtonText}>
                 {t('donate')} CHF {customDonationAmount || selectedDonationAmount}.00
               </Text>
@@ -469,7 +463,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   safeZone: {
-    height: 20,
+    height: 60,
     backgroundColor: '#000000',
   },
   scrollView: {
@@ -633,95 +627,93 @@ const styles = StyleSheet.create({
   premiumModal: {
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
-    padding: 30,
+    padding: 24,
     width: '100%',
-    maxWidth: 400,
+    maxWidth: 380,
     position: 'relative',
   },
   closeModalButton: {
     position: 'absolute',
-    top: 20,
-    right: 20,
+    top: 16,
+    right: 16,
     zIndex: 10,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   premiumIconContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: 'rgba(191, 254, 132, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   premiumModalTitle: {
-    fontSize: 28,
+    fontSize: 22,
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   premiumModalSubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#CCCCCC',
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   premiumFeatures: {
     backgroundColor: '#000000',
     borderRadius: 16,
-    padding: 20,
-    marginBottom: 30,
-  },
-  premiumFeature: {
-    marginBottom: 12,
+    padding: 16,
+    marginBottom: 20,
   },
   premiumFeatureText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
-    lineHeight: 24,
+    lineHeight: 22,
+    marginBottom: 6,
   },
   premiumPricing: {
-    gap: 20,
+    gap: 14,
   },
   pricingOption: {
     backgroundColor: '#000000',
     borderRadius: 16,
-    padding: 20,
+    padding: 16,
     borderWidth: 2,
     borderColor: '#BFFE84',
   },
   pricingTitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   pricingAmount: {
-    fontSize: 24,
+    fontSize: 20,
     color: '#BFFE84',
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   pricingButton: {
     backgroundColor: '#BFFE84',
     borderRadius: 12,
-    padding: 14,
+    padding: 12,
     alignItems: 'center',
   },
   pricingButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#000000',
     fontWeight: 'bold',
   },
   orText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666666',
     textAlign: 'center',
     fontWeight: '600',
@@ -729,45 +721,45 @@ const styles = StyleSheet.create({
   donationModal: {
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
-    padding: 30,
+    padding: 24,
     width: '100%',
-    maxWidth: 400,
+    maxWidth: 380,
     position: 'relative',
   },
   donationIconContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: 'rgba(255, 59, 48, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   donationModalTitle: {
-    fontSize: 28,
+    fontSize: 22,
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   donationModalSubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#CCCCCC',
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   donationAmounts: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
-    gap: 12,
+    marginBottom: 20,
+    gap: 10,
   },
   donationAmountButton: {
     flex: 1,
     backgroundColor: '#000000',
     borderRadius: 12,
-    padding: 20,
+    padding: 16,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
@@ -776,7 +768,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#BFFE84',
   },
   donationAmountText: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -784,33 +776,33 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   customAmountContainer: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   customAmountLabel: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#FFFFFF',
-    marginBottom: 12,
+    marginBottom: 10,
     fontWeight: '600',
   },
   customAmountInput: {
     backgroundColor: '#000000',
     borderRadius: 12,
-    padding: 16,
-    fontSize: 18,
+    padding: 14,
+    fontSize: 16,
     color: '#FFFFFF',
     textAlign: 'center',
   },
   donateButton: {
     backgroundColor: '#FF3B30',
     borderRadius: 12,
-    padding: 18,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
+    gap: 8,
   },
   donateButtonText: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },

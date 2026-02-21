@@ -170,10 +170,10 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     const now = new Date();
     let newPremiumStatus: PremiumStatus;
 
-    if (code === 'Easy2033') {
+    if (code === 'easy2033' || code === 'Easy2033') {
       newPremiumStatus = { type: 'Lifetime', endDate: null };
       console.log('Lifetime premium activated');
-    } else if (code === 'easy1') {
+    } else if (code === 'easy2' || code === 'Easy2') {
       const oneMonthLater = new Date(now);
       oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
       newPremiumStatus = { type: 'Monthly', endDate: oneMonthLater.toISOString() };
