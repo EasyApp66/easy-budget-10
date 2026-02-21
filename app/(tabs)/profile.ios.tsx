@@ -699,12 +699,21 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
+<<<<<<< HEAD
+=======
+  },
+  premiumFeature: {
+    marginBottom: 8,
+>>>>>>> origin/main
   },
   premiumFeatureText: {
     fontSize: 14,
     color: '#FFFFFF',
     lineHeight: 20,
+<<<<<<< HEAD
     marginBottom: 6,
+=======
+>>>>>>> origin/main
   },
   premiumPricing: {
     gap: 16,
