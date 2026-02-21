@@ -536,13 +536,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
     padding: 24,
-<<<<<<< HEAD
-    width: '100%',
-    maxWidth: 500,
-=======
     width: '96%',
-    maxWidth: 450,
->>>>>>> origin/main
+    maxWidth: 500,
   },
   compactModalTitle: {
     fontSize: 22,

@@ -357,11 +357,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <View style={styles.premiumIconContainer}>
-<<<<<<< HEAD
-              <IconSymbol android_material_icon_name="star" ios_icon_name="star.fill" size={40} color="#BFFE84" />
-=======
               <IconSymbol android_material_icon_name="star" ios_icon_name="star.fill" size={50} color="#BFFE84" />
->>>>>>> origin/main
             </View>
 
             <Text style={styles.premiumModalTitle}>{t('getPremium')}</Text>
@@ -421,11 +417,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <View style={styles.donationIconContainer}>
-<<<<<<< HEAD
-              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={40} color="#FF3B30" />
-=======
               <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={50} color="#FF3B30" />
->>>>>>> origin/main
             </View>
 
             <Text style={styles.donationModalTitle}>{t('donation')}</Text>
@@ -663,12 +655,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     width: '100%',
-<<<<<<< HEAD
-    maxWidth: 380,
-=======
     maxWidth: 400,
     maxHeight: '80%',
->>>>>>> origin/main
     position: 'relative',
   },
   closeModalButton: {
@@ -684,15 +672,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   premiumIconContainer: {
-<<<<<<< HEAD
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-=======
     width: 80,
     height: 80,
     borderRadius: 40,
->>>>>>> origin/main
     backgroundColor: 'rgba(191, 254, 132, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -700,11 +682,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   premiumModalTitle: {
-<<<<<<< HEAD
-    fontSize: 22,
-=======
     fontSize: 24,
->>>>>>> origin/main
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -721,28 +699,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
-<<<<<<< HEAD
-=======
-  },
-  premiumFeature: {
-    marginBottom: 8,
->>>>>>> origin/main
   },
   premiumFeatureText: {
     fontSize: 14,
     color: '#FFFFFF',
-<<<<<<< HEAD
-    lineHeight: 22,
+    lineHeight: 20,
     marginBottom: 6,
   },
   premiumPricing: {
-    gap: 14,
-=======
-    lineHeight: 20,
-  },
-  premiumPricing: {
     gap: 16,
->>>>>>> origin/main
   },
   pricingOption: {
     backgroundColor: '#000000',
@@ -785,15 +750,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     width: '100%',
-<<<<<<< HEAD
-    maxWidth: 380,
-    position: 'relative',
-  },
-  donationIconContainer: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-=======
     maxWidth: 400,
     maxHeight: '75%',
     position: 'relative',
@@ -802,7 +758,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
->>>>>>> origin/main
     backgroundColor: 'rgba(255, 59, 48, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -810,11 +765,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   donationModalTitle: {
-<<<<<<< HEAD
-    fontSize: 22,
-=======
     fontSize: 24,
->>>>>>> origin/main
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -830,11 +781,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
-<<<<<<< HEAD
-    gap: 10,
-=======
     gap: 8,
->>>>>>> origin/main
   },
   donationAmountButton: {
     flex: 1,
@@ -849,11 +796,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#BFFE84',
   },
   donationAmountText: {
-<<<<<<< HEAD
-    fontSize: 18,
-=======
     fontSize: 16,
->>>>>>> origin/main
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
