@@ -1,14 +1,15 @@
+
 {
   "expo": {
     "name": "Easy Budget",
-    "slug": "Easy Budget",
+    "slug": "easy-budget-10",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/app-icon-rch.png",
+    "icon": "./assets/images/bda1eed0-70c5-43ec-bfa9-e1708247ffc8.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/app-icon-rch.png",
+      "image": "./assets/images/bda1eed0-70c5-43ec-bfa9-e1708247ffc8.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -16,19 +17,24 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.ivanmirosnic.easybudget10",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["easybudget10"]
+          }
+        ]
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/app-icon-rch.png",
+        "foregroundImage": "./assets/images/bda1eed0-70c5-43ec-bfa9-e1708247ffc8.png",
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.ivanmirosnic.easybudget10"
     },
     "web": {
-      "favicon": "./assets/images/final_quest_240x240.png",
+      "favicon": "./assets/images/bda1eed0-70c5-43ec-bfa9-e1708247ffc8.png",
       "bundler": "metro"
     },
     "plugins": [
@@ -36,7 +42,7 @@
       "expo-router",
       "expo-web-browser"
     ],
-    "scheme": "Easy Budget",
+    "scheme": "easybudget10",
     "experiments": {
       "typedRoutes": true
     },
