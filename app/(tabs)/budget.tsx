@@ -61,6 +61,41 @@ export default function BudgetScreen() {
   const [editExpenseAmount, setEditExpenseAmount] = useState('');
 
   const [monthCounter, setMonthCounter] = useState(1);
+  const [expenseViewMode, setExpenseViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Fade-in animations
+  const [fadeAnims] = useState(() => ({
+    header: new Animated.Value(0),
+    summary: new Animated.Value(0),
+    months: new Animated.Value(0),
+    expenses: new Animated.Value(0),
+  }));
+
+  useEffect(() => {
+    // Staggered fade-in animation
+    Animated.stagger(80, [
+      Animated.timing(fadeAnims.header, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnims.summary, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnims.months, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnims.expenses, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [activeMonthId]);
 
   useEffect(() => {
     if (params.triggerAdd) {
@@ -238,6 +273,13 @@ export default function BudgetScreen() {
     }
   };
 
+  const handleChangeView = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setExpenseViewMode(expenseViewMode === 'grid' ? 'list' : 'grid');
+    setShowExpenseOptionsModal(false);
+    console.log('View mode changed to:', expenseViewMode === 'grid' ? 'list' : 'grid');
+  };
+
   const remainingColor = remaining >= 0 ? '#BFFE84' : '#FF3B30';
   const totalText = totalExpenses.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   const remainingText = Math.abs(remaining).toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -252,6 +294,8 @@ export default function BudgetScreen() {
     return 0;
   }) : [];
 
+  const ausgabenText = 'AUSGABEN';
+
   return (
     <View style={styles.container}>
       <View style={styles.safeZone} />
@@ -260,7 +304,7 @@ export default function BudgetScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.budgetHeader}>
+        <Animated.View style={[styles.budgetHeader, { opacity: fadeAnims.header }]}>
           {editingBudgetName ? (
             <TextInput
               style={styles.budgetNameInput}
@@ -299,9 +343,9 @@ export default function BudgetScreen() {
               <Text style={styles.budgetAmount}>{budgetText.replace(/\s/g, "'")}</Text>
             </TouchableOpacity>
           )}
-        </View>
+        </Animated.View>
 
-        <View style={styles.summaryCard}>
+        <Animated.View style={[styles.summaryCard, { opacity: fadeAnims.summary }]}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('total')}</Text>
             <Text style={styles.summaryValue}>{totalText.replace(/\s/g, "'")}</Text>
@@ -312,9 +356,9 @@ export default function BudgetScreen() {
               {remaining < 0 ? '-' : ''}{remainingText.replace(/\s/g, "'")}
             </Text>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.monthsRow}>
+        <Animated.View style={[styles.monthsRow, { opacity: fadeAnims.months }]}>
           <TouchableOpacity style={styles.addMonthButton} onPress={handleAddMonth} activeOpacity={0.7}>
             <IconSymbol android_material_icon_name="add" ios_icon_name="plus" size={24} color="#000000" />
           </TouchableOpacity>
@@ -363,42 +407,65 @@ export default function BudgetScreen() {
               );
             })}
           </ScrollView>
-        </View>
+        </Animated.View>
 
-        <View style={styles.expensesSection}>
-          {sortedExpenses.map((expense, index) => {
-            const isLeftColumn = index % 2 === 0;
-            return (
-              <React.Fragment key={expense.id}>
-              <Pressable
-                onLongPress={() => handleExpenseLongPress(expense.id)}
-                style={[
-                  styles.expenseCard,
-                  expense.isPinned && styles.expenseCardPinned,
-                  isLeftColumn ? styles.expenseCardLeft : styles.expenseCardRight,
-                ]}
-              >
-                <View style={styles.expenseHeader}>
-                  <Text style={styles.expenseName}>{expense.name.toUpperCase()}</Text>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={async () => {
-                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      if (activeMonthId) {
-                        deleteExpense(activeMonthId, expense.id);
-                        console.log('Expense deleted:', expense.id);
-                      }
-                    }}
+        <Animated.View style={{ opacity: fadeAnims.expenses }}>
+          <Text style={styles.ausgabenTitle}>{ausgabenText}</Text>
+
+          {expenseViewMode === 'grid' ? (
+            <View style={styles.expensesSection}>
+              {sortedExpenses.map((expense, index) => {
+                const isLeftColumn = index % 2 === 0;
+                return (
+                  <React.Fragment key={expense.id}>
+                  <Pressable
+                    onLongPress={() => handleExpenseLongPress(expense.id)}
+                    style={[
+                      styles.expenseCard,
+                      expense.isPinned && styles.expenseCardPinned,
+                      isLeftColumn ? styles.expenseCardLeft : styles.expenseCardRight,
+                    ]}
                   >
-                    <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.expenseAmount}>{expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
-              </Pressable>
-              </React.Fragment>
-            );
-          })}
-        </View>
+                    <View style={styles.expenseHeader}>
+                      <Text style={styles.expenseName}>{expense.name.toUpperCase()}</Text>
+                      <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={async () => {
+                          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          if (activeMonthId) {
+                            deleteExpense(activeMonthId, expense.id);
+                            console.log('Expense deleted:', expense.id);
+                          }
+                        }}
+                      >
+                        <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.expenseAmount}>{expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
+                  </Pressable>
+                  </React.Fragment>
+                );
+              })}
+            </View>
+          ) : (
+            <View style={styles.expensesListSection}>
+              {sortedExpenses.map((expense) => {
+                const expenseAmountText = expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                return (
+                  <React.Fragment key={expense.id}>
+                  <Pressable
+                    onLongPress={() => handleExpenseLongPress(expense.id)}
+                    style={[styles.expenseListCard, expense.isPinned && styles.expenseListCardPinned]}
+                  >
+                    <Text style={styles.expenseListName}>{expense.name}</Text>
+                    <Text style={styles.expenseListAmount}>{expenseAmountText}</Text>
+                  </Pressable>
+                  </React.Fragment>
+                );
+              })}
+            </View>
+          )}
+        </Animated.View>
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
@@ -560,7 +627,7 @@ export default function BudgetScreen() {
                 {selectedExpense?.isPinned ? t('unpin') : t('pin')}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} activeOpacity={0.7}>
+            <TouchableOpacity style={styles.optionButton} onPress={handleChangeView} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>{t('changeView')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.optionButton, styles.optionButtonDanger]} onPress={handleExpenseDelete} activeOpacity={0.7}>
@@ -636,21 +703,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   safeZone: {
-    height: 80,
+    height: 70,
     backgroundColor: '#000000',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 10,
+    paddingTop: 5,
     paddingHorizontal: 0,
   },
   budgetHeader: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
     padding: 24,
-    marginBottom: 16,
+    marginBottom: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -700,13 +767,13 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   summaryLabel: {
-    fontSize: 14,
+    fontSize: 20,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   summaryValue: {
-    fontSize: 20,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -759,6 +826,14 @@ const styles = StyleSheet.create({
   monthDeleteButton: {
     padding: 2,
   },
+  ausgabenTitle: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 16,
+    paddingHorizontal: 0,
+  },
   expensesSection: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -805,6 +880,36 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'right',
+  },
+  expensesListSection: {
+    marginBottom: 20,
+    paddingHorizontal: 0,
+  },
+  expenseListCard: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  expenseListCardPinned: {
+    borderWidth: 2,
+    borderColor: '#BFFE84',
+  },
+  expenseListName: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    flex: 1,
+  },
+  expenseListAmount: {
+    fontSize: 24,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
   bottomSpacer: {
     height: 120,

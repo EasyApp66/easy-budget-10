@@ -104,7 +104,15 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
       <View style={styles.tabBar}>
         {tabs.map((tab, index) => {
           const isActive = activeTabIndex === index;
-          const iconName = tab.name === 'budget' ? 'attach-money' : tab.name === 'subscriptions' ? 'sync' : 'person';
+          let iconName = 'home';
+          
+          if (tab.name === 'budget') {
+            iconName = 'attach-money';
+          } else if (tab.name === 'subscriptions') {
+            iconName = 'radio-button-checked';
+          } else if (tab.name === 'profile') {
+            iconName = 'person';
+          }
 
           return (
             <React.Fragment key={index}>

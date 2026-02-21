@@ -9,11 +9,12 @@ import {
   TextInput,
   Modal,
   Pressable,
+  Animated,
 } from 'react-native';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { IconSymbol } from '@/components/IconSymbol';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
+import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -32,6 +33,34 @@ export default function SubscriptionsScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editSubName, setEditSubName] = useState('');
   const [editSubAmount, setEditSubAmount] = useState('');
+
+  // Fade-in animations
+  const [fadeAnims] = useState(() => ({
+    summary: new Animated.Value(0),
+    total: new Animated.Value(0),
+    subscriptions: new Animated.Value(0),
+  }));
+
+  useEffect(() => {
+    // Staggered fade-in animation
+    Animated.stagger(80, [
+      Animated.timing(fadeAnims.summary, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnims.total, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnims.subscriptions, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   useEffect(() => {
     if (params.triggerAdd) {
@@ -133,21 +162,21 @@ export default function SubscriptionsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.summaryCard}>
+        <Animated.View style={[styles.summaryCard, { opacity: fadeAnims.summary }]}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('subscriptionCosts')}</Text>
             <Text style={styles.summaryValue}>{totalCostText}</Text>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.totalCard}>
+        <Animated.View style={[styles.totalCard, { opacity: fadeAnims.total }]}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>{t('total')}</Text>
             <Text style={styles.totalValue}>{subCount}</Text>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.subscriptionsSection}>
+        <Animated.View style={[styles.subscriptionsSection, { opacity: fadeAnims.subscriptions }]}>
           {subscriptions.map((sub, index) => (
             <React.Fragment key={sub.id}>
             <SubscriptionCard
@@ -166,7 +195,7 @@ export default function SubscriptionsScreen() {
             />
             </React.Fragment>
           ))}
-        </View>
+        </Animated.View>
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
@@ -386,23 +415,23 @@ function SubscriptionCard({
 
   return (
     <View style={styles.cardWrapper}>
-      <Animated.View style={[styles.deleteIconContainer, deleteIconStyle]}>
+      <AnimatedReanimated.View style={[styles.deleteIconContainer, deleteIconStyle]}>
         <IconSymbol android_material_icon_name="delete" ios_icon_name="trash" size={24} color="#FF3B30" />
-      </Animated.View>
-      <Animated.View style={[styles.pinIconContainer, pinIconStyle]}>
+      </AnimatedReanimated.View>
+      <AnimatedReanimated.View style={[styles.pinIconContainer, pinIconStyle]}>
         <IconSymbol 
           android_material_icon_name={subscription.isPinned ? "push-pin" : "push-pin"} 
           ios_icon_name="pin.fill" 
           size={24} 
           color="#BFFE84" 
         />
-      </Animated.View>
+      </AnimatedReanimated.View>
       <GestureDetector gesture={panGesture}>
         <Pressable onLongPress={onLongPress}>
-          <Animated.View style={[styles.subscriptionCard, subscription.isPinned && styles.subscriptionCardPinned, animatedStyle]}>
+          <AnimatedReanimated.View style={[styles.subscriptionCard, subscription.isPinned && styles.subscriptionCardPinned, animatedStyle]}>
             <Text style={styles.subscriptionName}>{subscription.name}</Text>
             <Text style={styles.subscriptionAmount}>{amountText}</Text>
-          </Animated.View>
+          </AnimatedReanimated.View>
         </Pressable>
       </GestureDetector>
     </View>
@@ -415,14 +444,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   safeZone: {
-    height: 80,
+    height: 70,
     backgroundColor: '#000000',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 10,
+    paddingTop: 5,
     paddingHorizontal: 0,
   },
   summaryCard: {
@@ -438,13 +467,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   summaryLabel: {
-    fontSize: 14,
+    fontSize: 20,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   summaryValue: {
-    fontSize: 24,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -461,13 +490,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   totalLabel: {
-    fontSize: 14,
+    fontSize: 20,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   totalValue: {
-    fontSize: 24,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -510,7 +539,7 @@ const styles = StyleSheet.create({
     borderColor: '#BFFE84',
   },
   subscriptionName: {
-    fontSize: 14,
+    fontSize: 20,
     color: '#FFFFFF',
     fontWeight: '600',
     textTransform: 'uppercase',
@@ -518,7 +547,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   subscriptionAmount: {
-    fontSize: 22,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
