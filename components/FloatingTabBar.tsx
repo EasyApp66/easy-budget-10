@@ -104,6 +104,7 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
       <View style={styles.tabBar}>
         {tabs.map((tab, index) => {
           const isActive = activeTabIndex === index;
+          const iconName = tab.name === 'budget' ? 'attach-money' : tab.name === 'subscriptions' ? 'sync' : 'person';
 
           return (
             <React.Fragment key={index}>
@@ -119,8 +120,8 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
                 ]}
               >
                 <IconSymbol
-                  android_material_icon_name={tab.icon}
-                  ios_icon_name={tab.icon}
+                  android_material_icon_name={iconName}
+                  ios_icon_name={iconName}
                   size={22}
                   color={isActive ? '#BFFE84' : '#666666'}
                 />

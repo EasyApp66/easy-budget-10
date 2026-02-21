@@ -636,7 +636,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   safeZone: {
-    height: 60,
+    height: 80,
     backgroundColor: '#000000',
   },
   scrollView: {
@@ -821,7 +821,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     width: '96%',
-    maxWidth: 450,
+    maxWidth: 500,
   },
   compactModalTitle: {
     fontSize: 22,

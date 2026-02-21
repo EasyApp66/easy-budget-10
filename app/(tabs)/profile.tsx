@@ -330,26 +330,20 @@ export default function ProfileScreen() {
                 setShowPremiumModal(false);
               }}
             >
-              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={24} color="#FFFFFF" />
+              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={20} color="#FFFFFF" />
             </TouchableOpacity>
 
             <View style={styles.premiumIconContainer}>
-              <IconSymbol android_material_icon_name="star" ios_icon_name="star.fill" size={50} color="#BFFE84" />
+              <IconSymbol android_material_icon_name="star" ios_icon_name="star.fill" size={36} color="#BFFE84" />
             </View>
 
             <Text style={styles.premiumModalTitle}>{t('getPremium')}</Text>
             <Text style={styles.premiumModalSubtitle}>{t('unlimitedFeatures')}</Text>
 
             <View style={styles.premiumFeatures}>
-              <View style={styles.premiumFeature}>
-                <Text style={styles.premiumFeatureText}>• {t('unlimitedSubscriptions')}</Text>
-              </View>
-              <View style={styles.premiumFeature}>
-                <Text style={styles.premiumFeatureText}>• {t('unlimitedExpenses')}</Text>
-              </View>
-              <View style={styles.premiumFeature}>
-                <Text style={styles.premiumFeatureText}>• {t('unlimitedMonths')}</Text>
-              </View>
+              <Text style={styles.premiumFeatureText}>• {t('unlimitedSubscriptions')}</Text>
+              <Text style={styles.premiumFeatureText}>• {t('unlimitedExpenses')}</Text>
+              <Text style={styles.premiumFeatureText}>• {t('unlimitedMonths')}</Text>
             </View>
 
             <View style={styles.premiumPricing}>
@@ -396,11 +390,11 @@ export default function ProfileScreen() {
                 setShowDonationModal(false);
               }}
             >
-              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={24} color="#FFFFFF" />
+              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={20} color="#FFFFFF" />
             </TouchableOpacity>
 
             <View style={styles.donationIconContainer}>
-              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={50} color="#FF3B30" />
+              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={36} color="#FF3B30" />
             </View>
 
             <Text style={styles.donationModalTitle}>{t('donation')}</Text>
@@ -451,7 +445,7 @@ export default function ProfileScreen() {
               onPress={handleDonation}
               activeOpacity={0.8}
             >
-              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={18} color="#FFFFFF" />
+              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={16} color="#FFFFFF" />
               <Text style={styles.donateButtonText}>
                 {t('donate')} CHF {customDonationAmount || selectedDonationAmount}.00
               </Text>
@@ -635,144 +629,142 @@ const styles = StyleSheet.create({
   },
   premiumModal: {
     backgroundColor: '#2C2C2E',
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 20,
+    padding: 20,
     width: '100%',
-    maxWidth: 400,
-    maxHeight: '80%',
+    maxWidth: 380,
+    maxHeight: '70%',
     position: 'relative',
   },
   closeModalButton: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: 12,
+    right: 12,
     zIndex: 10,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   premiumIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: 'rgba(191, 254, 132, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   premiumModalTitle: {
-    fontSize: 24,
+    fontSize: 20,
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   premiumModalSubtitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#CCCCCC',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   premiumFeatures: {
     backgroundColor: '#000000',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 20,
-  },
-  premiumFeature: {
-    marginBottom: 8,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
   },
   premiumFeatureText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#FFFFFF',
-    lineHeight: 20,
+    lineHeight: 18,
+    marginBottom: 4,
   },
   premiumPricing: {
-    gap: 16,
+    gap: 12,
   },
   pricingOption: {
     backgroundColor: '#000000',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 12,
+    padding: 12,
     borderWidth: 2,
     borderColor: '#BFFE84',
   },
   pricingTitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#FFFFFF',
     fontWeight: '600',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   pricingAmount: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#BFFE84',
     fontWeight: 'bold',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   pricingButton: {
     backgroundColor: '#BFFE84',
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 10,
+    padding: 10,
     alignItems: 'center',
   },
   pricingButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#000000',
     fontWeight: 'bold',
   },
   orText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666666',
     textAlign: 'center',
     fontWeight: '600',
   },
   donationModal: {
     backgroundColor: '#2C2C2E',
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 20,
+    padding: 20,
     width: '100%',
-    maxWidth: 400,
-    maxHeight: '75%',
+    maxWidth: 380,
+    maxHeight: '65%',
     position: 'relative',
   },
   donationIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: 'rgba(255, 59, 48, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   donationModalTitle: {
-    fontSize: 24,
+    fontSize: 20,
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   donationModalSubtitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#CCCCCC',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   donationAmounts: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
-    gap: 8,
+    marginBottom: 16,
+    gap: 6,
   },
   donationAmountButton: {
     flex: 1,
     backgroundColor: '#000000',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 10,
+    padding: 12,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
@@ -781,7 +773,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#BFFE84',
   },
   donationAmountText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -789,33 +781,33 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   customAmountContainer: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   customAmountLabel: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#FFFFFF',
-    marginBottom: 10,
+    marginBottom: 8,
     fontWeight: '600',
   },
   customAmountInput: {
     backgroundColor: '#000000',
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 16,
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 14,
     color: '#FFFFFF',
     textAlign: 'center',
   },
   donateButton: {
     backgroundColor: '#FF3B30',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 10,
+    padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 6,
   },
   donateButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
