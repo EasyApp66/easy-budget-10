@@ -122,7 +122,11 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
                   android_material_icon_name={tab.icon}
                   ios_icon_name={tab.icon}
                   size={22}
+<<<<<<< HEAD
                   color={isActive ? '#BFFE84' : '#8E8E93'}
+=======
+                  color={isActive ? '#BFFE84' : '#666666'}
+>>>>>>> origin/main
                 />
                 <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
                   {tab.label}
@@ -178,7 +182,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
     marginHorizontal: 20,
+<<<<<<< HEAD
     marginBottom: 20,
+=======
+    marginBottom: 10,
+>>>>>>> origin/main
     ...Platform.select({
       ios: {
         shadowColor: '#000',

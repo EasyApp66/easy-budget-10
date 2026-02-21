@@ -438,13 +438,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   summaryLabel: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   summaryValue: {
-    fontSize: 28,
+    fontSize: 24,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -461,13 +461,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   totalLabel: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   totalValue: {
-    fontSize: 28,
+    fontSize: 24,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     borderColor: '#BFFE84',
   },
   subscriptionName: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: '600',
     textTransform: 'uppercase',
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   subscriptionAmount: {
-    fontSize: 26,
+    fontSize: 22,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -536,8 +536,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
     padding: 24,
+<<<<<<< HEAD
     width: '100%',
     maxWidth: 500,
+=======
+    width: '96%',
+    maxWidth: 450,
+>>>>>>> origin/main
   },
   compactModalTitle: {
     fontSize: 22,

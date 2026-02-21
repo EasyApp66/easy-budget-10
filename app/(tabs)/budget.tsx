@@ -672,12 +672,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   budgetAmount: {
-    fontSize: 32,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
   budgetAmountInput: {
-    fontSize: 32,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
     borderBottomWidth: 1,
@@ -700,13 +700,13 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   summaryLabel: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   summaryValue: {
-    fontSize: 24,
+    fontSize: 20,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -791,7 +791,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   expenseName: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 0.5,
@@ -801,7 +801,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   expenseAmount: {
-    fontSize: 32,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'right',
@@ -820,8 +820,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
     padding: 24,
+<<<<<<< HEAD
     width: '100%',
     maxWidth: 500,
+=======
+    width: '96%',
+    maxWidth: 450,
+>>>>>>> origin/main
   },
   compactModalTitle: {
     fontSize: 22,

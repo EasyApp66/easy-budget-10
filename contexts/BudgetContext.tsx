@@ -170,16 +170,25 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     const now = new Date();
     let newPremiumStatus: PremiumStatus;
 
+<<<<<<< HEAD
     if (code === 'easy2033' || code === 'Easy2033') {
       newPremiumStatus = { type: 'Lifetime', endDate: null };
       console.log('Lifetime premium activated');
     } else if (code === 'easy2' || code === 'Easy2') {
+=======
+    const normalizedCode = code.toLowerCase().trim();
+
+    if (normalizedCode === 'easy2033') {
+      newPremiumStatus = { type: 'Lifetime', endDate: null };
+      console.log('Lifetime premium activated with code: easy2033');
+    } else if (normalizedCode === 'easy2') {
+>>>>>>> origin/main
       const oneMonthLater = new Date(now);
       oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
       newPremiumStatus = { type: 'Monthly', endDate: oneMonthLater.toISOString() };
-      console.log('1-month premium activated');
+      console.log('1-month premium activated with code: easy2');
     } else {
-      console.log('Invalid premium code');
+      console.log('Invalid premium code:', code);
       return false;
     }
 
