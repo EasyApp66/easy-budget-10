@@ -821,11 +821,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     width: '96%',
-<<<<<<< HEAD
     maxWidth: 500,
-=======
-    maxWidth: 450,
->>>>>>> origin/main
   },
   compactModalTitle: {
     fontSize: 22,
