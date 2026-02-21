@@ -124,6 +124,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.safeZone} />
       <ScrollView 
         style={styles.scrollView} 
         contentContainerStyle={styles.scrollContent}
@@ -465,6 +466,10 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000',
+  },
+  safeZone: {
+    height: 20,
     backgroundColor: '#000000',
   },
   scrollView: {

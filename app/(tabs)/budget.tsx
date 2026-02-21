@@ -254,6 +254,7 @@ export default function BudgetScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.safeZone} />
       <ScrollView 
         style={styles.scrollView} 
         contentContainerStyle={styles.scrollContent}
@@ -487,32 +488,42 @@ export default function BudgetScreen() {
 
       <Modal
         visible={showRenameMonthModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
+        animationType="fade"
+        transparent
         onRequestClose={() => setShowRenameMonthModal(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{t('rename')}</Text>
-            <TouchableOpacity onPress={async () => {
-              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setShowRenameMonthModal(false);
-            }}>
-              <Text style={styles.modalCloseText}>{t('cancel')}</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>{t('nameExample')}</Text>
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.compactModal}>
+            <Text style={styles.compactModalTitle}>{t('rename')}</Text>
+            
             <TextInput
-              style={styles.input}
+              style={styles.compactInput}
               value={tempMonthName}
               onChangeText={setTempMonthName}
-              placeholder="Monatsname"
+              placeholder="Name"
               placeholderTextColor="#666666"
             />
-            <TouchableOpacity style={styles.submitButton} onPress={submitMonthRename} activeOpacity={0.8}>
-              <Text style={styles.submitButtonText}>{t('save')}</Text>
-            </TouchableOpacity>
+            
+            <View style={styles.compactModalButtons}>
+              <TouchableOpacity 
+                style={styles.compactCancelButton} 
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowRenameMonthModal(false);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.compactCancelButtonText}>{t('cancel')}</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.compactSubmitButton} 
+                onPress={submitMonthRename}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.compactSubmitButtonText}>{t('save')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -561,41 +572,51 @@ export default function BudgetScreen() {
 
       <Modal
         visible={showEditExpenseModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
+        animationType="fade"
+        transparent
         onRequestClose={() => setShowEditExpenseModal(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{t('editExpense')}</Text>
-            <TouchableOpacity onPress={async () => {
-              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setShowEditExpenseModal(false);
-            }}>
-              <Text style={styles.modalCloseText}>{t('cancel')}</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>{t('nameExample')}</Text>
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.compactModal}>
+            <Text style={styles.compactModalTitle}>{t('editExpense')}</Text>
+            
             <TextInput
-              style={styles.input}
+              style={styles.compactInput}
               value={editExpenseName}
               onChangeText={setEditExpenseName}
               placeholder="Name"
               placeholderTextColor="#666666"
             />
-            <Text style={styles.inputLabel}>{t('amount')}</Text>
+            
             <TextInput
-              style={styles.input}
+              style={[styles.compactInput, { marginTop: 12 }]}
               value={editExpenseAmount}
               onChangeText={setEditExpenseAmount}
-              placeholder="0"
+              placeholder="Betrag"
               placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
-            <TouchableOpacity style={styles.submitButton} onPress={submitExpenseEdit} activeOpacity={0.8}>
-              <Text style={styles.submitButtonText}>{t('save')}</Text>
-            </TouchableOpacity>
+            
+            <View style={styles.compactModalButtons}>
+              <TouchableOpacity 
+                style={styles.compactCancelButton} 
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowEditExpenseModal(false);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.compactCancelButtonText}>{t('cancel')}</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.compactSubmitButton} 
+                onPress={submitExpenseEdit}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.compactSubmitButtonText}>{t('save')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -606,6 +627,10 @@ export default function BudgetScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000',
+  },
+  safeZone: {
+    height: 20,
     backgroundColor: '#000000',
   },
   scrollView: {
@@ -640,12 +665,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   budgetAmount: {
-    fontSize: 36,
+    fontSize: 32,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
   budgetAmountInput: {
-    fontSize: 36,
+    fontSize: 32,
     color: '#FFFFFF',
     fontWeight: 'bold',
     borderBottomWidth: 1,
@@ -657,23 +682,23 @@ const styles = StyleSheet.create({
   summaryCard: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
-    padding: 20,
+    padding: 16,
     marginBottom: 20,
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 6,
   },
   summaryLabel: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   summaryValue: {
-    fontSize: 32,
+    fontSize: 24,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -766,7 +791,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   expenseAmount: {
-    fontSize: 36,
+    fontSize: 32,
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'right',
@@ -785,8 +810,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
     padding: 24,
-    width: '85%',
-    maxWidth: 350,
+    width: '92%',
+    maxWidth: 400,
   },
   compactModalTitle: {
     fontSize: 22,
@@ -811,11 +836,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
     alignItems: 'center',
   },
   compactCancelButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -823,64 +848,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#BFFE84',
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
     alignItems: 'center',
   },
   compactSubmitButtonText: {
-    fontSize: 16,
-    color: '#000000',
-    fontWeight: 'bold',
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2C2C2E',
-  },
-  modalTitle: {
-    fontSize: 22,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  modalCloseText: {
-    fontSize: 17,
-    color: '#BFFE84',
-    fontWeight: '600',
-  },
-  modalContent: {
-    padding: 20,
-  },
-  inputLabel: {
-    fontSize: 15,
-    color: '#FFFFFF',
-    marginBottom: 8,
-    marginTop: 16,
-    fontWeight: '600',
-  },
-  input: {
-    backgroundColor: '#2C2C2E',
-    borderRadius: 12,
-    padding: 18,
-    fontSize: 17,
-    color: '#FFFFFF',
-  },
-  submitButton: {
-    backgroundColor: '#BFFE84',
-    borderRadius: 12,
-    padding: 18,
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  submitButtonText: {
-    fontSize: 17,
+    fontSize: 14,
     color: '#000000',
     fontWeight: 'bold',
   },

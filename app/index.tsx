@@ -95,9 +95,11 @@ export default function WelcomeScreen() {
   const privacyText = t('privacy');
   const termsText = t('terms');
   const agbText = t('agb');
+  const twoWeeksPremiumText = t('twoWeeksPremium');
 
   return (
     <View style={styles.container}>
+      <View style={styles.safeZone} />
       <View style={styles.content}>
         <View style={styles.titleContainer}>
           <Text style={styles.titleWhite}>{hiIAmText} </Text>
@@ -112,6 +114,8 @@ export default function WelcomeScreen() {
       </View>
 
       <View style={styles.bottomContainer}>
+        <Text style={styles.premiumText}>{twoWeeksPremiumText}</Text>
+        
         <TouchableOpacity 
           style={styles.goButton} 
           onPress={handleGoPress}
@@ -182,16 +186,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     justifyContent: 'space-between',
   },
+  safeZone: {
+    height: 20,
+    backgroundColor: '#000000',
+  },
   content: {
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 30,
-    paddingTop: 80,
+    paddingTop: 40,
   },
   titleContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 50,
+    marginBottom: 40,
   },
   titleWhite: {
     fontSize: 40,
@@ -209,10 +217,10 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   subtitle: {
-    fontSize: 28,
+    fontSize: 26,
     color: '#FFFFFF',
     fontWeight: 'bold',
-    lineHeight: 38,
+    lineHeight: 36,
   },
   subtitleGreen: {
     color: '#BFFE84',
@@ -221,6 +229,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingBottom: 50,
     alignItems: 'center',
+  },
+  premiumText: {
+    fontSize: 14,
+    color: '#BFFE84',
+    marginBottom: 12,
+    textAlign: 'center',
   },
   goButton: {
     backgroundColor: '#BFFE84',

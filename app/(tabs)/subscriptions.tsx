@@ -13,7 +13,7 @@ import {
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { IconSymbol } from '@/components/IconSymbol';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -127,6 +127,7 @@ export default function SubscriptionsScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.safeZone} />
       <ScrollView 
         style={styles.scrollView} 
         contentContainerStyle={styles.scrollContent}
@@ -256,41 +257,51 @@ export default function SubscriptionsScreen() {
 
       <Modal
         visible={showEditModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
+        animationType="fade"
+        transparent
         onRequestClose={() => setShowEditModal(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{t('editSubscription')}</Text>
-            <TouchableOpacity onPress={async () => {
-              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setShowEditModal(false);
-            }}>
-              <Text style={styles.modalCloseText}>{t('cancel')}</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.modalContent}>
-            <Text style={styles.inputLabel}>{t('subscriptionNameExample')}</Text>
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.compactModal}>
+            <Text style={styles.compactModalTitle}>{t('editSubscription')}</Text>
+            
             <TextInput
-              style={styles.input}
+              style={styles.compactInput}
               value={editSubName}
               onChangeText={setEditSubName}
               placeholder="Name"
               placeholderTextColor="#666666"
             />
-            <Text style={styles.inputLabel}>{t('amount')}</Text>
+            
             <TextInput
-              style={styles.input}
+              style={[styles.compactInput, { marginTop: 12 }]}
               value={editSubAmount}
               onChangeText={setEditSubAmount}
-              placeholder="0"
+              placeholder="Betrag"
               placeholderTextColor="#666666"
               keyboardType="decimal-pad"
             />
-            <TouchableOpacity style={styles.submitButton} onPress={submitSubEdit} activeOpacity={0.8}>
-              <Text style={styles.submitButtonText}>{t('save')}</Text>
-            </TouchableOpacity>
+            
+            <View style={styles.compactModalButtons}>
+              <TouchableOpacity 
+                style={styles.compactCancelButton} 
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowEditModal(false);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.compactCancelButtonText}>{t('cancel')}</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.compactSubmitButton} 
+                onPress={submitSubEdit}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.compactSubmitButtonText}>{t('save')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -310,24 +321,40 @@ function SubscriptionCard({
   onLongPress: () => void;
 }) {
   const translateX = useSharedValue(0);
+  const deleteIconOpacity = useSharedValue(0);
+  const pinIconOpacity = useSharedValue(0);
 
   const panGesture = Gesture.Pan()
     .onUpdate((event) => {
       if (event.translationX < 0) {
-        translateX.value = Math.max(event.translationX, -150);
+        translateX.value = Math.max(event.translationX, -100);
+        deleteIconOpacity.value = Math.min(Math.abs(event.translationX) / 100, 1);
+        pinIconOpacity.value = 0;
       } else if (event.translationX > 0) {
-        translateX.value = Math.min(event.translationX, 150);
+        translateX.value = Math.min(event.translationX, 100);
+        pinIconOpacity.value = Math.min(event.translationX / 100, 1);
+        deleteIconOpacity.value = 0;
       }
     })
     .onEnd((event) => {
-      if (event.translationX < -100) {
-        translateX.value = withTiming(0);
+      if (event.translationX < -80) {
+        deleteIconOpacity.value = withSequence(
+          withTiming(1, { duration: 200 }),
+          withTiming(0, { duration: 300 })
+        );
+        translateX.value = withTiming(0, { duration: 300 });
         runOnJS(onDelete)();
-      } else if (event.translationX > 100) {
-        translateX.value = withTiming(0);
+      } else if (event.translationX > 80) {
+        pinIconOpacity.value = withSequence(
+          withTiming(1, { duration: 200 }),
+          withTiming(0, { duration: 300 })
+        );
+        translateX.value = withTiming(0, { duration: 300 });
         runOnJS(onTogglePin)();
       } else {
         translateX.value = withTiming(0);
+        deleteIconOpacity.value = withTiming(0);
+        pinIconOpacity.value = withTiming(0);
       }
     });
 
@@ -337,10 +364,33 @@ function SubscriptionCard({
     };
   });
 
+  const deleteIconStyle = useAnimatedStyle(() => {
+    return {
+      opacity: deleteIconOpacity.value,
+    };
+  });
+
+  const pinIconStyle = useAnimatedStyle(() => {
+    return {
+      opacity: pinIconOpacity.value,
+    };
+  });
+
   const amountText = subscription.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   return (
     <View style={styles.cardWrapper}>
+      <Animated.View style={[styles.deleteIconContainer, deleteIconStyle]}>
+        <IconSymbol android_material_icon_name="delete" ios_icon_name="trash" size={24} color="#FF3B30" />
+      </Animated.View>
+      <Animated.View style={[styles.pinIconContainer, pinIconStyle]}>
+        <IconSymbol 
+          android_material_icon_name={subscription.isPinned ? "push-pin" : "push-pin"} 
+          ios_icon_name="pin.fill" 
+          size={24} 
+          color="#BFFE84" 
+        />
+      </Animated.View>
       <GestureDetector gesture={panGesture}>
         <Pressable onLongPress={onLongPress}>
           <Animated.View style={[styles.subscriptionCard, subscription.isPinned && styles.subscriptionCardPinned, animatedStyle]}>
@@ -356,6 +406,10 @@ function SubscriptionCard({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000',
+  },
+  safeZone: {
+    height: 20,
     backgroundColor: '#000000',
   },
   scrollView: {
@@ -377,13 +431,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   summaryLabel: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   summaryValue: {
-    fontSize: 36,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -399,13 +453,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   totalLabel: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   totalValue: {
-    fontSize: 36,
+    fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -414,6 +468,25 @@ const styles = StyleSheet.create({
   },
   cardWrapper: {
     marginBottom: 12,
+    position: 'relative',
+  },
+  deleteIconContainer: {
+    position: 'absolute',
+    right: 20,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  pinIconContainer: {
+    position: 'absolute',
+    left: 20,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
   subscriptionCard: {
     backgroundColor: '#2C2C2E',
@@ -428,7 +501,7 @@ const styles = StyleSheet.create({
     borderColor: '#BFFE84',
   },
   subscriptionName: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#FFFFFF',
     fontWeight: '600',
     textTransform: 'uppercase',
@@ -436,7 +509,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   subscriptionAmount: {
-    fontSize: 32,
+    fontSize: 26,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -454,8 +527,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2E',
     borderRadius: 24,
     padding: 24,
-    width: '85%',
-    maxWidth: 350,
+    width: '92%',
+    maxWidth: 400,
   },
   compactModalTitle: {
     fontSize: 22,
@@ -480,11 +553,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
     alignItems: 'center',
   },
   compactCancelButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -492,64 +565,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#BFFE84',
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
     alignItems: 'center',
   },
   compactSubmitButtonText: {
-    fontSize: 16,
-    color: '#000000',
-    fontWeight: 'bold',
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2C2C2E',
-  },
-  modalTitle: {
-    fontSize: 22,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  modalCloseText: {
-    fontSize: 17,
-    color: '#BFFE84',
-    fontWeight: '600',
-  },
-  modalContent: {
-    padding: 20,
-  },
-  inputLabel: {
-    fontSize: 15,
-    color: '#FFFFFF',
-    marginBottom: 8,
-    marginTop: 16,
-    fontWeight: '600',
-  },
-  input: {
-    backgroundColor: '#2C2C2E',
-    borderRadius: 12,
-    padding: 18,
-    fontSize: 17,
-    color: '#FFFFFF',
-  },
-  submitButton: {
-    backgroundColor: '#BFFE84',
-    borderRadius: 12,
-    padding: 18,
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  submitButtonText: {
-    fontSize: 17,
+    fontSize: 14,
     color: '#000000',
     fontWeight: 'bold',
   },
