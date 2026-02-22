@@ -9,10 +9,8 @@ import {
   Animated,
 } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
-import { IconSymbol } from '@/components/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Href } from 'expo-router';
-import { useBudget } from '@/contexts/BudgetContext';
 import * as Haptics from 'expo-haptics';
 
 export interface TabBarItem {
@@ -104,12 +102,12 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
       <View style={styles.tabBar}>
         {tabs.map((tab, index) => {
           const isActive = activeTabIndex === index;
-          let iconName = 'home';
+          let iconName: keyof typeof MaterialIcons.glyphMap = 'home';
           
           if (tab.name === 'budget') {
             iconName = 'attach-money';
           } else if (tab.name === 'subscriptions') {
-            iconName = 'radio-button-checked';
+            iconName = 'sync';
           } else if (tab.name === 'profile') {
             iconName = 'person';
           }
@@ -127,11 +125,10 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
                   { transform: [{ scale: scaleAnims[index] }] }
                 ]}
               >
-                <IconSymbol
-                  android_material_icon_name={iconName}
-                  ios_icon_name={iconName}
-                  size={22}
-                  color={isActive ? '#BFFE84' : '#666666'}
+                <MaterialIcons
+                  name={iconName}
+                  size={24}
+                  color={isActive ? '#BFFE84' : '#8E8E93'}
                 />
                 <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
                   {tab.label}
@@ -154,9 +151,8 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
             ]}
           >
             <View style={styles.addButton}>
-              <IconSymbol
-                android_material_icon_name="add"
-                ios_icon_name="plus"
+              <MaterialIcons
+                name="add"
                 size={32}
                 color="#000000"
               />
@@ -214,7 +210,7 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#666666',
+    color: '#8E8E93',
   },
   tabLabelActive: {
     color: '#BFFE84',

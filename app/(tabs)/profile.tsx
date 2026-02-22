@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert, Animated } from 'react-native';
-import { IconSymbol } from '@/components/IconSymbol';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useBudget } from '@/contexts/BudgetContext';
@@ -14,6 +14,7 @@ export default function ProfileScreen() {
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
+  const [showPromoModal, setShowPromoModal] = useState(false);
   const [premiumCode, setPremiumCode] = useState('');
   const [selectedDonationAmount, setSelectedDonationAmount] = useState(5);
   const [customDonationAmount, setCustomDonationAmount] = useState('');
@@ -180,8 +181,14 @@ export default function ProfileScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = customDonationAmount ? parseFloat(customDonationAmount) : selectedDonationAmount;
     console.log('Donation amount:', amount);
+    // TODO: Backend Integration - Apple Pay donation payment
     Alert.alert(t('thankYou'), t('donationThankYou'));
     setShowDonationModal(false);
+  };
+
+  const handlePromoCodePress = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setShowPromoModal(true);
   };
 
   const getPremiumStatusText = () => {
@@ -215,7 +222,7 @@ export default function ProfileScreen() {
       >
         <Animated.View style={[styles.profileHeader, { opacity: fadeAnims.header }]}>
           <View style={styles.avatarContainer}>
-            <IconSymbol android_material_icon_name="person" ios_icon_name="person.fill" size={60} color="#000000" />
+            <MaterialIcons name="person" size={60} color="#000000" />
           </View>
           {editingUsername ? (
             <TextInput
@@ -262,10 +269,10 @@ export default function ProfileScreen() {
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
-              <IconSymbol android_material_icon_name="star" ios_icon_name="star.fill" size={24} color="#BFFE84" />
+              <MaterialIcons name="star" size={24} color="#BFFE84" />
               <Text style={styles.menuItemText}>{t('getPremium')}</Text>
             </View>
-            <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
+            <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
 
           {premiumStatus.hasAppleSubscription && (
@@ -274,10 +281,10 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <IconSymbol android_material_icon_name="cancel" ios_icon_name="xmark.circle" size={24} color="#FF3B30" />
+                <MaterialIcons name="cancel" size={24} color="#FF3B30" />
                 <Text style={styles.menuItemText}>{t('cancelPremium')}</Text>
               </View>
-              <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
+              <MaterialIcons name="chevron-right" size={24} color="#666666" />
             </TouchableOpacity>
           )}
 
@@ -287,10 +294,10 @@ export default function ProfileScreen() {
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
-              <IconSymbol android_material_icon_name="language" ios_icon_name="globe" size={24} color="#BFFE84" />
+              <MaterialIcons name="language" size={24} color="#BFFE84" />
               <Text style={styles.menuItemText}>{t('language')}: {currentLanguageText}</Text>
             </View>
-            <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
+            <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -299,10 +306,10 @@ export default function ProfileScreen() {
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
-              <IconSymbol android_material_icon_name="description" ios_icon_name="doc.text" size={24} color="#BFFE84" />
+              <MaterialIcons name="description" size={24} color="#BFFE84" />
               <Text style={styles.menuItemText}>{t('legal')}</Text>
             </View>
-            <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
+            <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -311,10 +318,10 @@ export default function ProfileScreen() {
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
-              <IconSymbol android_material_icon_name="help" ios_icon_name="questionmark.circle" size={24} color="#BFFE84" />
+              <MaterialIcons name="help" size={24} color="#BFFE84" />
               <Text style={styles.menuItemText}>{t('support')}</Text>
             </View>
-            <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
+            <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -323,10 +330,10 @@ export default function ProfileScreen() {
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
-              <IconSymbol android_material_icon_name="bug-report" ios_icon_name="ant" size={24} color="#BFFE84" />
+              <MaterialIcons name="bug-report" size={24} color="#BFFE84" />
               <Text style={styles.menuItemText}>{t('reportBug')}</Text>
             </View>
-            <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
+            <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -335,10 +342,10 @@ export default function ProfileScreen() {
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
-              <IconSymbol android_material_icon_name="lightbulb" ios_icon_name="lightbulb" size={24} color="#BFFE84" />
+              <MaterialIcons name="lightbulb" size={24} color="#BFFE84" />
               <Text style={styles.menuItemText}>{t('suggestion')}</Text>
             </View>
-            <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
+            <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -347,10 +354,22 @@ export default function ProfileScreen() {
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
-              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={24} color="#FF3B30" />
+              <MaterialIcons name="favorite" size={24} color="#FF3B30" />
               <Text style={styles.menuItemText}>{t('donation')}</Text>
             </View>
-            <IconSymbol android_material_icon_name="chevron-right" ios_icon_name="chevron.right" size={24} color="#666666" />
+            <MaterialIcons name="chevron-right" size={24} color="#666666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.menuItem, styles.promoButton]} 
+            onPress={handlePromoCodePress}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuItemLeft}>
+              <MaterialIcons name="card-giftcard" size={24} color="#BFFE84" />
+              <Text style={styles.menuItemText}>Promo Code</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
         </Animated.View>
 
@@ -444,11 +463,11 @@ export default function ProfileScreen() {
                 setShowPremiumModal(false);
               }}
             >
-              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={18} color="#FFFFFF" />
+              <MaterialIcons name="close" size={18} color="#FFFFFF" />
             </TouchableOpacity>
 
             <View style={styles.premiumIconContainer}>
-              <IconSymbol android_material_icon_name="star" ios_icon_name="star.fill" size={32} color="#BFFE84" />
+              <MaterialIcons name="star" size={32} color="#BFFE84" />
             </View>
 
             <Text style={styles.premiumModalTitle}>{t('getPremium')}</Text>
@@ -467,6 +486,11 @@ export default function ProfileScreen() {
                 <TouchableOpacity 
                   style={styles.pricingButton}
                   activeOpacity={0.8}
+                  onPress={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    console.log('One-time payment initiated');
+                    // TODO: Backend Integration - Apple Pay one-time payment
+                  }}
                 >
                   <Text style={styles.pricingButtonText}>{t('pay')}</Text>
                 </TouchableOpacity>
@@ -480,6 +504,11 @@ export default function ProfileScreen() {
                 <TouchableOpacity 
                   style={styles.pricingButton}
                   activeOpacity={0.8}
+                  onPress={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    console.log('Monthly subscription initiated');
+                    // TODO: Backend Integration - Apple Pay monthly subscription
+                  }}
                 >
                   <Text style={styles.pricingButtonText}>{t('pay')}</Text>
                 </TouchableOpacity>
@@ -504,11 +533,11 @@ export default function ProfileScreen() {
                 setShowDonationModal(false);
               }}
             >
-              <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={18} color="#FFFFFF" />
+              <MaterialIcons name="close" size={18} color="#FFFFFF" />
             </TouchableOpacity>
 
             <View style={styles.donationIconContainer}>
-              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={32} color="#FF3B30" />
+              <MaterialIcons name="favorite" size={32} color="#FF3B30" />
             </View>
 
             <Text style={styles.donationModalTitle}>{t('donation')}</Text>
@@ -559,10 +588,53 @@ export default function ProfileScreen() {
               onPress={handleDonation}
               activeOpacity={0.8}
             >
-              <IconSymbol android_material_icon_name="favorite" ios_icon_name="heart.fill" size={14} color="#FFFFFF" />
+              <MaterialIcons name="favorite" size={14} color="#FFFFFF" />
               <Text style={styles.donateButtonText}>
                 {t('donate')} CHF {customDonationAmount || selectedDonationAmount}.00
               </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showPromoModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowPromoModal(false)}
+      >
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.promoModal}>
+            <TouchableOpacity 
+              style={styles.closeModalButton}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowPromoModal(false);
+              }}
+            >
+              <MaterialIcons name="close" size={18} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            <View style={styles.promoIconContainer}>
+              <MaterialIcons name="card-giftcard" size={40} color="#BFFE84" />
+            </View>
+
+            <Text style={styles.promoModalTitle}>{t('promoCodeTitle')}</Text>
+            <Text style={styles.promoModalMessage}>{t('promoCodeMessage')}</Text>
+
+            <View style={styles.promoCodeBox}>
+              <Text style={styles.promoCodeText}>easy2</Text>
+            </View>
+
+            <TouchableOpacity 
+              style={styles.promoOkButton}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowPromoModal(false);
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.promoOkButtonText}>OK</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -585,7 +657,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 20,
-    paddingHorizontal: 0,
+    paddingHorizontal: 2,
   },
   profileHeader: {
     alignItems: 'center',
@@ -629,7 +701,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    marginHorizontal: 0,
+    marginHorizontal: 2,
   },
   premiumCodeLabel: {
     fontSize: 14,
@@ -672,7 +744,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 0,
+    marginHorizontal: 2,
+  },
+  promoButton: {
+    backgroundColor: '#1C4D1C',
+    borderWidth: 2,
+    borderColor: '#BFFE84',
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -755,10 +832,9 @@ const styles = StyleSheet.create({
   premiumModal: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
-    padding: 18,
+    padding: 22,
     width: '100%',
-    maxWidth: 360,
-    maxHeight: '60%',
+    maxWidth: 380,
     position: 'relative',
   },
   closeModalButton: {
@@ -781,68 +857,68 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   premiumModalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   premiumModalSubtitle: {
-    fontSize: 11,
+    fontSize: 13,
     color: '#CCCCCC',
     textAlign: 'center',
-    marginBottom: 14,
+    marginBottom: 16,
   },
   premiumFeatures: {
     backgroundColor: '#000000',
     borderRadius: 12,
-    padding: 10,
-    marginBottom: 14,
+    padding: 14,
+    marginBottom: 16,
   },
   premiumFeatureText: {
-    fontSize: 11,
+    fontSize: 13,
     color: '#FFFFFF',
-    lineHeight: 16,
-    marginBottom: 3,
+    lineHeight: 20,
+    marginBottom: 4,
   },
   premiumPricing: {
-    gap: 10,
+    gap: 12,
   },
   pricingOption: {
     backgroundColor: '#000000',
     borderRadius: 12,
-    padding: 10,
+    padding: 14,
     borderWidth: 2,
     borderColor: '#BFFE84',
   },
   pricingTitle: {
-    fontSize: 11,
+    fontSize: 13,
     color: '#FFFFFF',
     fontWeight: '600',
-    marginBottom: 3,
+    marginBottom: 4,
   },
   pricingAmount: {
-    fontSize: 15,
+    fontSize: 18,
     color: '#BFFE84',
     fontWeight: 'bold',
-    marginBottom: 7,
+    marginBottom: 10,
   },
   pricingButton: {
     backgroundColor: '#BFFE84',
     borderRadius: 10,
-    padding: 9,
+    padding: 11,
     alignItems: 'center',
   },
   pricingButtonText: {
-    fontSize: 11,
+    fontSize: 13,
     color: '#000000',
     fontWeight: 'bold',
   },
   orText: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#666666',
     textAlign: 'center',
     fontWeight: '600',
@@ -850,10 +926,9 @@ const styles = StyleSheet.create({
   donationModal: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
-    padding: 18,
+    padding: 20,
     width: '100%',
-    maxWidth: 360,
-    maxHeight: '58%',
+    maxWidth: 380,
     position: 'relative',
   },
   donationIconContainer: {
@@ -864,32 +939,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   donationModalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   donationModalSubtitle: {
-    fontSize: 11,
+    fontSize: 13,
     color: '#CCCCCC',
     textAlign: 'center',
-    marginBottom: 14,
+    marginBottom: 16,
   },
   donationAmounts: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 14,
-    gap: 5,
+    marginBottom: 16,
+    gap: 6,
   },
   donationAmountButton: {
     flex: 1,
     backgroundColor: '#000000',
     borderRadius: 10,
-    padding: 10,
+    padding: 12,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
@@ -898,7 +973,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#BFFE84',
   },
   donationAmountText: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
@@ -906,34 +981,92 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   customAmountContainer: {
-    marginBottom: 14,
+    marginBottom: 16,
   },
   customAmountLabel: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#FFFFFF',
-    marginBottom: 7,
+    marginBottom: 8,
     fontWeight: '600',
   },
   customAmountInput: {
     backgroundColor: '#000000',
     borderRadius: 10,
-    padding: 10,
-    fontSize: 13,
+    padding: 12,
+    fontSize: 14,
     color: '#FFFFFF',
     textAlign: 'center',
   },
   donateButton: {
     backgroundColor: '#FF3B30',
     borderRadius: 10,
-    padding: 12,
+    padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
+    gap: 6,
   },
   donateButtonText: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  promoModal: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 20,
+    padding: 24,
+    width: '90%',
+    maxWidth: 340,
+    position: 'relative',
+  },
+  promoIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(191, 254, 132, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  promoModalTitle: {
+    fontSize: 22,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  promoModalMessage: {
+    fontSize: 15,
+    color: '#CCCCCC',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  promoCodeBox: {
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#BFFE84',
+  },
+  promoCodeText: {
+    fontSize: 24,
+    color: '#BFFE84',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    letterSpacing: 2,
+  },
+  promoOkButton: {
+    backgroundColor: '#BFFE84',
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+  },
+  promoOkButtonText: {
+    fontSize: 16,
+    color: '#000000',
     fontWeight: 'bold',
   },
 });

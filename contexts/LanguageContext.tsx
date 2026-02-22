@@ -72,6 +72,7 @@ const translations = {
     days: 'Tage',
     premium: 'Premium',
     changeLanguage: 'Sprache ändern',
+    language: 'Sprache',
     termsOfUse: 'Nutzungsbedingungen',
     privacyPolicy: 'Datenschutz',
     imprint: 'Impressum',
@@ -141,6 +142,10 @@ const translations = {
     privacyText: 'Easy Budget 10 respektiert Ihre Privatsphäre. Alle Ihre Finanzdaten werden ausschliesslich lokal auf Ihrem Gerät gespeichert. Wir sammeln, übertragen oder speichern keine persönlichen Daten auf externen Servern.\n\nDie App benötigt keine Internetverbindung und sendet keine Daten an Dritte. Ihre Budgets, Ausgaben und Abonnements bleiben vollständig privat und unter Ihrer Kontrolle.',
     termsText: 'Durch die Nutzung von Easy Budget 10 erklären Sie sich mit folgenden Bedingungen einverstanden:\n\n1. Die App wird "wie besehen" bereitgestellt ohne jegliche Garantien.\n2. Sie sind selbst für die Sicherung Ihrer Daten verantwortlich.\n3. Die App dient ausschliesslich zu Informationszwecken und ersetzt keine professionelle Finanzberatung.\n4. Wir haften nicht für Verluste oder Schäden, die durch die Nutzung der App entstehen.\n\nAnwendbares Recht: Diese Bedingungen unterliegen dem Schweizer Recht. Gerichtsstand ist Zürich, Schweiz.',
     agbText: 'Allgemeine Geschäftsbedingungen:\n\n1. Geltungsbereich: Diese AGB gelten für die Nutzung der Easy Budget 10 App.\n\n2. Leistungen: Die App bietet Funktionen zur Verwaltung von Budgets, Ausgaben und Abonnements.\n\n3. Nutzungsrechte: Sie erhalten ein nicht-exklusives, nicht-übertragbares Recht zur Nutzung der App.\n\n4. Haftung: Die Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt.\n\n5. Änderungen: Wir behalten uns das Recht vor, diese AGB jederzeit zu ändern.\n\nBei Fragen kontaktieren Sie uns unter: ivanmirosnic006@gmail.com',
+    
+    // Promo Code Popup
+    promoCodeTitle: 'Gratis Premium!',
+    promoCodeMessage: 'Erhalte einen Monat gratis Premium mit dem Code easy2',
   },
   en: {
     // Welcome Screen
@@ -177,7 +182,7 @@ const translations = {
     adjustNumber: 'Adjust Amount',
     
     // Subscriptions Screen
-    subscriptionCosts: 'SUBSCRIPTION COSTS',
+    subscriptionCosts: 'SUBS',
     newSubscription: 'New Subscription',
     subscriptionNameExample: 'Name (e.g. NETFLIX)',
     editSubscription: 'Edit Subscription',
@@ -198,6 +203,7 @@ const translations = {
     days: 'days',
     premium: 'Premium',
     changeLanguage: 'Change Language',
+    language: 'Language',
     termsOfUse: 'Terms of Use',
     privacyPolicy: 'Privacy Policy',
     imprint: 'Imprint',
@@ -267,6 +273,10 @@ const translations = {
     privacyText: 'Easy Budget 10 respects your privacy. All your financial data is stored exclusively locally on your device. We do not collect, transmit or store any personal data on external servers.\n\nThe app does not require an internet connection and does not send any data to third parties. Your budgets, expenses and subscriptions remain completely private and under your control.',
     termsText: 'By using Easy Budget 10, you agree to the following terms:\n\n1. The app is provided "as is" without any warranties.\n2. You are responsible for backing up your data.\n3. The app is for informational purposes only and does not replace professional financial advice.\n4. We are not liable for any losses or damages arising from the use of the app.\n\nApplicable Law: These terms are governed by Swiss law. Place of jurisdiction is Zurich, Switzerland.',
     agbText: 'General Terms and Conditions:\n\n1. Scope: These terms apply to the use of the Easy Budget 10 app.\n\n2. Services: The app provides features for managing budgets, expenses and subscriptions.\n\n3. Usage Rights: You receive a non-exclusive, non-transferable right to use the app.\n\n4. Liability: Liability is limited to intent and gross negligence.\n\n5. Changes: We reserve the right to change these terms at any time.\n\nFor questions, contact us at: ivanmirosnic006@gmail.com',
+    
+    // Promo Code Popup
+    promoCodeTitle: 'Free Premium!',
+    promoCodeMessage: 'Get one month free Premium with code easy2',
   },
 };
 

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { IconSymbol } from '@/components/IconSymbol';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useLocalSearchParams } from 'expo-router';
@@ -416,15 +416,10 @@ function SubscriptionCard({
   return (
     <View style={styles.cardWrapper}>
       <AnimatedReanimated.View style={[styles.deleteIconContainer, deleteIconStyle]}>
-        <IconSymbol android_material_icon_name="delete" ios_icon_name="trash" size={24} color="#FF3B30" />
+        <MaterialIcons name="delete" size={24} color="#FF3B30" />
       </AnimatedReanimated.View>
       <AnimatedReanimated.View style={[styles.pinIconContainer, pinIconStyle]}>
-        <IconSymbol 
-          android_material_icon_name={subscription.isPinned ? "push-pin" : "push-pin"} 
-          ios_icon_name="pin.fill" 
-          size={24} 
-          color="#BFFE84" 
-        />
+        <MaterialIcons name="push-pin" size={24} color="#BFFE84" />
       </AnimatedReanimated.View>
       <GestureDetector gesture={panGesture}>
         <Pressable onLongPress={onLongPress}>
@@ -452,14 +447,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 5,
-    paddingHorizontal: 0,
+    paddingHorizontal: 2,
   },
   summaryCard: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
     padding: 24,
-    marginBottom: 20,
-    marginHorizontal: 0,
+    marginBottom: 16,
+    marginHorizontal: 2,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -482,7 +477,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     marginBottom: 30,
-    marginHorizontal: 0,
+    marginHorizontal: 2,
   },
   totalRow: {
     flexDirection: 'row',
@@ -502,7 +497,7 @@ const styles = StyleSheet.create({
   },
   subscriptionsSection: {
     marginBottom: 20,
-    paddingHorizontal: 0,
+    paddingHorizontal: 2,
   },
   cardWrapper: {
     marginBottom: 12,
