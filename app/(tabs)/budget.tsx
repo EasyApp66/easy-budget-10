@@ -16,6 +16,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { IconSymbol } from '@/components/IconSymbol';
 import { useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 export default function BudgetScreen() {
   const params = useLocalSearchParams();
@@ -294,8 +296,6 @@ export default function BudgetScreen() {
     return 0;
   }) : [];
 
-  const ausgabenText = 'AUSGABEN';
-
   return (
     <View style={styles.container}>
       <View style={styles.safeZone} />
@@ -410,8 +410,6 @@ export default function BudgetScreen() {
         </Animated.View>
 
         <Animated.View style={{ opacity: fadeAnims.expenses }}>
-          <Text style={styles.ausgabenTitle}>{ausgabenText}</Text>
-
           {expenseViewMode === 'grid' ? (
             <View style={styles.expensesSection}>
               {sortedExpenses.map((expense, index) => {
@@ -453,13 +451,24 @@ export default function BudgetScreen() {
                 const expenseAmountText = expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
                 return (
                   <React.Fragment key={expense.id}>
-                  <Pressable
+                  <ExpenseListCard
+                    expense={expense}
+                    onDelete={async () => {
+                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      if (activeMonthId) {
+                        deleteExpense(activeMonthId, expense.id);
+                        console.log('Expense deleted:', expense.id);
+                      }
+                    }}
+                    onTogglePin={async () => {
+                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      if (activeMonthId) {
+                        togglePinExpense(activeMonthId, expense.id);
+                        console.log('Expense pin toggled:', expense.id);
+                      }
+                    }}
                     onLongPress={() => handleExpenseLongPress(expense.id)}
-                    style={[styles.expenseListCard, expense.isPinned && styles.expenseListCardPinned]}
-                  >
-                    <Text style={styles.expenseListName}>{expense.name}</Text>
-                    <Text style={styles.expenseListAmount}>{expenseAmountText}</Text>
-                  </Pressable>
+                  />
                   </React.Fragment>
                 );
               })}
@@ -697,6 +706,100 @@ export default function BudgetScreen() {
   );
 }
 
+function ExpenseListCard({
+  expense,
+  onDelete,
+  onTogglePin,
+  onLongPress,
+}: {
+  expense: { id: string; name: string; amount: number; isPinned: boolean };
+  onDelete: () => void;
+  onTogglePin: () => void;
+  onLongPress: () => void;
+}) {
+  const translateX = useSharedValue(0);
+  const deleteIconOpacity = useSharedValue(0);
+  const pinIconOpacity = useSharedValue(0);
+
+  const panGesture = Gesture.Pan()
+    .onUpdate((event) => {
+      if (event.translationX < 0) {
+        translateX.value = Math.max(event.translationX, -100);
+        deleteIconOpacity.value = Math.min(Math.abs(event.translationX) / 100, 1);
+        pinIconOpacity.value = 0;
+      } else if (event.translationX > 0) {
+        translateX.value = Math.min(event.translationX, 100);
+        pinIconOpacity.value = Math.min(event.translationX / 100, 1);
+        deleteIconOpacity.value = 0;
+      }
+    })
+    .onEnd((event) => {
+      if (event.translationX < -80) {
+        deleteIconOpacity.value = withSequence(
+          withTiming(1, { duration: 200 }),
+          withTiming(0, { duration: 300 })
+        );
+        translateX.value = withTiming(0, { duration: 300 });
+        runOnJS(onDelete)();
+      } else if (event.translationX > 80) {
+        pinIconOpacity.value = withSequence(
+          withTiming(1, { duration: 200 }),
+          withTiming(0, { duration: 300 })
+        );
+        translateX.value = withTiming(0, { duration: 300 });
+        runOnJS(onTogglePin)();
+      } else {
+        translateX.value = withTiming(0);
+        deleteIconOpacity.value = withTiming(0);
+        pinIconOpacity.value = withTiming(0);
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateX.value }],
+    };
+  });
+
+  const deleteIconStyle = useAnimatedStyle(() => {
+    return {
+      opacity: deleteIconOpacity.value,
+    };
+  });
+
+  const pinIconStyle = useAnimatedStyle(() => {
+    return {
+      opacity: pinIconOpacity.value,
+    };
+  });
+
+  const amountText = expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+  return (
+    <View style={styles.cardWrapper}>
+      <AnimatedReanimated.View style={[styles.deleteIconContainer, deleteIconStyle]}>
+        <IconSymbol android_material_icon_name="delete" ios_icon_name="trash" size={24} color="#FF3B30" />
+      </AnimatedReanimated.View>
+      <AnimatedReanimated.View style={[styles.pinIconContainer, pinIconStyle]}>
+        <IconSymbol 
+          android_material_icon_name={expense.isPinned ? "push-pin" : "push-pin"} 
+          ios_icon_name="pin.fill" 
+          size={24} 
+          color="#BFFE84" 
+        />
+      </AnimatedReanimated.View>
+      <GestureDetector gesture={panGesture}>
+        <Pressable onLongPress={onLongPress}>
+          <AnimatedReanimated.View style={[styles.expenseListCard, expense.isPinned && styles.expenseListCardPinned, animatedStyle]}>
+            <Text style={styles.expenseListName}>{expense.name}</Text>
+            <Text style={styles.expenseListAmount}>{amountText}</Text>
+          </AnimatedReanimated.View>
+        </Pressable>
+      </GestureDetector>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -711,7 +814,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 5,
-    paddingHorizontal: 0,
+    paddingHorizontal: 12,
   },
   budgetHeader: {
     backgroundColor: '#2C2C2E',
@@ -721,7 +824,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 0,
   },
   budgetLabel: {
     fontSize: 20,
@@ -758,7 +860,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginBottom: 20,
-    marginHorizontal: 0,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -781,7 +882,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 24,
-    paddingHorizontal: 0,
   },
   addMonthButton: {
     width: 50,
@@ -826,20 +926,11 @@ const styles = StyleSheet.create({
   monthDeleteButton: {
     padding: 2,
   },
-  ausgabenTitle: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    letterSpacing: 1,
-    marginBottom: 16,
-    paddingHorizontal: 0,
-  },
   expensesSection: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginBottom: 20,
-    paddingHorizontal: 0,
   },
   expenseCard: {
     backgroundColor: '#2C2C2E',
@@ -883,13 +974,33 @@ const styles = StyleSheet.create({
   },
   expensesListSection: {
     marginBottom: 20,
-    paddingHorizontal: 0,
+  },
+  cardWrapper: {
+    marginBottom: 12,
+    position: 'relative',
+  },
+  deleteIconContainer: {
+    position: 'absolute',
+    right: 20,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  pinIconContainer: {
+    position: 'absolute',
+    left: 20,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
   expenseListCard: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
     padding: 24,
-    marginBottom: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
