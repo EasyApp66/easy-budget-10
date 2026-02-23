@@ -34,7 +34,6 @@ export default function SubscriptionsScreen() {
   const [editSubName, setEditSubName] = useState('');
   const [editSubAmount, setEditSubAmount] = useState('');
 
-  // Fade-in animations
   const [fadeAnims] = useState(() => ({
     summary: new Animated.Value(0),
     total: new Animated.Value(0),
@@ -42,7 +41,6 @@ export default function SubscriptionsScreen() {
   }));
 
   useEffect(() => {
-    // Staggered fade-in animation
     Animated.stagger(80, [
       Animated.timing(fadeAnims.summary, {
         toValue: 1,
@@ -360,6 +358,8 @@ function SubscriptionCard({
   const pinIconOpacity = useSharedValue(0);
 
   const panGesture = Gesture.Pan()
+    .activeOffsetX([-20, 20])
+    .failOffsetY([-10, 10])
     .onUpdate((event) => {
       if (event.translationX < 0) {
         translateX.value = Math.max(event.translationX, -100);
@@ -374,22 +374,22 @@ function SubscriptionCard({
     .onEnd((event) => {
       if (event.translationX < -80) {
         deleteIconOpacity.value = withSequence(
-          withTiming(1, { duration: 200 }),
-          withTiming(0, { duration: 300 })
+          withTiming(1, { duration: 150 }),
+          withTiming(0, { duration: 250 })
         );
-        translateX.value = withTiming(0, { duration: 300 });
+        translateX.value = withTiming(0, { duration: 250 });
         runOnJS(onDelete)();
       } else if (event.translationX > 80) {
         pinIconOpacity.value = withSequence(
-          withTiming(1, { duration: 200 }),
-          withTiming(0, { duration: 300 })
+          withTiming(1, { duration: 150 }),
+          withTiming(0, { duration: 250 })
         );
-        translateX.value = withTiming(0, { duration: 300 });
+        translateX.value = withTiming(0, { duration: 250 });
         runOnJS(onTogglePin)();
       } else {
-        translateX.value = withTiming(0);
-        deleteIconOpacity.value = withTiming(0);
-        pinIconOpacity.value = withTiming(0);
+        translateX.value = withTiming(0, { duration: 200 });
+        deleteIconOpacity.value = withTiming(0, { duration: 200 });
+        pinIconOpacity.value = withTiming(0, { duration: 200 });
       }
     });
 

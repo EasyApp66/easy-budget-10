@@ -36,8 +36,6 @@ interface BudgetContextType {
   setHasSeenWelcome: (value: boolean) => void;
   budgetName: string;
   setBudgetName: (name: string) => void;
-  budgetAmount: number;
-  setBudgetAmount: (amount: number) => void;
   months: Month[];
   setMonths: (months: Month[]) => void;
   activeMonthId: string;
@@ -50,7 +48,11 @@ interface BudgetContextType {
   purchasePremium: (purchaseType: 'lifetime' | 'monthly', appleTransactionId?: string) => Promise<boolean>;
   fetchPremiumStatus: () => Promise<void>;
   cancelPremium: () => Promise<boolean>;
+<<<<<<< HEAD
   addMonth: (name: string, budgetAmount: number) => void;
+=======
+  addMonth: (name: string) => void;
+>>>>>>> origin/main
   deleteMonth: (id: string) => void;
   duplicateMonth: (id: string) => void;
   renameMonth: (id: string, newName: string) => void;
@@ -77,7 +79,6 @@ const STORAGE_KEY = '@easy_budget_data';
 export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const [hasSeenWelcome, setHasSeenWelcome] = useState(false);
   const [budgetName, setBudgetName] = useState('Budget');
-  const [budgetAmount, setBudgetAmount] = useState(0);
   const [months, setMonths] = useState<Month[]>([]);
   const [activeMonthId, setActiveMonthId] = useState('');
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -110,7 +111,6 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
 
     setMonths([month1, month2]);
     setActiveMonthId(month1.id);
-    setBudgetAmount(0);
 
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + 14);
@@ -127,12 +127,20 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         console.log('Data loaded successfully:', data);
         setHasSeenWelcome(data.hasSeenWelcome || false);
         setBudgetName(data.budgetName || 'Budget');
+<<<<<<< HEAD
         setBudgetAmount(data.budgetAmount || 0);
         
         const loadedMonths = data.months || [];
         const migratedMonths = loadedMonths.map((m: any) => ({
           ...m,
           budgetAmount: m.budgetAmount !== undefined ? m.budgetAmount : (data.budgetAmount || 0),
+=======
+        
+        const loadedMonths = data.months || [];
+        const migratedMonths = loadedMonths.map((month: any) => ({
+          ...month,
+          budgetAmount: month.budgetAmount !== undefined ? month.budgetAmount : (data.budgetAmount || 0),
+>>>>>>> origin/main
         }));
         setMonths(migratedMonths);
         
@@ -156,7 +164,6 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       const data = {
         hasSeenWelcome,
         budgetName,
-        budgetAmount,
         months,
         activeMonthId,
         subscriptions,
@@ -168,7 +175,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error('Error saving budget data:', e);
     }
-  }, [hasSeenWelcome, budgetName, budgetAmount, months, activeMonthId, subscriptions, premiumStatus]);
+  }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions, premiumStatus]);
 
   useEffect(() => {
     loadData();
@@ -181,6 +188,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   }, [saveData, isLoaded]);
 
   const applyPremiumCode = useCallback(async (code: string): Promise<boolean> => {
+<<<<<<< HEAD
     console.log('[Premium] Applying premium code via backend:', code);
     try {
       // Try backend first
@@ -235,6 +243,158 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         success: boolean;
         purchase: { id: string; purchaseType: string; expiryDate: string | null };
       }>('/api/premium/purchase', { purchaseType, appleTransactionId });
+=======
+    console.log('Applying premium code:', code);
+
+    // Try backend first
+    try {
+      console.log('[API] Requesting /api/premium/verify-code...');
+      const result = await authenticatedPost<{
+        success: boolean;
+        premiumType: 'monthly' | 'lifetime';
+        expiryDate: string | null;
+      }>('/api/premium/verify-code', { code });
+
+      if (result.success) {
+        let newPremiumStatus: PremiumStatus;
+        if (result.premiumType === 'lifetime') {
+          newPremiumStatus = { type: 'Lifetime', endDate: null };
+          console.log('Lifetime premium activated via backend');
+        } else {
+          newPremiumStatus = { type: 'Monthly', endDate: result.expiryDate };
+          console.log('Monthly premium activated via backend, expires:', result.expiryDate);
+        }
+        setPremiumStatus(newPremiumStatus);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+          hasSeenWelcome,
+          budgetName,
+          months,
+          activeMonthId,
+          subscriptions,
+          premiumStatus: newPremiumStatus,
+        }));
+        return true;
+      }
+      return false;
+    } catch (backendError) {
+      console.warn('[API] Backend verify-code failed, falling back to local check:', backendError);
+      // Fallback to local code check if backend is unavailable or user not authenticated
+      const now = new Date();
+      let newPremiumStatus: PremiumStatus;
+      const normalizedCode = code.toLowerCase().trim();
+
+      if (normalizedCode === 'easy2033') {
+        newPremiumStatus = { type: 'Lifetime', endDate: null };
+        console.log('Lifetime premium activated with local code: easy2033');
+      } else if (normalizedCode === 'easy2') {
+        const oneMonthLater = new Date(now);
+        oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+        newPremiumStatus = { type: 'Monthly', endDate: oneMonthLater.toISOString() };
+        console.log('1-month premium activated with local code: easy2');
+      } else {
+        console.log('Invalid premium code:', code);
+        return false;
+      }
+
+      setPremiumStatus(newPremiumStatus);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+        hasSeenWelcome,
+        budgetName,
+        months,
+        activeMonthId,
+        subscriptions,
+        premiumStatus: newPremiumStatus,
+      }));
+      return true;
+    }
+  }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions]);
+
+  const purchasePremium = useCallback(async (purchaseType: 'lifetime' | 'monthly', appleTransactionId?: string): Promise<boolean> => {
+    console.log('[API] Requesting /api/premium/purchase...', purchaseType);
+    try {
+      const body: { purchaseType: 'lifetime' | 'monthly'; appleTransactionId?: string } = { purchaseType };
+      if (appleTransactionId) {
+        body.appleTransactionId = appleTransactionId;
+      }
+      const result = await authenticatedPost<{
+        success: boolean;
+        purchase: { id: string; purchaseType: string; expiryDate: string | null };
+      }>('/api/premium/purchase', body);
+
+      if (result.success) {
+        let newPremiumStatus: PremiumStatus;
+        if (purchaseType === 'lifetime') {
+          newPremiumStatus = { type: 'Lifetime', endDate: null };
+        } else {
+          newPremiumStatus = { type: 'Monthly', endDate: result.purchase.expiryDate, hasAppleSubscription: true };
+        }
+        setPremiumStatus(newPremiumStatus);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+          hasSeenWelcome,
+          budgetName,
+          months,
+          activeMonthId,
+          subscriptions,
+          premiumStatus: newPremiumStatus,
+        }));
+        console.log('Premium purchase successful:', purchaseType);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('[API] Premium purchase failed:', error);
+      throw error;
+    }
+  }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions]);
+
+  const fetchPremiumStatus = useCallback(async (): Promise<void> => {
+    console.log('[API] Requesting /api/premium/status...');
+    try {
+      const result = await authenticatedGet<{
+        isPremium: boolean;
+        type: 'none' | 'lifetime' | 'monthly';
+        expiryDate: string | null;
+      }>('/api/premium/status');
+
+      if (result.type === 'lifetime') {
+        const newPremiumStatus: PremiumStatus = { type: 'Lifetime', endDate: null };
+        setPremiumStatus(newPremiumStatus);
+      } else if (result.type === 'monthly' && result.isPremium) {
+        const newPremiumStatus: PremiumStatus = { type: 'Monthly', endDate: result.expiryDate, hasAppleSubscription: true };
+        setPremiumStatus(newPremiumStatus);
+      }
+      // If 'none' or not premium, keep local status (trial, etc.) unchanged
+      console.log('Premium status fetched from backend:', result);
+    } catch (error) {
+      console.warn('[API] Could not fetch premium status from backend (user may not be authenticated):', error);
+    }
+  }, []);
+
+  const cancelPremium = useCallback(async (): Promise<boolean> => {
+    console.log('[API] Requesting DELETE /api/premium/cancel...');
+    try {
+      const result = await authenticatedDelete<{ success: boolean }>('/api/premium/cancel');
+      if (result.success) {
+        const newPremiumStatus: PremiumStatus = { type: 'None', endDate: null };
+        setPremiumStatus(newPremiumStatus);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+          hasSeenWelcome,
+          budgetName,
+          months,
+          activeMonthId,
+          subscriptions,
+          premiumStatus: newPremiumStatus,
+        }));
+        console.log('Premium subscription cancelled');
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('[API] Cancel premium failed:', error);
+      throw error;
+    }
+  }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions]);
+>>>>>>> origin/main
 
       if (response.success) {
         let newPremiumStatus: PremiumStatus;
@@ -305,7 +465,11 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     const newMonth: Month = {
       id: Date.now().toString(),
       name,
+<<<<<<< HEAD
       budgetAmount,
+=======
+      budgetAmount: 0,
+>>>>>>> origin/main
       expenses: [],
       isPinned: false,
     };
@@ -474,8 +638,6 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         setHasSeenWelcome,
         budgetName,
         setBudgetName,
-        budgetAmount,
-        setBudgetAmount,
         months,
         setMonths,
         activeMonthId,

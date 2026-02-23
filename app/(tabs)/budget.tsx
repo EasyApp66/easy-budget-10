@@ -708,13 +708,20 @@ function ExpenseListCard({
       if (event.translationX < -80) {
         deleteIconOpacity.value = withSequence(
           withTiming(1, { duration: 150 }),
+<<<<<<< HEAD
           withTiming(0, { duration: 400 })
         );
         translateX.value = withTiming(0, { duration: 400 });
+=======
+          withTiming(0, { duration: 250 })
+        );
+        translateX.value = withTiming(0, { duration: 250 });
+>>>>>>> origin/main
         runOnJS(onDelete)();
       } else if (event.translationX > 80) {
         pinIconOpacity.value = withSequence(
           withTiming(1, { duration: 150 }),
+<<<<<<< HEAD
           withTiming(0, { duration: 400 })
         );
         translateX.value = withTiming(0, { duration: 400 });
@@ -723,6 +730,16 @@ function ExpenseListCard({
         translateX.value = withTiming(0, { duration: 300 });
         deleteIconOpacity.value = withTiming(0, { duration: 300 });
         pinIconOpacity.value = withTiming(0, { duration: 300 });
+=======
+          withTiming(0, { duration: 250 })
+        );
+        translateX.value = withTiming(0, { duration: 250 });
+        runOnJS(onTogglePin)();
+      } else {
+        translateX.value = withTiming(0, { duration: 200 });
+        deleteIconOpacity.value = withTiming(0, { duration: 200 });
+        pinIconOpacity.value = withTiming(0, { duration: 200 });
+>>>>>>> origin/main
       }
     });
 

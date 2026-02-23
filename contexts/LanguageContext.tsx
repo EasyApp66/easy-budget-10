@@ -290,7 +290,11 @@ const translations = {
     go: 'ALLER',
     privacy: 'Confidentialité',
     terms: 'Conditions d\'utilisation',
+<<<<<<< HEAD
     agb: 'Conditions',
+=======
+    agb: 'CGV',
+>>>>>>> origin/main
     twoWeeksPremium: 'Vous obtenez deux semaines Premium',
     
     // Budget Screen
@@ -298,7 +302,11 @@ const translations = {
     total: 'TOTAL',
     remaining: 'RESTE',
     newExpense: 'Nouvelle Dépense',
+<<<<<<< HEAD
     nameExample: 'Nom (par ex. NOURRITURE)',
+=======
+    nameExample: 'Nom (ex. NOURRITURE)',
+>>>>>>> origin/main
     amount: 'Montant',
     add: 'Ajouter',
     cancel: 'Annuler',
@@ -315,7 +323,11 @@ const translations = {
     // Subscriptions Screen
     subscriptionCosts: 'ABOS',
     newSubscription: 'Nouvel Abonnement',
+<<<<<<< HEAD
     subscriptionNameExample: 'Nom (par ex. NETFLIX)',
+=======
+    subscriptionNameExample: 'Nom (ex. NETFLIX)',
+>>>>>>> origin/main
     editSubscription: 'Modifier l\'Abonnement',
     
     // Profile Screen
@@ -534,7 +546,11 @@ const translations = {
     termsText3: 'Ley Aplicable: Estos términos se rigen por la ley suiza. El lugar de jurisdicción es Zúrich, Suiza.',
     privacyText: 'Easy Budget 10 respeta su privacidad. Todos sus datos financieros se almacenan exclusivamente de forma local en su dispositivo. No recopilamos, transmitimos ni almacenamos ningún dato personal en servidores externos.\n\nLa aplicación no requiere conexión a Internet y no envía ningún dato a terceros. Sus presupuestos, gastos y suscripciones permanecen completamente privados y bajo su control.',
     termsText: 'Al usar Easy Budget 10, acepta los siguientes términos:\n\n1. La aplicación se proporciona "tal cual" sin ninguna garantía.\n2. Usted es responsable de hacer copias de seguridad de sus datos.\n3. La aplicación es solo para fines informativos y no reemplaza el asesoramiento financiero profesional.\n4. No somos responsables de ninguna pérdida o daño que surja del uso de la aplicación.\n\nLey Aplicable: Estos términos se rigen por la ley suiza. El lugar de jurisdicción es Zúrich, Suiza.',
+<<<<<<< HEAD
     agbText: 'Términos y Condiciones Generales:\n\n1. Alcance: Estos términos se aplican al uso de la aplicación Easy Budget 10.\n\n2. Servicios: La aplicación proporciona funciones para administrar presupuestos, gastos y suscripciones.\n\n3. Derechos de Uso: Recibe un derecho no exclusivo e intransferible para usar la aplicación.\n\n4. Responsabilidad: La responsabilidad se limita a la intención y la negligencia grave.\n\n5. Cambios: Nos reservamos el derecho de cambiar estos términos en cualquier momento.\n\nPara preguntas, contáctenos en: ivanmirosnic006@gmail.com',
+=======
+    agbText: 'Términos y Condiciones Generales:\n\n1. Alcance: Estos términos se aplican al uso de la aplicación Easy Budget 10.\n\n2. Servicios: La aplicación proporciona funciones para administrar presupuestos, gastos y suscripciones.\n\n3. Derechos de Uso: Recibe un derecho no exclusivo e intransferible para usar la aplicación.\n\n4. Responsabilidad: La responsabilidad se limita a la intención y negligencia grave.\n\n5. Cambios: Nos reservamos el derecho de cambiar estos términos en cualquier momento.\n\nPara preguntas, contáctenos en: ivanmirosnic006@gmail.com',
+>>>>>>> origin/main
     
     // Promo Code Popup
     promoCodeTitle: '¡Premium Gratis!',
@@ -559,8 +575,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       } else {
         const locales = getLocales();
         const deviceLanguageCode = locales[0]?.languageCode || 'de';
+<<<<<<< HEAD
         
         let detectedLanguage: Language = 'de';
+=======
+        let detectedLanguage: Language = 'de';
+        
+>>>>>>> origin/main
         if (deviceLanguageCode.startsWith('en')) {
           detectedLanguage = 'en';
         } else if (deviceLanguageCode.startsWith('fr')) {
@@ -572,7 +593,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         }
         
         setLanguageState(detectedLanguage);
+<<<<<<< HEAD
         console.log('Auto-detected language from region:', detectedLanguage);
+=======
+        await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, detectedLanguage);
+        console.log('Auto-detected language based on device locale:', detectedLanguage);
+>>>>>>> origin/main
       }
       setIsLoaded(true);
     } catch (error) {
