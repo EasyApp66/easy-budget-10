@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 
-type Language = 'de' | 'en';
+type Language = 'de' | 'en' | 'fr' | 'es';
 
 interface LanguageContextType {
   language: Language;
@@ -63,7 +63,7 @@ const translations = {
     premiumYes: 'Premium: Ja',
     premiumNo: 'Nein',
     premiumExpired: 'Abgelaufen',
-    premiumForever: 'Für Immer',
+    premiumForever: 'Premium: Ja, für immer !',
     premiumTrial: 'Testversion',
     premiumMonthly: 'Premium',
     trial: 'Testversion',
@@ -194,7 +194,7 @@ const translations = {
     premiumYes: 'Premium: Yes',
     premiumNo: 'No',
     premiumExpired: 'Expired',
-    premiumForever: 'Forever',
+    premiumForever: 'Premium: Yes, forever !',
     premiumTrial: 'Trial',
     premiumMonthly: 'Premium',
     trial: 'Trial',
@@ -278,6 +278,268 @@ const translations = {
     promoCodeTitle: 'Free Premium!',
     promoCodeMessage: 'Get one month free Premium with code easy2',
   },
+  fr: {
+    // Welcome Screen
+    hiIAm: 'SALUT JE SUIS',
+    easyBudget: 'EASY BUDGET',
+    keepTrack: 'Gardez une trace de toutes',
+    expenses: 'Dépenses',
+    and: 'et',
+    subscriptions: 'Abonnements',
+    inOneGlance: 'en un coup d\'œil.',
+    go: 'ALLER',
+    privacy: 'Confidentialité',
+    terms: 'Conditions d\'utilisation',
+    agb: 'Conditions',
+    twoWeeksPremium: 'Vous obtenez deux semaines Premium',
+    
+    // Budget Screen
+    budget: 'BUDGET',
+    total: 'TOTAL',
+    remaining: 'RESTE',
+    newExpense: 'Nouvelle Dépense',
+    nameExample: 'Nom (par ex. NOURRITURE)',
+    amount: 'Montant',
+    add: 'Ajouter',
+    cancel: 'Annuler',
+    save: 'Enregistrer',
+    rename: 'Renommer',
+    duplicate: 'Dupliquer',
+    pin: 'Épingler',
+    unpin: 'Détacher',
+    delete: 'Supprimer',
+    editExpense: 'Modifier la Dépense',
+    changeView: 'Changer la Vue',
+    adjustNumber: 'Ajuster le Montant',
+    
+    // Subscriptions Screen
+    subscriptionCosts: 'ABOS',
+    newSubscription: 'Nouvel Abonnement',
+    subscriptionNameExample: 'Nom (par ex. NETFLIX)',
+    editSubscription: 'Modifier l\'Abonnement',
+    
+    // Profile Screen
+    profile: 'Profil',
+    premiumStatus: 'Statut Premium',
+    status: 'Statut',
+    premiumYes: 'Premium: Oui',
+    premiumNo: 'Non',
+    premiumExpired: 'Expiré',
+    premiumForever: 'Premium: Oui, pour toujours !',
+    premiumTrial: 'Essai',
+    premiumMonthly: 'Premium',
+    trial: 'Essai',
+    premiumActive: 'Premium',
+    daysLeft: 'jours restants',
+    days: 'jours',
+    premium: 'Premium',
+    changeLanguage: 'Changer la Langue',
+    language: 'Langue',
+    termsOfUse: 'Conditions d\'utilisation',
+    privacyPolicy: 'Politique de Confidentialité',
+    imprint: 'Mentions Légales',
+    impressum: 'Mentions Légales',
+    support: 'Support',
+    reportBug: 'Signaler un Bug',
+    suggestion: 'Suggestion',
+    donation: 'Don',
+    legal: 'Légal',
+    close: 'Fermer',
+    getPremium: 'Obtenir Premium',
+    cancelPremium: 'Annuler l\'Abonnement Premium',
+    cancelSubscription: 'Annuler l\'Abonnement Premium',
+    enterPremiumCode: 'Entrer le Code Premium',
+    premiumCodePlaceholder: 'Entrer le code',
+    codePlaceholder: 'Entrer le code',
+    apply: 'Appliquer',
+    success: 'Succès',
+    error: 'Erreur',
+    premiumActivated: 'Premium a été activé!',
+    invalidCode: 'Code invalide',
+    enterCode: 'Veuillez entrer le code',
+    
+    // Premium Modal
+    premiumTitle: 'Obtenir Premium',
+    premiumSubtitle: 'Obtenez des fonctionnalités illimitées',
+    unlimitedFeatures: 'Fonctionnalités Illimitées',
+    unlimitedSubscriptions: 'Abonnements Illimités',
+    unlimitedExpenses: 'Dépenses Illimitées',
+    unlimitedMonths: 'Mois Illimités',
+    feature1: 'Compteur d\'Abonnements Illimité',
+    feature2: 'Liste de Dépenses Illimitée',
+    feature3: 'Mois Illimités',
+    monthlyPrice: 'Prix Mensuel',
+    oneTimePayment: 'Paiement Unique',
+    monthlySubscription: 'Abonnement Mensuel',
+    month: 'mois',
+    pay: 'Payer',
+    or: 'ou',
+    subscribe: 'S\'abonner',
+    restorePurchases: 'Restaurer les Achats',
+    
+    // Donation Modal
+    donationTitle: 'Don',
+    donationText: 'Soutenez le développement de l\'application avec un don. Chaque montant aide!',
+    supportDevelopment: 'Soutenir le Développement',
+    customAmount: 'Montant Personnalisé',
+    donate: 'Faire un Don',
+    thankYou: 'Merci!',
+    donationThankYou: 'Merci pour votre soutien!',
+    
+    // Email
+    supportSubject: 'Easy Budget - Support',
+    supportBody: '',
+    bugReportSubject: 'Easy Budget - Rapport de Bug',
+    bugReportBody: '',
+    suggestionSubject: 'Easy Budget - Suggestion',
+    suggestionBody: '',
+    emailNotAvailable: 'L\'email n\'est pas disponible sur cet appareil',
+    
+    // Legal Texts
+    privacyText1: 'Easy Budget 10 respecte votre vie privée. Toutes vos données financières sont stockées exclusivement localement sur votre appareil. Nous ne collectons, ne transmettons ni ne stockons aucune donnée personnelle sur des serveurs externes.',
+    privacyText2: 'L\'application ne nécessite pas de connexion Internet et n\'envoie aucune donnée à des tiers. Vos budgets, dépenses et abonnements restent complètement privés et sous votre contrôle.',
+    termsText1: 'En utilisant Easy Budget 10, vous acceptez les conditions suivantes:',
+    termsText2: '1. L\'application est fournie "telle quelle" sans aucune garantie.\n2. Vous êtes responsable de la sauvegarde de vos données.\n3. L\'application est à des fins d\'information uniquement et ne remplace pas les conseils financiers professionnels.\n4. Nous ne sommes pas responsables des pertes ou dommages résultant de l\'utilisation de l\'application.',
+    termsText3: 'Droit Applicable: Ces conditions sont régies par le droit suisse. Le lieu de juridiction est Zurich, Suisse.',
+    privacyText: 'Easy Budget 10 respecte votre vie privée. Toutes vos données financières sont stockées exclusivement localement sur votre appareil. Nous ne collectons, ne transmettons ni ne stockons aucune donnée personnelle sur des serveurs externes.\n\nL\'application ne nécessite pas de connexion Internet et n\'envoie aucune donnée à des tiers. Vos budgets, dépenses et abonnements restent complètement privés et sous votre contrôle.',
+    termsText: 'En utilisant Easy Budget 10, vous acceptez les conditions suivantes:\n\n1. L\'application est fournie "telle quelle" sans aucune garantie.\n2. Vous êtes responsable de la sauvegarde de vos données.\n3. L\'application est à des fins d\'information uniquement et ne remplace pas les conseils financiers professionnels.\n4. Nous ne sommes pas responsables des pertes ou dommages résultant de l\'utilisation de l\'application.\n\nDroit Applicable: Ces conditions sont régies par le droit suisse. Le lieu de juridiction est Zurich, Suisse.',
+    agbText: 'Conditions Générales:\n\n1. Portée: Ces conditions s\'appliquent à l\'utilisation de l\'application Easy Budget 10.\n\n2. Services: L\'application fournit des fonctionnalités pour gérer les budgets, les dépenses et les abonnements.\n\n3. Droits d\'Utilisation: Vous recevez un droit non exclusif et non transférable d\'utiliser l\'application.\n\n4. Responsabilité: La responsabilité est limitée à l\'intention et à la négligence grave.\n\n5. Modifications: Nous nous réservons le droit de modifier ces conditions à tout moment.\n\nPour toute question, contactez-nous à: ivanmirosnic006@gmail.com',
+    
+    // Promo Code Popup
+    promoCodeTitle: 'Premium Gratuit!',
+    promoCodeMessage: 'Obtenez un mois de Premium gratuit avec le code easy2',
+  },
+  es: {
+    // Welcome Screen
+    hiIAm: 'HOLA SOY',
+    easyBudget: 'EASY BUDGET',
+    keepTrack: 'Mantén un registro de todos',
+    expenses: 'Gastos',
+    and: 'y',
+    subscriptions: 'Suscripciones',
+    inOneGlance: 'de un vistazo.',
+    go: 'IR',
+    privacy: 'Privacidad',
+    terms: 'Términos de Uso',
+    agb: 'Términos',
+    twoWeeksPremium: 'Obtienes dos semanas Premium',
+    
+    // Budget Screen
+    budget: 'PRESUPUESTO',
+    total: 'TOTAL',
+    remaining: 'QUEDA',
+    newExpense: 'Nuevo Gasto',
+    nameExample: 'Nombre (ej. COMIDA)',
+    amount: 'Cantidad',
+    add: 'Añadir',
+    cancel: 'Cancelar',
+    save: 'Guardar',
+    rename: 'Renombrar',
+    duplicate: 'Duplicar',
+    pin: 'Fijar',
+    unpin: 'Desfijar',
+    delete: 'Eliminar',
+    editExpense: 'Editar Gasto',
+    changeView: 'Cambiar Vista',
+    adjustNumber: 'Ajustar Cantidad',
+    
+    // Subscriptions Screen
+    subscriptionCosts: 'SUBS',
+    newSubscription: 'Nueva Suscripción',
+    subscriptionNameExample: 'Nombre (ej. NETFLIX)',
+    editSubscription: 'Editar Suscripción',
+    
+    // Profile Screen
+    profile: 'Perfil',
+    premiumStatus: 'Estado Premium',
+    status: 'Estado',
+    premiumYes: 'Premium: Sí',
+    premiumNo: 'No',
+    premiumExpired: 'Expirado',
+    premiumForever: 'Premium: Sí, para siempre !',
+    premiumTrial: 'Prueba',
+    premiumMonthly: 'Premium',
+    trial: 'Prueba',
+    premiumActive: 'Premium',
+    daysLeft: 'días restantes',
+    days: 'días',
+    premium: 'Premium',
+    changeLanguage: 'Cambiar Idioma',
+    language: 'Idioma',
+    termsOfUse: 'Términos de Uso',
+    privacyPolicy: 'Política de Privacidad',
+    imprint: 'Aviso Legal',
+    impressum: 'Aviso Legal',
+    support: 'Soporte',
+    reportBug: 'Reportar Error',
+    suggestion: 'Sugerencia',
+    donation: 'Donación',
+    legal: 'Legal',
+    close: 'Cerrar',
+    getPremium: 'Obtener Premium',
+    cancelPremium: 'Cancelar Suscripción Premium',
+    cancelSubscription: 'Cancelar Suscripción Premium',
+    enterPremiumCode: 'Ingresar Código Premium',
+    premiumCodePlaceholder: 'Ingresar código',
+    codePlaceholder: 'Ingresar código',
+    apply: 'Aplicar',
+    success: 'Éxito',
+    error: 'Error',
+    premiumActivated: '¡Premium ha sido activado!',
+    invalidCode: 'Código inválido',
+    enterCode: 'Por favor ingrese el código',
+    
+    // Premium Modal
+    premiumTitle: 'Obtener Premium',
+    premiumSubtitle: 'Obtén funciones ilimitadas',
+    unlimitedFeatures: 'Funciones Ilimitadas',
+    unlimitedSubscriptions: 'Suscripciones Ilimitadas',
+    unlimitedExpenses: 'Gastos Ilimitados',
+    unlimitedMonths: 'Meses Ilimitados',
+    feature1: 'Contador de Suscripciones Ilimitado',
+    feature2: 'Lista de Gastos Ilimitada',
+    feature3: 'Meses Ilimitados',
+    monthlyPrice: 'Precio Mensual',
+    oneTimePayment: 'Pago Único',
+    monthlySubscription: 'Suscripción Mensual',
+    month: 'mes',
+    pay: 'Pagar',
+    or: 'o',
+    subscribe: 'Suscribirse',
+    restorePurchases: 'Restaurar Compras',
+    
+    // Donation Modal
+    donationTitle: 'Donación',
+    donationText: 'Apoya el desarrollo de la aplicación con una donación. ¡Cada cantidad ayuda!',
+    supportDevelopment: 'Apoyar el Desarrollo',
+    customAmount: 'Cantidad Personalizada',
+    donate: 'Donar',
+    thankYou: '¡Gracias!',
+    donationThankYou: '¡Gracias por tu apoyo!',
+    
+    // Email
+    supportSubject: 'Easy Budget - Soporte',
+    supportBody: '',
+    bugReportSubject: 'Easy Budget - Reporte de Error',
+    bugReportBody: '',
+    suggestionSubject: 'Easy Budget - Sugerencia',
+    suggestionBody: '',
+    emailNotAvailable: 'El correo electrónico no está disponible en este dispositivo',
+    
+    // Legal Texts
+    privacyText1: 'Easy Budget 10 respeta su privacidad. Todos sus datos financieros se almacenan exclusivamente de forma local en su dispositivo. No recopilamos, transmitimos ni almacenamos ningún dato personal en servidores externos.',
+    privacyText2: 'La aplicación no requiere conexión a Internet y no envía ningún dato a terceros. Sus presupuestos, gastos y suscripciones permanecen completamente privados y bajo su control.',
+    termsText1: 'Al usar Easy Budget 10, acepta los siguientes términos:',
+    termsText2: '1. La aplicación se proporciona "tal cual" sin ninguna garantía.\n2. Usted es responsable de hacer copias de seguridad de sus datos.\n3. La aplicación es solo para fines informativos y no reemplaza el asesoramiento financiero profesional.\n4. No somos responsables de ninguna pérdida o daño que surja del uso de la aplicación.',
+    termsText3: 'Ley Aplicable: Estos términos se rigen por la ley suiza. El lugar de jurisdicción es Zúrich, Suiza.',
+    privacyText: 'Easy Budget 10 respeta su privacidad. Todos sus datos financieros se almacenan exclusivamente de forma local en su dispositivo. No recopilamos, transmitimos ni almacenamos ningún dato personal en servidores externos.\n\nLa aplicación no requiere conexión a Internet y no envía ningún dato a terceros. Sus presupuestos, gastos y suscripciones permanecen completamente privados y bajo su control.',
+    termsText: 'Al usar Easy Budget 10, acepta los siguientes términos:\n\n1. La aplicación se proporciona "tal cual" sin ninguna garantía.\n2. Usted es responsable de hacer copias de seguridad de sus datos.\n3. La aplicación es solo para fines informativos y no reemplaza el asesoramiento financiero profesional.\n4. No somos responsables de ninguna pérdida o daño que surja del uso de la aplicación.\n\nLey Aplicable: Estos términos se rigen por la ley suiza. El lugar de jurisdicción es Zúrich, Suiza.',
+    agbText: 'Términos y Condiciones Generales:\n\n1. Alcance: Estos términos se aplican al uso de la aplicación Easy Budget 10.\n\n2. Servicios: La aplicación proporciona funciones para administrar presupuestos, gastos y suscripciones.\n\n3. Derechos de Uso: Recibe un derecho no exclusivo e intransferible para usar la aplicación.\n\n4. Responsabilidad: La responsabilidad se limita a la intención y la negligencia grave.\n\n5. Cambios: Nos reservamos el derecho de cambiar estos términos en cualquier momento.\n\nPara preguntas, contáctenos en: ivanmirosnic006@gmail.com',
+    
+    // Promo Code Popup
+    promoCodeTitle: '¡Premium Gratis!',
+    promoCodeMessage: 'Obtén un mes de Premium gratis con el código easy2',
+  },
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
@@ -296,9 +558,21 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         console.log('Loaded saved language:', savedLanguage);
       } else {
         const locales = getLocales();
-        const deviceLanguage = locales[0]?.languageCode?.startsWith('de') ? 'de' : 'en';
-        setLanguageState(deviceLanguage);
-        console.log('Using device language:', deviceLanguage);
+        const deviceLanguageCode = locales[0]?.languageCode || 'de';
+        
+        let detectedLanguage: Language = 'de';
+        if (deviceLanguageCode.startsWith('en')) {
+          detectedLanguage = 'en';
+        } else if (deviceLanguageCode.startsWith('fr')) {
+          detectedLanguage = 'fr';
+        } else if (deviceLanguageCode.startsWith('es')) {
+          detectedLanguage = 'es';
+        } else if (deviceLanguageCode.startsWith('de')) {
+          detectedLanguage = 'de';
+        }
+        
+        setLanguageState(detectedLanguage);
+        console.log('Auto-detected language from region:', detectedLanguage);
       }
       setIsLoaded(true);
     } catch (error) {

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert, Animated } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert, Animated, ActivityIndicator } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -15,15 +15,21 @@ export default function ProfileScreen() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [showPromoModal, setShowPromoModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
   const [premiumCode, setPremiumCode] = useState('');
   const [selectedDonationAmount, setSelectedDonationAmount] = useState(5);
   const [customDonationAmount, setCustomDonationAmount] = useState('');
   const [username, setUsername] = useState('');
   const [editingUsername, setEditingUsername] = useState(false);
   const [tempUsername, setTempUsername] = useState('');
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   
   const { language, setLanguage, t } = useLanguage();
-  const { premiumStatus, applyPremiumCode } = useBudget();
+  const { premiumStatus, applyPremiumCode, purchasePremium, fetchPremiumStatus, cancelPremium } = useBudget();
 
   // Fade-in animations
   const [fadeAnims] = useState(() => ({
@@ -55,6 +61,8 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     loadUsername();
+    // Sync premium status from backend on mount
+    fetchPremiumStatus().catch(err => console.warn('[Profile] Could not sync premium status:', err));
   }, []);
 
   const loadUsername = async () => {
@@ -166,24 +174,104 @@ export default function ProfileScreen() {
 
   const handleApplyCode = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (premiumCode.trim()) {
+    if (!premiumCode.trim()) {
+      setModalMessage(t('enterCode'));
+      setShowErrorModal(true);
+      return;
+    }
+    try {
       const success = await applyPremiumCode(premiumCode.trim());
       if (success) {
-        Alert.alert(t('success'), t('premiumActivated'));
+        setModalMessage(t('premiumActivated'));
+        setShowSuccessModal(true);
         setPremiumCode('');
       } else {
-        Alert.alert(t('error'), t('invalidCode'));
+        setModalMessage(t('invalidCode'));
+        setShowErrorModal(true);
       }
+    } catch (error) {
+      console.error('[Profile] Error applying code:', error);
+      setModalMessage(t('invalidCode'));
+      setShowErrorModal(true);
     }
   };
 
   const handleDonation = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = customDonationAmount ? parseFloat(customDonationAmount) : selectedDonationAmount;
-    console.log('Donation amount:', amount);
-    // TODO: Backend Integration - Apple Pay donation payment
-    Alert.alert(t('thankYou'), t('donationThankYou'));
+    console.log('[Profile] Donation amount:', amount);
     setShowDonationModal(false);
+    setModalMessage(t('donationThankYou'));
+    setShowSuccessModal(true);
+  };
+
+  const handleOneTimePayment = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    console.log('[Profile] One-time lifetime payment initiated');
+    setIsPurchasing(true);
+    try {
+      const success = await purchasePremium('lifetime');
+      if (success) {
+        setShowPremiumModal(false);
+        setModalMessage(t('premiumActivated'));
+        setShowSuccessModal(true);
+      } else {
+        setModalMessage(t('error'));
+        setShowErrorModal(true);
+      }
+    } catch (error) {
+      console.error('[Profile] One-time payment failed:', error);
+      setModalMessage(t('error'));
+      setShowErrorModal(true);
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  const handleMonthlySubscription = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    console.log('[Profile] Monthly subscription initiated');
+    setIsPurchasing(true);
+    try {
+      const success = await purchasePremium('monthly');
+      if (success) {
+        setShowPremiumModal(false);
+        setModalMessage(t('premiumActivated'));
+        setShowSuccessModal(true);
+      } else {
+        setModalMessage(t('error'));
+        setShowErrorModal(true);
+      }
+    } catch (error) {
+      console.error('[Profile] Monthly subscription failed:', error);
+      setModalMessage(t('error'));
+      setShowErrorModal(true);
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  const handleCancelPremium = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setShowCancelConfirmModal(true);
+  };
+
+  const confirmCancelPremium = async () => {
+    setShowCancelConfirmModal(false);
+    setIsCancelling(true);
+    try {
+      const success = await cancelPremium();
+      if (success) {
+        setModalMessage(t('cancelPremium'));
+        setShowSuccessModal(true);
+      }
+    } catch (error) {
+      console.error('[Profile] Cancel premium failed:', error);
+      setModalMessage(t('error'));
+      setShowErrorModal(true);
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   const handlePromoCodePress = async () => {
@@ -205,7 +293,7 @@ export default function ProfileScreen() {
     } else if (premiumStatus.type === 'Expired') {
       return t('premiumExpired');
     } else {
-      return t('premiumNo');
+      return `Premium: ${t('premiumNo')}`;
     }
   };
 
@@ -278,13 +366,19 @@ export default function ProfileScreen() {
           {premiumStatus.hasAppleSubscription && (
             <TouchableOpacity 
               style={styles.menuItem} 
+              onPress={handleCancelPremium}
               activeOpacity={0.7}
+              disabled={isCancelling}
             >
               <View style={styles.menuItemLeft}>
                 <MaterialIcons name="cancel" size={24} color="#FF3B30" />
-                <Text style={styles.menuItemText}>{t('cancelPremium')}</Text>
+                <Text style={styles.menuItemText}>{isCancelling ? '...' : t('cancelPremium')}</Text>
               </View>
-              <MaterialIcons name="chevron-right" size={24} color="#666666" />
+              {isCancelling ? (
+                <ActivityIndicator size="small" color="#666666" />
+              ) : (
+                <MaterialIcons name="chevron-right" size={24} color="#666666" />
+              )}
             </TouchableOpacity>
           )}
 
@@ -484,15 +578,16 @@ export default function ProfileScreen() {
                 <Text style={styles.pricingTitle}>{t('oneTimePayment')}</Text>
                 <Text style={styles.pricingAmount}>CHF 10.00</Text>
                 <TouchableOpacity 
-                  style={styles.pricingButton}
+                  style={[styles.pricingButton, isPurchasing && { opacity: 0.6 }]}
                   activeOpacity={0.8}
-                  onPress={async () => {
-                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    console.log('One-time payment initiated');
-                    // TODO: Backend Integration - Apple Pay one-time payment
-                  }}
+                  onPress={handleOneTimePayment}
+                  disabled={isPurchasing}
                 >
-                  <Text style={styles.pricingButtonText}>{t('pay')}</Text>
+                  {isPurchasing ? (
+                    <ActivityIndicator size="small" color="#000000" />
+                  ) : (
+                    <Text style={styles.pricingButtonText}>{t('pay')}</Text>
+                  )}
                 </TouchableOpacity>
               </View>
 
@@ -502,15 +597,16 @@ export default function ProfileScreen() {
                 <Text style={styles.pricingTitle}>{t('monthlySubscription')}</Text>
                 <Text style={styles.pricingAmount}>CHF 1.00/{t('month')}</Text>
                 <TouchableOpacity 
-                  style={styles.pricingButton}
+                  style={[styles.pricingButton, isPurchasing && { opacity: 0.6 }]}
                   activeOpacity={0.8}
-                  onPress={async () => {
-                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    console.log('Monthly subscription initiated');
-                    // TODO: Backend Integration - Apple Pay monthly subscription
-                  }}
+                  onPress={handleMonthlySubscription}
+                  disabled={isPurchasing}
                 >
-                  <Text style={styles.pricingButtonText}>{t('pay')}</Text>
+                  {isPurchasing ? (
+                    <ActivityIndicator size="small" color="#000000" />
+                  ) : (
+                    <Text style={styles.pricingButtonText}>{t('pay')}</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -636,6 +732,99 @@ export default function ProfileScreen() {
             >
               <Text style={styles.promoOkButtonText}>OK</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal
+        visible={showSuccessModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowSuccessModal(false)}
+      >
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.feedbackModal}>
+            <View style={styles.feedbackIconContainer}>
+              <MaterialIcons name="check-circle" size={40} color="#BFFE84" />
+            </View>
+            <Text style={styles.feedbackTitle}>{t('success')}</Text>
+            <Text style={styles.feedbackMessage}>{modalMessage}</Text>
+            <TouchableOpacity
+              style={styles.feedbackButton}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowSuccessModal(false);
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.feedbackButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        visible={showErrorModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowErrorModal(false)}
+      >
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.feedbackModal}>
+            <View style={[styles.feedbackIconContainer, { backgroundColor: 'rgba(255, 59, 48, 0.2)' }]}>
+              <MaterialIcons name="error" size={40} color="#FF3B30" />
+            </View>
+            <Text style={styles.feedbackTitle}>{t('error')}</Text>
+            <Text style={styles.feedbackMessage}>{modalMessage}</Text>
+            <TouchableOpacity
+              style={[styles.feedbackButton, { backgroundColor: '#FF3B30' }]}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowErrorModal(false);
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.feedbackButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Cancel Confirm Modal */}
+      <Modal
+        visible={showCancelConfirmModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowCancelConfirmModal(false)}
+      >
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.feedbackModal}>
+            <View style={[styles.feedbackIconContainer, { backgroundColor: 'rgba(255, 59, 48, 0.2)' }]}>
+              <MaterialIcons name="cancel" size={40} color="#FF3B30" />
+            </View>
+            <Text style={styles.feedbackTitle}>{t('cancelPremium')}</Text>
+            <Text style={styles.feedbackMessage}>{t('cancelSubscription')}</Text>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <TouchableOpacity
+                style={[styles.feedbackButton, { backgroundColor: '#2C2C2E', borderWidth: 1, borderColor: '#666666' }]}
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowCancelConfirmModal(false);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.feedbackButtonText, { color: '#FFFFFF' }]}>{t('cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.feedbackButton, { backgroundColor: '#FF3B30' }]}
+                onPress={confirmCancelPremium}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.feedbackButtonText}>{t('delete')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -1065,6 +1254,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   promoOkButtonText: {
+    fontSize: 16,
+    color: '#000000',
+    fontWeight: 'bold',
+  },
+  feedbackModal: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 20,
+    padding: 24,
+    width: '90%',
+    maxWidth: 340,
+    alignItems: 'center',
+  },
+  feedbackIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(191, 254, 132, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  feedbackTitle: {
+    fontSize: 20,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  feedbackMessage: {
+    fontSize: 15,
+    color: '#CCCCCC',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  feedbackButton: {
+    backgroundColor: '#BFFE84',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    minWidth: 100,
+  },
+  feedbackButtonText: {
     fontSize: 16,
     color: '#000000',
     fontWeight: 'bold',

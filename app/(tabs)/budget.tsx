@@ -24,9 +24,6 @@ export default function BudgetScreen() {
   const { t } = useLanguage();
   const {
     budgetName,
-    setBudgetName,
-    budgetAmount,
-    setBudgetAmount,
     months,
     activeMonthId,
     setActiveMonthId,
@@ -35,6 +32,7 @@ export default function BudgetScreen() {
     duplicateMonth,
     renameMonth,
     togglePinMonth,
+    updateMonthBudget,
     addExpense,
     deleteExpense,
     updateExpense,
@@ -42,10 +40,8 @@ export default function BudgetScreen() {
     togglePinExpense,
   } = useBudget();
 
-  const [editingBudgetName, setEditingBudgetName] = useState(false);
   const [editingBudgetAmount, setEditingBudgetAmount] = useState(false);
-  const [tempBudgetName, setTempBudgetName] = useState(budgetName);
-  const [tempBudgetAmount, setTempBudgetAmount] = useState(budgetAmount.toString());
+  const [tempBudgetAmount, setTempBudgetAmount] = useState('0');
 
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
   const [newExpenseName, setNewExpenseName] = useState('');
@@ -65,7 +61,6 @@ export default function BudgetScreen() {
   const [monthCounter, setMonthCounter] = useState(1);
   const [expenseViewMode, setExpenseViewMode] = useState<'grid' | 'list'>('grid');
 
-  // Fade-in animations
   const [fadeAnims] = useState(() => ({
     header: new Animated.Value(0),
     summary: new Animated.Value(0),
@@ -74,7 +69,6 @@ export default function BudgetScreen() {
   }));
 
   useEffect(() => {
-    // Staggered fade-in animation
     Animated.stagger(80, [
       Animated.timing(fadeAnims.header, {
         toValue: 1,
@@ -107,24 +101,16 @@ export default function BudgetScreen() {
   }, [params.triggerAdd]);
 
   const activeMonth = months.find(m => m.id === activeMonthId);
+  const budgetAmount = activeMonth?.budgetAmount || 0;
   const totalExpenses = activeMonth?.expenses.reduce((sum, e) => sum + e.amount, 0) || 0;
   const remaining = budgetAmount - totalExpenses;
-
-  const saveBudgetName = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (tempBudgetName.trim()) {
-      setBudgetName(tempBudgetName.trim());
-      console.log('Budget name saved:', tempBudgetName);
-    }
-    setEditingBudgetName(false);
-  };
 
   const saveBudgetAmount = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = parseFloat(tempBudgetAmount);
-    if (!isNaN(amount) && amount >= 0) {
-      setBudgetAmount(amount);
-      console.log('Budget amount saved:', amount);
+    if (!isNaN(amount) && amount >= 0 && activeMonthId) {
+      updateMonthBudget(activeMonthId, amount);
+      console.log('Budget amount saved for month:', amount);
     }
     setEditingBudgetAmount(false);
   };
@@ -150,7 +136,7 @@ export default function BudgetScreen() {
   const handleAddMonth = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const newMonthName = `Neu ${monthCounter}`;
-    addMonth(newMonthName);
+    addMonth(newMonthName, 0);
     setMonthCounter(monthCounter + 1);
     console.log('New month added:', newMonthName);
   };
@@ -305,24 +291,7 @@ export default function BudgetScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Animated.View style={[styles.budgetHeader, { opacity: fadeAnims.header }]}>
-          {editingBudgetName ? (
-            <TextInput
-              style={styles.budgetNameInput}
-              value={tempBudgetName}
-              onChangeText={setTempBudgetName}
-              onBlur={saveBudgetName}
-              autoFocus
-              selectTextOnFocus
-            />
-          ) : (
-            <TouchableOpacity onPress={async () => {
-              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setTempBudgetName(budgetName);
-              setEditingBudgetName(true);
-            }}>
-              <Text style={styles.budgetLabel}>{t('budget')}</Text>
-            </TouchableOpacity>
-          )}
+          <Text style={styles.budgetLabel}>{t('budget')}</Text>
 
           {editingBudgetAmount ? (
             <TextInput
@@ -722,36 +691,38 @@ function ExpenseListCard({
   const pinIconOpacity = useSharedValue(0);
 
   const panGesture = Gesture.Pan()
+    .activeOffsetX([-20, 20])
+    .failOffsetY([-10, 10])
     .onUpdate((event) => {
       if (event.translationX < 0) {
         translateX.value = Math.max(event.translationX, -100);
-        deleteIconOpacity.value = Math.min(Math.abs(event.translationX) / 100, 1);
-        pinIconOpacity.value = 0;
+        deleteIconOpacity.value = withTiming(Math.min(Math.abs(event.translationX) / 100, 1), { duration: 150 });
+        pinIconOpacity.value = withTiming(0, { duration: 150 });
       } else if (event.translationX > 0) {
         translateX.value = Math.min(event.translationX, 100);
-        pinIconOpacity.value = Math.min(event.translationX / 100, 1);
-        deleteIconOpacity.value = 0;
+        pinIconOpacity.value = withTiming(Math.min(event.translationX / 100, 1), { duration: 150 });
+        deleteIconOpacity.value = withTiming(0, { duration: 150 });
       }
     })
     .onEnd((event) => {
       if (event.translationX < -80) {
         deleteIconOpacity.value = withSequence(
-          withTiming(1, { duration: 200 }),
-          withTiming(0, { duration: 300 })
+          withTiming(1, { duration: 150 }),
+          withTiming(0, { duration: 400 })
         );
-        translateX.value = withTiming(0, { duration: 300 });
+        translateX.value = withTiming(0, { duration: 400 });
         runOnJS(onDelete)();
       } else if (event.translationX > 80) {
         pinIconOpacity.value = withSequence(
-          withTiming(1, { duration: 200 }),
-          withTiming(0, { duration: 300 })
+          withTiming(1, { duration: 150 }),
+          withTiming(0, { duration: 400 })
         );
-        translateX.value = withTiming(0, { duration: 300 });
+        translateX.value = withTiming(0, { duration: 400 });
         runOnJS(onTogglePin)();
       } else {
-        translateX.value = withTiming(0);
-        deleteIconOpacity.value = withTiming(0);
-        pinIconOpacity.value = withTiming(0);
+        translateX.value = withTiming(0, { duration: 300 });
+        deleteIconOpacity.value = withTiming(0, { duration: 300 });
+        pinIconOpacity.value = withTiming(0, { duration: 300 });
       }
     });
 
@@ -830,15 +801,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     letterSpacing: 1,
-  },
-  budgetNameInput: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    letterSpacing: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: '#BFFE84',
-    paddingHorizontal: 5,
   },
   budgetAmount: {
     fontSize: 28,
