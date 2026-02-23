@@ -38,6 +38,30 @@ describe("API Integration Tests", () => {
     expect(data.purchase.id).toBeDefined();
   });
 
+  test("POST /api/premium/purchase with monthly creates purchase", async () => {
+    const res = await authenticatedApi("/api/premium/purchase", authToken, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ purchaseType: "monthly" }),
+    });
+    await expectStatus(res, 201);
+    const data = await res.json();
+    expect(data.success).toBe(true);
+    expect(data.purchase).toBeDefined();
+  });
+
+  test("POST /api/premium/purchase with appleTransactionId", async () => {
+    const res = await authenticatedApi("/api/premium/purchase", authToken, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        purchaseType: "lifetime",
+        appleTransactionId: "test-transaction-123",
+      }),
+    });
+    await expectStatus(res, 201);
+  });
+
   test("POST /api/premium/purchase without required purchaseType returns 400", async () => {
     const res = await authenticatedApi("/api/premium/purchase", authToken, {
       method: "POST",
@@ -62,6 +86,15 @@ describe("API Integration Tests", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: "invalid-code-xyz" }),
+    });
+    await expectStatus(res, 400);
+  });
+
+  test("POST /api/premium/verify-code without code field returns 400", async () => {
+    const res = await authenticatedApi("/api/premium/verify-code", authToken, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
     });
     await expectStatus(res, 400);
   });
