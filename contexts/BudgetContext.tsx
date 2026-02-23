@@ -49,6 +49,7 @@ interface BudgetContextType {
   fetchPremiumStatus: () => Promise<void>;
   cancelPremium: () => Promise<boolean>;
   addMonth: (name: string) => void;
+>>>>>>> origin/main
   deleteMonth: (id: string) => void;
   duplicateMonth: (id: string) => void;
   renameMonth: (id: string, newName: string) => void;
@@ -326,7 +327,222 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     }
   }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions]);
 
-  const addMonth = (name: string) => {
+    // Try backend first
+    try {
+      console.log('[API] Requesting /api/premium/verify-code...');
+      const result = await authenticatedPost<{
+        success: boolean;
+        premiumType: 'monthly' | 'lifetime';
+        expiryDate: string | null;
+      }>('/api/premium/verify-code', { code });
+
+      if (result.success) {
+        let newPremiumStatus: PremiumStatus;
+        if (result.premiumType === 'lifetime') {
+          newPremiumStatus = { type: 'Lifetime', endDate: null };
+          console.log('Lifetime premium activated via backend');
+        } else {
+          newPremiumStatus = { type: 'Monthly', endDate: result.expiryDate };
+          console.log('Monthly premium activated via backend, expires:', result.expiryDate);
+        }
+        setPremiumStatus(newPremiumStatus);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+          hasSeenWelcome,
+          budgetName,
+          months,
+          activeMonthId,
+          subscriptions,
+          premiumStatus: newPremiumStatus,
+        }));
+        return true;
+      }
+      return false;
+    } catch (backendError) {
+      console.warn('[API] Backend verify-code failed, falling back to local check:', backendError);
+      // Fallback to local code check if backend is unavailable or user not authenticated
+      const now = new Date();
+      let newPremiumStatus: PremiumStatus;
+      const normalizedCode = code.toLowerCase().trim();
+
+      if (normalizedCode === 'easy2033') {
+        newPremiumStatus = { type: 'Lifetime', endDate: null };
+        console.log('Lifetime premium activated with local code: easy2033');
+      } else if (normalizedCode === 'easy2') {
+        const oneMonthLater = new Date(now);
+        oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+        newPremiumStatus = { type: 'Monthly', endDate: oneMonthLater.toISOString() };
+        console.log('1-month premium activated with local code: easy2');
+      } else {
+        console.log('Invalid premium code:', code);
+        return false;
+      }
+
+      setPremiumStatus(newPremiumStatus);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+        hasSeenWelcome,
+        budgetName,
+        months,
+        activeMonthId,
+        subscriptions,
+        premiumStatus: newPremiumStatus,
+      }));
+      return true;
+    }
+  }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions]);
+
+  const purchasePremium = useCallback(async (purchaseType: 'lifetime' | 'monthly', appleTransactionId?: string): Promise<boolean> => {
+    console.log('[API] Requesting /api/premium/purchase...', purchaseType);
+    try {
+      const body: { purchaseType: 'lifetime' | 'monthly'; appleTransactionId?: string } = { purchaseType };
+      if (appleTransactionId) {
+        body.appleTransactionId = appleTransactionId;
+      }
+      const result = await authenticatedPost<{
+        success: boolean;
+        purchase: { id: string; purchaseType: string; expiryDate: string | null };
+      }>('/api/premium/purchase', body);
+
+      if (result.success) {
+        let newPremiumStatus: PremiumStatus;
+        if (purchaseType === 'lifetime') {
+          newPremiumStatus = { type: 'Lifetime', endDate: null };
+        } else {
+          newPremiumStatus = { type: 'Monthly', endDate: result.purchase.expiryDate, hasAppleSubscription: true };
+        }
+        setPremiumStatus(newPremiumStatus);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+          hasSeenWelcome,
+          budgetName,
+          months,
+          activeMonthId,
+          subscriptions,
+          premiumStatus: newPremiumStatus,
+        }));
+        console.log('Premium purchase successful:', purchaseType);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('[API] Premium purchase failed:', error);
+      throw error;
+    }
+  }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions]);
+
+  const fetchPremiumStatus = useCallback(async (): Promise<void> => {
+    console.log('[API] Requesting /api/premium/status...');
+    try {
+      const result = await authenticatedGet<{
+        isPremium: boolean;
+        type: 'none' | 'lifetime' | 'monthly';
+        expiryDate: string | null;
+      }>('/api/premium/status');
+
+      if (result.type === 'lifetime') {
+        const newPremiumStatus: PremiumStatus = { type: 'Lifetime', endDate: null };
+        setPremiumStatus(newPremiumStatus);
+      } else if (result.type === 'monthly' && result.isPremium) {
+        const newPremiumStatus: PremiumStatus = { type: 'Monthly', endDate: result.expiryDate, hasAppleSubscription: true };
+        setPremiumStatus(newPremiumStatus);
+      }
+      // If 'none' or not premium, keep local status (trial, etc.) unchanged
+      console.log('Premium status fetched from backend:', result);
+    } catch (error) {
+      console.warn('[API] Could not fetch premium status from backend (user may not be authenticated):', error);
+    }
+  }, []);
+
+  const cancelPremium = useCallback(async (): Promise<boolean> => {
+    console.log('[API] Requesting DELETE /api/premium/cancel...');
+    try {
+      const result = await authenticatedDelete<{ success: boolean }>('/api/premium/cancel');
+      if (result.success) {
+        const newPremiumStatus: PremiumStatus = { type: 'None', endDate: null };
+        setPremiumStatus(newPremiumStatus);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+          hasSeenWelcome,
+          budgetName,
+          months,
+          activeMonthId,
+          subscriptions,
+          premiumStatus: newPremiumStatus,
+        }));
+        console.log('Premium subscription cancelled');
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('[API] Cancel premium failed:', error);
+      throw error;
+    }
+  }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions]);
+>>>>>>> origin/main
+
+      if (response.success) {
+        let newPremiumStatus: PremiumStatus;
+        if (purchaseType === 'lifetime') {
+          newPremiumStatus = { type: 'Lifetime', endDate: null, hasAppleSubscription: true };
+          console.log('[Premium] Lifetime purchase created successfully');
+        } else {
+          newPremiumStatus = { type: 'Monthly', endDate: response.purchase.expiryDate, hasAppleSubscription: true };
+          console.log('[Premium] Monthly purchase created, expires:', response.purchase.expiryDate);
+        }
+        setPremiumStatus(newPremiumStatus);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('[Premium] Failed to create purchase:', error);
+      throw error;
+    }
+  }, []);
+
+  const fetchPremiumStatus = useCallback(async (): Promise<void> => {
+    console.log('[Premium] Fetching premium status from backend...');
+    try {
+      const response = await authenticatedGet<{
+        isPremium: boolean;
+        type: 'none' | 'lifetime' | 'monthly';
+        expiryDate: string | null;
+      }>('/api/premium/status');
+
+      console.log('[Premium] Backend status:', response);
+
+      if (!response.isPremium || response.type === 'none') {
+        // Don't override local trial status with backend "none"
+        // Only update if we have a real backend premium status
+        return;
+      }
+
+      let newPremiumStatus: PremiumStatus;
+      if (response.type === 'lifetime') {
+        newPremiumStatus = { type: 'Lifetime', endDate: null, hasAppleSubscription: true };
+      } else {
+        newPremiumStatus = { type: 'Monthly', endDate: response.expiryDate, hasAppleSubscription: true };
+      }
+      setPremiumStatus(newPremiumStatus);
+      console.log('[Premium] Premium status synced from backend:', newPremiumStatus);
+    } catch (error) {
+      console.warn('[Premium] Could not fetch premium status from backend (user may not be logged in):', error);
+    }
+  }, []);
+
+  const cancelPremium = useCallback(async (): Promise<boolean> => {
+    console.log('[Premium] Cancelling premium subscription via backend...');
+    try {
+      const response = await authenticatedDelete<{ success: boolean }>('/api/premium/cancel');
+      if (response.success) {
+        setPremiumStatus({ type: 'None', endDate: null, hasAppleSubscription: false });
+        console.log('[Premium] Premium subscription cancelled successfully');
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('[Premium] Failed to cancel premium:', error);
+      throw error;
+    }
+  }, []);
+
+  const addMonth = (name: string, budgetAmount: number) => {
     const newMonth: Month = {
       id: Date.now().toString(),
       name,
@@ -335,7 +551,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       isPinned: false,
     };
     setMonths([...months, newMonth]);
-    console.log('Month added:', name);
+    console.log('Month added:', name, 'with budget:', budgetAmount);
   };
 
   const deleteMonth = (id: string) => {
@@ -524,8 +740,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         togglePinExpense,
         addSubscription,
         deleteSubscription,
-        updateSubscription,
-        duplicateSubscription,
+        updateSubscription,        duplicateSubscription,
         togglePinSubscription,
         loadData,
         saveData,

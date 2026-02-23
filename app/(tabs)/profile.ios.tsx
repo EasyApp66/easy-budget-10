@@ -196,30 +196,113 @@ export default function ProfileScreen() {
 
   const handleApplyCode = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    console.log('Applying premium code:', codeInput);
+    console.log('[Profile] Applying premium code:', codeInput);
     
     if (!codeInput.trim()) {
-      Alert.alert(t('error'), t('enterCode'));
+      setModalMessage(t('enterCode'));
+      setShowErrorModal(true);
       return;
     }
 
-    const success = await applyPremiumCode(codeInput.trim());
-    
-    if (success) {
-      Alert.alert(t('success'), t('premiumActivated'));
-      setCodeInput('');
-    } else {
-      Alert.alert(t('error'), t('invalidCode'));
+    try {
+      const success = await applyPremiumCode(codeInput.trim());
+      if (success) {
+        setModalMessage(t('premiumActivated'));
+        setShowSuccessModal(true);
+        setCodeInput('');
+      } else {
+        setModalMessage(t('invalidCode'));
+        setShowErrorModal(true);
+      }
+    } catch (error) {
+      console.error('[Profile] Error applying code:', error);
+      setModalMessage(t('invalidCode'));
+      setShowErrorModal(true);
     }
   };
 
   const handleDonation = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = customDonationAmount ? parseFloat(customDonationAmount) : selectedDonationAmount;
+<<<<<<< HEAD
+    console.log('[Profile] Donation amount:', amount);
+=======
     console.log('Donation amount:', amount);
     // Donation is handled via Apple Pay / external payment - show thank you
     Alert.alert(t('thankYou'), t('donationThankYou'));
+>>>>>>> origin/main
     setShowDonationModal(false);
+    setModalMessage(t('donationThankYou'));
+    setShowSuccessModal(true);
+  };
+
+  const handleOneTimePayment = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    console.log('[Profile] One-time lifetime payment initiated');
+    setIsPurchasing(true);
+    try {
+      const success = await purchasePremium('lifetime');
+      if (success) {
+        setShowPremiumModal(false);
+        setModalMessage(t('premiumActivated'));
+        setShowSuccessModal(true);
+      } else {
+        setModalMessage(t('error'));
+        setShowErrorModal(true);
+      }
+    } catch (error) {
+      console.error('[Profile] One-time payment failed:', error);
+      setModalMessage(t('error'));
+      setShowErrorModal(true);
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  const handleMonthlySubscription = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    console.log('[Profile] Monthly subscription initiated');
+    setIsPurchasing(true);
+    try {
+      const success = await purchasePremium('monthly');
+      if (success) {
+        setShowPremiumModal(false);
+        setModalMessage(t('premiumActivated'));
+        setShowSuccessModal(true);
+      } else {
+        setModalMessage(t('error'));
+        setShowErrorModal(true);
+      }
+    } catch (error) {
+      console.error('[Profile] Monthly subscription failed:', error);
+      setModalMessage(t('error'));
+      setShowErrorModal(true);
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  const handleCancelPremium = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setShowCancelConfirmModal(true);
+  };
+
+  const confirmCancelPremium = async () => {
+    setShowCancelConfirmModal(false);
+    setIsCancelling(true);
+    try {
+      const success = await cancelPremium();
+      if (success) {
+        setModalMessage(t('cancelPremium'));
+        setShowSuccessModal(true);
+      }
+    } catch (error) {
+      console.error('[Profile] Cancel premium failed:', error);
+      setModalMessage(t('error'));
+      setShowErrorModal(true);
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   const handlePromoCodePress = async () => {
@@ -241,7 +324,7 @@ export default function ProfileScreen() {
     } else if (premiumStatus.type === 'Expired') {
       return t('premiumExpired');
     } else {
-      return t('premiumNo');
+      return `Premium: ${t('premiumNo')}`;
     }
   };
 
@@ -314,6 +397,7 @@ export default function ProfileScreen() {
           {premiumStatus.hasAppleSubscription && (
             <TouchableOpacity 
               style={styles.menuItem} 
+              onPress={handleCancelPremium}
               activeOpacity={0.7}
               onPress={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -322,9 +406,13 @@ export default function ProfileScreen() {
             >
               <View style={styles.menuItemLeft}>
                 <MaterialIcons name="cancel" size={24} color="#FF3B30" />
-                <Text style={styles.menuItemText}>{t('cancelPremium')}</Text>
+                <Text style={styles.menuItemText}>{isCancelling ? '...' : t('cancelPremium')}</Text>
               </View>
-              <MaterialIcons name="chevron-right" size={24} color="#666666" />
+              {isCancelling ? (
+                <ActivityIndicator size="small" color="#666666" />
+              ) : (
+                <MaterialIcons name="chevron-right" size={24} color="#666666" />
+              )}
             </TouchableOpacity>
           )}
 

@@ -136,7 +136,7 @@ export default function BudgetScreen() {
   const handleAddMonth = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const newMonthName = `Neu ${monthCounter}`;
-    addMonth(newMonthName);
+    addMonth(newMonthName, 0);
     setMonthCounter(monthCounter + 1);
     console.log('New month added:', newMonthName);
   };
@@ -696,12 +696,12 @@ function ExpenseListCard({
     .onUpdate((event) => {
       if (event.translationX < 0) {
         translateX.value = Math.max(event.translationX, -100);
-        deleteIconOpacity.value = Math.min(Math.abs(event.translationX) / 100, 1);
-        pinIconOpacity.value = 0;
+        deleteIconOpacity.value = withTiming(Math.min(Math.abs(event.translationX) / 100, 1), { duration: 150 });
+        pinIconOpacity.value = withTiming(0, { duration: 150 });
       } else if (event.translationX > 0) {
         translateX.value = Math.min(event.translationX, 100);
-        pinIconOpacity.value = Math.min(event.translationX / 100, 1);
-        deleteIconOpacity.value = 0;
+        pinIconOpacity.value = withTiming(Math.min(event.translationX / 100, 1), { duration: 150 });
+        deleteIconOpacity.value = withTiming(0, { duration: 150 });
       }
     })
     .onEnd((event) => {
