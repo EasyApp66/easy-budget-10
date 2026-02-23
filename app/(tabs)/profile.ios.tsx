@@ -30,15 +30,17 @@ export default function ProfileScreen() {
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [showPromoModal, setShowPromoModal] = useState(false);
   const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
   const [codeInput, setCodeInput] = useState('');
   const [selectedDonationAmount, setSelectedDonationAmount] = useState(5);
   const [customDonationAmount, setCustomDonationAmount] = useState('');
   const [username, setUsername] = useState('');
   const [editingUsername, setEditingUsername] = useState(false);
   const [tempUsername, setTempUsername] = useState('');
-  const [purchaseLoading, setPurchaseLoading] = useState(false);
-  const [purchaseError, setPurchaseError] = useState<string | null>(null);
-  const [purchaseSuccess, setPurchaseSuccess] = useState<string | null>(null);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Fade-in animations
   const [fadeAnims] = useState(() => ({
@@ -224,13 +226,7 @@ export default function ProfileScreen() {
   const handleDonation = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = customDonationAmount ? parseFloat(customDonationAmount) : selectedDonationAmount;
-<<<<<<< HEAD
     console.log('[Profile] Donation amount:', amount);
-=======
-    console.log('Donation amount:', amount);
-    // Donation is handled via Apple Pay / external payment - show thank you
-    Alert.alert(t('thankYou'), t('donationThankYou'));
->>>>>>> origin/main
     setShowDonationModal(false);
     setModalMessage(t('donationThankYou'));
     setShowSuccessModal(true);
@@ -397,12 +393,11 @@ export default function ProfileScreen() {
           {premiumStatus.hasAppleSubscription && (
             <TouchableOpacity 
               style={styles.menuItem} 
-              onPress={handleCancelPremium}
-              activeOpacity={0.7}
               onPress={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setShowCancelConfirmModal(true);
               }}
+              activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
                 <MaterialIcons name="cancel" size={24} color="#FF3B30" />
@@ -613,45 +608,17 @@ export default function ProfileScreen() {
               </View>
             </View>
 
-            {purchaseError ? (
-              <Text style={styles.purchaseErrorText}>{purchaseError}</Text>
-            ) : null}
-            {purchaseSuccess ? (
-              <Text style={styles.purchaseSuccessText}>{purchaseSuccess}</Text>
-            ) : null}
-
             <View style={styles.premiumPricing}>
               <View style={styles.pricingOption}>
                 <Text style={styles.pricingTitle}>{t('oneTimePayment')}</Text>
                 <Text style={styles.pricingAmount}>CHF 10.00</Text>
                 <TouchableOpacity 
-                  style={[styles.pricingButton, purchaseLoading && styles.pricingButtonDisabled]}
+                  style={[styles.pricingButton, isPurchasing && styles.pricingButtonDisabled]}
                   activeOpacity={0.8}
-                  disabled={purchaseLoading}
-                  onPress={async () => {
-                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    console.log('[API] One-time lifetime payment initiated');
-                    setPurchaseLoading(true);
-                    setPurchaseError(null);
-                    setPurchaseSuccess(null);
-                    try {
-                      const success = await purchasePremium('lifetime');
-                      if (success) {
-                        setPurchaseSuccess(t('premiumActivated'));
-                        setTimeout(() => {
-                          setShowPremiumModal(false);
-                          setPurchaseSuccess(null);
-                        }, 1500);
-                      }
-                    } catch (err: any) {
-                      console.error('[API] Lifetime purchase failed:', err);
-                      setPurchaseError(err?.message || t('error'));
-                    } finally {
-                      setPurchaseLoading(false);
-                    }
-                  }}
+                  disabled={isPurchasing}
+                  onPress={handleOneTimePayment}
                 >
-                  {purchaseLoading ? (
+                  {isPurchasing ? (
                     <ActivityIndicator size="small" color="#000000" />
                   ) : (
                     <Text style={styles.pricingButtonText}>{t('pay')}</Text>
@@ -665,33 +632,12 @@ export default function ProfileScreen() {
                 <Text style={styles.pricingTitle}>{t('monthlySubscription')}</Text>
                 <Text style={styles.pricingAmount}>CHF 1.00/{t('month')}</Text>
                 <TouchableOpacity 
-                  style={[styles.pricingButton, purchaseLoading && styles.pricingButtonDisabled]}
+                  style={[styles.pricingButton, isPurchasing && styles.pricingButtonDisabled]}
                   activeOpacity={0.8}
-                  disabled={purchaseLoading}
-                  onPress={async () => {
-                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    console.log('[API] Monthly subscription initiated');
-                    setPurchaseLoading(true);
-                    setPurchaseError(null);
-                    setPurchaseSuccess(null);
-                    try {
-                      const success = await purchasePremium('monthly');
-                      if (success) {
-                        setPurchaseSuccess(t('premiumActivated'));
-                        setTimeout(() => {
-                          setShowPremiumModal(false);
-                          setPurchaseSuccess(null);
-                        }, 1500);
-                      }
-                    } catch (err: any) {
-                      console.error('[API] Monthly purchase failed:', err);
-                      setPurchaseError(err?.message || t('error'));
-                    } finally {
-                      setPurchaseLoading(false);
-                    }
-                  }}
+                  disabled={isPurchasing}
+                  onPress={handleMonthlySubscription}
                 >
-                  {purchaseLoading ? (
+                  {isPurchasing ? (
                     <ActivityIndicator size="small" color="#000000" />
                   ) : (
                     <Text style={styles.pricingButtonText}>{t('pay')}</Text>
@@ -868,28 +814,94 @@ export default function ProfileScreen() {
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.promoOkButton, { flex: 1, backgroundColor: '#FF3B30' }]}
-                onPress={async () => {
-                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  setShowCancelConfirmModal(false);
-                  try {
-                    console.log('[API] Cancelling premium subscription...');
-                    const success = await cancelPremium();
-                    if (success) {
-                      Alert.alert(t('success'), language === 'de' ? 'Premium wurde beendet.' :
-                        language === 'fr' ? 'Premium a été annulé.' :
-                        language === 'es' ? 'Premium ha sido cancelado.' :
-                        'Premium has been cancelled.');
-                    }
-                  } catch (err: any) {
-                    console.error('[API] Cancel premium failed:', err);
-                    Alert.alert(t('error'), err?.message || t('error'));
-                  }
-                }}
+                onPress={confirmCancelPremium}
                 activeOpacity={0.8}
               >
                 <Text style={styles.promoOkButtonText}>{t('delete')}</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showSuccessModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowSuccessModal(false)}
+      >
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.promoModal}>
+            <TouchableOpacity 
+              style={styles.closeModalButton}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowSuccessModal(false);
+              }}
+            >
+              <MaterialIcons name="close" size={18} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            <View style={[styles.promoIconContainer, { backgroundColor: 'rgba(191, 254, 132, 0.2)' }]}>
+              <MaterialIcons name="check-circle" size={40} color="#BFFE84" />
+            </View>
+
+            <Text style={styles.promoModalTitle}>{t('success')}</Text>
+            <Text style={[styles.promoModalMessage, { color: '#CCCCCC' }]}>
+              {modalMessage}
+            </Text>
+
+            <TouchableOpacity 
+              style={styles.promoOkButton}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowSuccessModal(false);
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.promoOkButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showErrorModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowErrorModal(false)}
+      >
+        <View style={styles.centeredModalOverlay}>
+          <View style={styles.promoModal}>
+            <TouchableOpacity 
+              style={styles.closeModalButton}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowErrorModal(false);
+              }}
+            >
+              <MaterialIcons name="close" size={18} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            <View style={[styles.promoIconContainer, { backgroundColor: 'rgba(255, 59, 48, 0.2)' }]}>
+              <MaterialIcons name="error" size={40} color="#FF3B30" />
+            </View>
+
+            <Text style={styles.promoModalTitle}>{t('error')}</Text>
+            <Text style={[styles.promoModalMessage, { color: '#CCCCCC' }]}>
+              {modalMessage}
+            </Text>
+
+            <TouchableOpacity 
+              style={styles.promoOkButton}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowErrorModal(false);
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.promoOkButtonText}>OK</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -1327,19 +1339,5 @@ const styles = StyleSheet.create({
   },
   pricingButtonDisabled: {
     opacity: 0.6,
-  },
-  purchaseErrorText: {
-    fontSize: 13,
-    color: '#FF3B30',
-    textAlign: 'center',
-    marginBottom: 12,
-    paddingHorizontal: 8,
-  },
-  purchaseSuccessText: {
-    fontSize: 13,
-    color: '#BFFE84',
-    textAlign: 'center',
-    marginBottom: 12,
-    paddingHorizontal: 8,
   },
 });
