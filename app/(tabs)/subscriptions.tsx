@@ -58,7 +58,7 @@ export default function SubscriptionsScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnims.summary, fadeAnims.total, fadeAnims.subscriptions]);
 
   useEffect(() => {
     if (params.triggerAdd) {

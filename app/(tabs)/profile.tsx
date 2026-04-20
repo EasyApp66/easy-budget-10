@@ -57,12 +57,13 @@ export default function ProfileScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnims.header, fadeAnims.code, fadeAnims.menu]);
 
   useEffect(() => {
     loadUsername();
     // Fetch premium status from backend on mount
     fetchPremiumStatus().catch(err => console.warn('Could not fetch premium status:', err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadUsername = async () => {
@@ -168,7 +169,7 @@ export default function ProfileScreen() {
   const handleLanguageToggle = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     // Cycle through all 4 languages: de -> en -> fr -> es -> de
-    const langCycle: Array<'de' | 'en' | 'fr' | 'es'> = ['de', 'en', 'fr', 'es'];
+    const langCycle: ('de' | 'en' | 'fr' | 'es')[] = ['de', 'en', 'fr', 'es'];
     const currentIndex = langCycle.indexOf(language as 'de' | 'en' | 'fr' | 'es');
     const nextIndex = (currentIndex + 1) % langCycle.length;
     const newLanguage = langCycle[nextIndex];

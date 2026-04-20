@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Easy Budget",
-    "slug": "Easy Budget",
+    "slug": "easy-budget",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/bda1eed0-70c5-43ec-bfa9-e1708247ffc8.png",
@@ -43,7 +43,7 @@
       "expo-router",
       "expo-web-browser"
     ],
-    "scheme": "Easy Budget",
+    "scheme": "easybudget",
     "experiments": {
       "typedRoutes": true
     },

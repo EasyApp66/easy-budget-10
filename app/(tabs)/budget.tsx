@@ -91,7 +91,7 @@ export default function BudgetScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, [activeMonthId]);
+  }, [activeMonthId, fadeAnims.header, fadeAnims.summary, fadeAnims.months, fadeAnims.expenses]);
 
   useEffect(() => {
     if (params.triggerAdd) {
