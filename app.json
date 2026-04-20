@@ -8,9 +8,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/bda1eed0-70c5-43ec-bfa9-e1708247ffc8.png",
+      "image": "./assets/images/fce41322-c8c9-4671-b22c-79d10867ec8b.jpeg",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#1a1a1a"
     },
     "ios": {
       "icon": {
