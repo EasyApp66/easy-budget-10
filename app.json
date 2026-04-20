@@ -4,7 +4,7 @@
     "slug": "easy-budget",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/bda1eed0-70c5-43ec-bfa9-e1708247ffc8.png",
+    "icon": "./assets/images/3ce1c06b-e7bb-475e-910d-182a9f9f01cd.jpeg",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -13,6 +13,12 @@
       "backgroundColor": "#000000"
     },
     "ios": {
+      "icon": {
+        "any": "./assets/images/3ce1c06b-e7bb-475e-910d-182a9f9f01cd.jpeg",
+        "light": "./assets/images/3ce1c06b-e7bb-475e-910d-182a9f9f01cd.jpeg",
+        "dark": "./assets/images/1a42faad-821d-4f79-bfe5-c89a34e39976.jpeg",
+        "tinted": "./assets/images/a0006ba6-ec82-41f2-9e07-ba860428bedd.jpeg"
+      },
       "supportsTablet": true,
       "bundleIdentifier": "com.ivanmirosnic.easybudget10",
       "infoPlist": {
