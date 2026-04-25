@@ -143,6 +143,11 @@ const translations = {
     termsText: 'Durch die Nutzung von Easy Budget 10 erklären Sie sich mit folgenden Bedingungen einverstanden:\n\n1. Die App wird "wie besehen" bereitgestellt ohne jegliche Garantien.\n2. Sie sind selbst für die Sicherung Ihrer Daten verantwortlich.\n3. Die App dient ausschliesslich zu Informationszwecken und ersetzt keine professionelle Finanzberatung.\n4. Wir haften nicht für Verluste oder Schäden, die durch die Nutzung der App entstehen.\n\nAnwendbares Recht: Diese Bedingungen unterliegen dem Schweizer Recht. Gerichtsstand ist Zürich, Schweiz.',
     agbText: 'Allgemeine Geschäftsbedingungen:\n\n1. Geltungsbereich: Diese AGB gelten für die Nutzung der Easy Budget 10 App.\n\n2. Leistungen: Die App bietet Funktionen zur Verwaltung von Budgets, Ausgaben und Abonnements.\n\n3. Nutzungsrechte: Sie erhalten ein nicht-exklusives, nicht-übertragbares Recht zur Nutzung der App.\n\n4. Haftung: Die Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt.\n\n5. Änderungen: Wir behalten uns das Recht vor, diese AGB jederzeit zu ändern.\n\nBei Fragen kontaktieren Sie uns unter: ivanmirosnic006@gmail.com',
     
+    // Tab Labels
+    tabBudget: 'Budget',
+    tabSubs: 'Abos',
+    tabProfile: 'Profil',
+
     // Promo Code Popup
     promoCodeTitle: 'Gratis Premium!',
     promoCodeMessage: 'Erhalte einen Monat gratis Premium mit dem Code easy2',
@@ -165,7 +170,7 @@ const translations = {
     // Budget Screen
     budget: 'BUDGET',
     total: 'TOTAL',
-    remaining: 'REMAINING',
+    remaining: 'LEFT',
     newExpense: 'New Expense',
     nameExample: 'Name (e.g. FOOD)',
     amount: 'Amount',
@@ -274,6 +279,11 @@ const translations = {
     termsText: 'By using Easy Budget 10, you agree to the following terms:\n\n1. The app is provided "as is" without any warranties.\n2. You are responsible for backing up your data.\n3. The app is for informational purposes only and does not replace professional financial advice.\n4. We are not liable for any losses or damages arising from the use of the app.\n\nApplicable Law: These terms are governed by Swiss law. Place of jurisdiction is Zurich, Switzerland.',
     agbText: 'General Terms and Conditions:\n\n1. Scope: These terms apply to the use of the Easy Budget 10 app.\n\n2. Services: The app provides features for managing budgets, expenses and subscriptions.\n\n3. Usage Rights: You receive a non-exclusive, non-transferable right to use the app.\n\n4. Liability: Liability is limited to intent and gross negligence.\n\n5. Changes: We reserve the right to change these terms at any time.\n\nFor questions, contact us at: ivanmirosnic006@gmail.com',
     
+    // Tab Labels
+    tabBudget: 'Budget',
+    tabSubs: 'Subs',
+    tabProfile: 'Profile',
+
     // Promo Code Popup
     promoCodeTitle: 'Free Premium!',
     promoCodeMessage: 'Get one month free Premium with code easy2',
@@ -405,6 +415,11 @@ const translations = {
     termsText: 'En utilisant Easy Budget 10, vous acceptez les conditions suivantes:\n\n1. L\'application est fournie "telle quelle" sans aucune garantie.\n2. Vous êtes responsable de la sauvegarde de vos données.\n3. L\'application est à des fins d\'information uniquement et ne remplace pas les conseils financiers professionnels.\n4. Nous ne sommes pas responsables des pertes ou dommages résultant de l\'utilisation de l\'application.\n\nDroit Applicable: Ces conditions sont régies par le droit suisse. Le lieu de juridiction est Zurich, Suisse.',
     agbText: 'Conditions Générales:\n\n1. Portée: Ces conditions s\'appliquent à l\'utilisation de l\'application Easy Budget 10.\n\n2. Services: L\'application fournit des fonctionnalités pour gérer les budgets, les dépenses et les abonnements.\n\n3. Droits d\'Utilisation: Vous recevez un droit non exclusif et non transférable d\'utiliser l\'application.\n\n4. Responsabilité: La responsabilité est limitée à l\'intention et à la négligence grave.\n\n5. Modifications: Nous nous réservons le droit de modifier ces conditions à tout moment.\n\nPour toute question, contactez-nous à: ivanmirosnic006@gmail.com',
     
+    // Tab Labels
+    tabBudget: 'Budget',
+    tabSubs: 'Abos',
+    tabProfile: 'Profil',
+
     // Promo Code Popup
     promoCodeTitle: 'Premium Gratuit!',
     promoCodeMessage: 'Obtenez un mois de Premium gratuit avec le code easy2',
@@ -536,6 +551,11 @@ const translations = {
     termsText: 'Al usar Easy Budget 10, acepta los siguientes términos:\n\n1. La aplicación se proporciona "tal cual" sin ninguna garantía.\n2. Usted es responsable de hacer copias de seguridad de sus datos.\n3. La aplicación es solo para fines informativos y no reemplaza el asesoramiento financiero profesional.\n4. No somos responsables de ninguna pérdida o daño que surja del uso de la aplicación.\n\nLey Aplicable: Estos términos se rigen por la ley suiza. El lugar de jurisdicción es Zúrich, Suiza.',
     agbText: 'Términos y Condiciones Generales:\n\n1. Alcance: Estos términos se aplican al uso de la aplicación Easy Budget 10.\n\n2. Servicios: La aplicación proporciona funciones para administrar presupuestos, gastos y suscripciones.\n\n3. Derechos de Uso: Recibe un derecho no exclusivo e intransferible para usar la aplicación.\n\n4. Responsabilidad: La responsabilidad se limita a la intención y negligencia grave.\n\n5. Cambios: Nos reservamos el derecho de cambiar estos términos en cualquier momento.\n\nPara preguntas, contáctenos en: ivanmirosnic006@gmail.com',
     
+    // Tab Labels
+    tabBudget: 'Budget',
+    tabSubs: 'Subs',
+    tabProfile: 'Perfil',
+
     // Promo Code Popup
     promoCodeTitle: '¡Premium Gratis!',
     promoCodeMessage: 'Obtén un mes de Premium gratis con el código easy2',

@@ -3,10 +3,12 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import FloatingTabBar from '@/components/FloatingTabBar';
 import { useRouter, usePathname } from 'expo-router';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TabLayout() {
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   const handleAddPress = () => {
     console.log('Add button pressed, current path:', pathname);
@@ -31,19 +33,19 @@ export default function TabLayout() {
       name: 'budget',
       route: '/(tabs)/budget' as any,
       icon: 'attach-money' as any,
-      label: 'Budget',
+      label: t('tabBudget'),
     },
     {
       name: 'subscriptions',
       route: '/(tabs)/subscriptions' as any,
       icon: 'subscriptions' as any,
-      label: 'Abos',
+      label: t('tabSubs'),
     },
     {
       name: 'profile',
       route: '/(tabs)/profile' as any,
       icon: 'person' as any,
-      label: 'Profil',
+      label: t('tabProfile'),
     },
   ];
 

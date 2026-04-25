@@ -163,14 +163,14 @@ export default function SubscriptionsScreen() {
         <Animated.View style={[styles.summaryCard, { opacity: fadeAnims.summary }]}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('subscriptionCosts')}</Text>
-            <Text style={styles.summaryValue}>{totalCostText}</Text>
+            <Text style={styles.summaryValue}>{subCount}</Text>
           </View>
         </Animated.View>
 
         <Animated.View style={[styles.totalCard, { opacity: fadeAnims.total }]}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>{t('total')}</Text>
-            <Text style={styles.totalValue}>{subCount}</Text>
+            <Text style={styles.totalValue}>{totalCostText}</Text>
           </View>
         </Animated.View>
 
