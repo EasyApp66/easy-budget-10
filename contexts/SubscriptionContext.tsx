@@ -31,9 +31,6 @@ import Purchases, {
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
-// Import auth hook for user syncing (validated at setup time)
-import { useAuth } from "./AuthContext";
-
 // Read API keys from app.json (expo.extra)
 const extra = Constants.expoConfig?.extra || {};
 const IOS_API_KEY = extra.revenueCatApiKeyIos || "";
@@ -86,13 +83,6 @@ interface SubscriptionProviderProps {
 }
 
 export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
-  // Get user from auth context for subscription syncing across devices
-  // Safe: handles different auth context shapes (Better Auth, Supabase, etc.)
-  const auth = useAuth() as Record<string, unknown> | null;
-  const session = auth?.session as Record<string, unknown> | undefined;
-  const user = (auth?.user ?? session?.user ?? null) as { id?: string } | null;
-  const authLoading = (auth?.loading ?? false) as boolean;
-
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [offerings, setOfferings] = useState<PurchasesOfferings | null>(null);
   const [currentOffering, setCurrentOffering] =
@@ -222,29 +212,6 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       }
     };
   }, []);
-
-  // Sync RevenueCat user ID with authenticated user
-  useEffect(() => {
-    if (!isConfigured || isWeb) return;
-    if (authLoading) return; // Don't logOut while auth is still loading
-
-    const updateUser = async () => {
-      try {
-        if (user?.id) {
-          // Log in with your app's user ID to sync subscriptions across devices
-          await Purchases.logIn(user.id);
-        } else {
-          // Anonymous user - only log out once auth has fully resolved
-          await Purchases.logOut();
-        }
-        await checkSubscription();
-      } catch (error) {
-        console.error("[RevenueCat] Failed to update user:", error);
-      }
-    };
-
-    updateUser();
-  }, [user?.id, isConfigured, authLoading]);
 
   const fetchOfferings = async () => {
     if (isWeb) return;
