@@ -3,8 +3,11 @@ import { Tabs } from 'expo-router';
 import React, { useState } from 'react';
 import FloatingTabBar from '@/components/FloatingTabBar';
 import { useRouter, usePathname } from 'expo-router';
+import { useSubscriptionGuard } from "@/hooks/useSubscriptionGuard";
 
 export default function TabLayout() {
+  useSubscriptionGuard();
+
   const router = useRouter();
   const pathname = usePathname();
 

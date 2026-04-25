@@ -16,15 +16,19 @@ import {
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
 import * as MailComposer from 'expo-mail-composer';
+import { useRouter } from 'expo-router';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useBudget } from '@/contexts/BudgetContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const USER_NAME_KEY = '@easy_budget_username';
 
 export default function ProfileScreen() {
-  const { premiumStatus, applyPremiumCode, purchasePremium, fetchPremiumStatus, cancelPremium } = useBudget();
+  const { premiumStatus, applyPremiumCode, fetchPremiumStatus, cancelPremium } = useBudget();
   const { language, setLanguage, t } = useLanguage();
+  const { packages, purchasePackage, restorePurchases } = useSubscription();
+  const router = useRouter();
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
@@ -128,8 +132,8 @@ export default function ProfileScreen() {
 
   const handlePremiumPress = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    console.log('Premium button pressed');
-    setShowPremiumModal(true);
+    console.log('[Profile] Premium holen pressed — navigating to paywall');
+    router.push('/paywall');
   };
 
   const handleDonationPress = async () => {
@@ -235,11 +239,22 @@ export default function ProfileScreen() {
 
   const handleOneTimePayment = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    console.log('[Profile] One-time lifetime payment initiated');
+    console.log('[Profile] One-time lifetime payment initiated via RevenueCat');
+    const lifetimePkg = packages.find(
+      (p) => p.identifier === '$rc_lifetime' || p.packageType === 'LIFETIME'
+    ) ?? packages[packages.length - 1];
+    if (!lifetimePkg) {
+      console.warn('[Profile] No lifetime package found in RevenueCat offerings');
+      setModalMessage(t('error'));
+      setShowErrorModal(true);
+      return;
+    }
     setIsPurchasing(true);
     try {
-      const success = await purchasePremium('lifetime');
+      console.log('[Profile] Purchasing package:', lifetimePkg.identifier);
+      const success = await purchasePackage(lifetimePkg);
       if (success) {
+        console.log('[Profile] Lifetime purchase successful');
         setShowPremiumModal(false);
         setModalMessage(t('premiumActivated'));
         setShowSuccessModal(true);
@@ -258,11 +273,22 @@ export default function ProfileScreen() {
 
   const handleMonthlySubscription = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    console.log('[Profile] Monthly subscription initiated');
+    console.log('[Profile] Monthly subscription initiated via RevenueCat');
+    const monthlyPkg = packages.find(
+      (p) => p.identifier === '$rc_monthly' || p.packageType === 'MONTHLY'
+    ) ?? packages[0];
+    if (!monthlyPkg) {
+      console.warn('[Profile] No monthly package found in RevenueCat offerings');
+      setModalMessage(t('error'));
+      setShowErrorModal(true);
+      return;
+    }
     setIsPurchasing(true);
     try {
-      const success = await purchasePremium('monthly');
+      console.log('[Profile] Purchasing package:', monthlyPkg.identifier);
+      const success = await purchasePackage(monthlyPkg);
       if (success) {
+        console.log('[Profile] Monthly subscription purchase successful');
         setShowPremiumModal(false);
         setModalMessage(t('premiumActivated'));
         setShowSuccessModal(true);
@@ -272,6 +298,30 @@ export default function ProfileScreen() {
       }
     } catch (error) {
       console.error('[Profile] Monthly subscription failed:', error);
+      setModalMessage(t('error'));
+      setShowErrorModal(true);
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  const handleRestorePurchases = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    console.log('[Profile] Restore purchases tapped');
+    setIsPurchasing(true);
+    try {
+      const restored = await restorePurchases();
+      console.log('[Profile] Restore purchases result:', restored);
+      if (restored) {
+        setShowPremiumModal(false);
+        setModalMessage(t('premiumActivated'));
+        setShowSuccessModal(true);
+      } else {
+        setModalMessage(language === 'de' ? 'Keine früheren Käufe gefunden.' : 'No previous purchases found.');
+        setShowErrorModal(true);
+      }
+    } catch (error) {
+      console.error('[Profile] Restore purchases failed:', error);
       setModalMessage(t('error'));
       setShowErrorModal(true);
     } finally {
@@ -646,6 +696,20 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
               </View>
             </View>
+
+            <TouchableOpacity
+              style={styles.restoreButton}
+              activeOpacity={0.7}
+              disabled={isPurchasing}
+              onPress={handleRestorePurchases}
+            >
+              <Text style={styles.restoreButtonText}>
+                {language === 'de' ? 'Käufe wiederherstellen' :
+                 language === 'fr' ? 'Restaurer les achats' :
+                 language === 'es' ? 'Restaurar compras' :
+                 'Restore Purchases'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -1340,5 +1404,15 @@ const styles = StyleSheet.create({
   },
   pricingButtonDisabled: {
     opacity: 0.6,
+  },
+  restoreButton: {
+    marginTop: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  restoreButtonText: {
+    fontSize: 13,
+    color: '#888888',
+    textDecorationLine: 'underline',
   },
 });
