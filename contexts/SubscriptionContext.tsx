@@ -10,7 +10,7 @@
  * - Expo Go via test store keys
  *
  * SETUP:
- * 1. Wrap your app with <SubscriptionProvider> inside <AuthProvider>
+ * 1. Wrap your app with <SubscriptionProvider>
  * 2. Run: pnpm install react-native-purchases && npx expo prebuild
  */
 
