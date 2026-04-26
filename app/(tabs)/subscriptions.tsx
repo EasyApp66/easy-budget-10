@@ -10,7 +10,9 @@ import {
   Modal,
   Pressable,
   Animated,
+  Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -23,10 +25,11 @@ export default function SubscriptionsScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { t } = useLanguage();
-  const { subscriptions, addSubscription, deleteSubscription, togglePinSubscription, updateSubscription, duplicateSubscription } = useBudget();
+  const { subscriptions, addSubscription, deleteSubscription, togglePinSubscription, updateSubscription, duplicateSubscription, premiumStatus } = useBudget();
 
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [skipConfirmations, setSkipConfirmations] = useState(false);
   const [newSubName, setNewSubName] = useState('');
   const [newSubAmount, setNewSubAmount] = useState('');
 
@@ -68,6 +71,12 @@ export default function SubscriptionsScreen() {
       handleAddSubscription();
     }
   }, [params.triggerAdd]);
+
+  useEffect(() => {
+    AsyncStorage.getItem('@easy_budget_skip_confirmations').then(val => {
+      if (val === 'true') setSkipConfirmations(true);
+    });
+  }, []);
 
   const totalCost = subscriptions.reduce((sum, sub) => sum + sub.amount, 0);
   const subCount = subscriptions.length;
@@ -148,12 +157,33 @@ export default function SubscriptionsScreen() {
 
   const handleSubDelete = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (selectedSubId) {
+    if (!selectedSubId) return;
+    const isPremium = premiumStatus.type !== 'None' && premiumStatus.type !== 'Expired';
+    if (isPremium && skipConfirmations) {
       deleteSubscription(selectedSubId);
       setShowOptionsModal(false);
       setSelectedSubId(null);
-      console.log('Subscription deleted');
+      console.log('Subscription deleted (no confirm)');
+      return;
     }
+    const subName = subscriptions.find(s => s.id === selectedSubId)?.name ?? 'dieses Abo';
+    Alert.alert(
+      'Abo löschen',
+      `Möchtest du "${subName}" wirklich löschen?`,
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: () => {
+            deleteSubscription(selectedSubId!);
+            setShowOptionsModal(false);
+            setSelectedSubId(null);
+            console.log('Subscription deleted');
+          },
+        },
+      ]
+    );
   };
 
   const totalCostText = totalCost.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });

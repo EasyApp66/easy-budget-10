@@ -10,7 +10,9 @@ import {
   Modal,
   Pressable,
   Animated,
+  Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -39,6 +41,7 @@ export default function BudgetScreen() {
     updateExpense,
     duplicateExpense,
     togglePinExpense,
+    premiumStatus,
   } = useBudget();
 
   const [editingBudgetAmount, setEditingBudgetAmount] = useState(false);
@@ -61,6 +64,7 @@ export default function BudgetScreen() {
 
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [monthCounter, setMonthCounter] = useState(1);
+  const [skipConfirmations, setSkipConfirmations] = useState(false);
   const [expenseViewMode, setExpenseViewMode] = useState<'grid' | 'list'>('grid');
 
   const [fadeAnims] = useState(() => ({
@@ -101,6 +105,12 @@ export default function BudgetScreen() {
       handleAddExpense();
     }
   }, [params.triggerAdd]);
+
+  useEffect(() => {
+    AsyncStorage.getItem('@easy_budget_skip_confirmations').then(val => {
+      if (val === 'true') setSkipConfirmations(true);
+    });
+  }, []);
 
   const activeMonth = months.find(m => m.id === activeMonthId);
   const budgetAmount = activeMonth?.budgetAmount || 0;
@@ -203,12 +213,33 @@ export default function BudgetScreen() {
 
   const handleMonthDelete = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (selectedMonthId) {
+    if (!selectedMonthId) return;
+    const isPremium = premiumStatus.type !== 'None' && premiumStatus.type !== 'Expired';
+    if (isPremium && skipConfirmations) {
       deleteMonth(selectedMonthId);
       setShowMonthOptionsModal(false);
       setSelectedMonthId(null);
-      console.log('Month deleted');
+      console.log('Month deleted (no confirm)');
+      return;
     }
+    const monthName = months.find(m => m.id === selectedMonthId)?.name ?? 'diesen Monat';
+    Alert.alert(
+      'Monat löschen',
+      `Möchtest du "${monthName}" wirklich löschen?`,
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: () => {
+            deleteMonth(selectedMonthId!);
+            setShowMonthOptionsModal(false);
+            setSelectedMonthId(null);
+            console.log('Month deleted');
+          },
+        },
+      ]
+    );
   };
 
   const handleExpenseLongPress = async (expenseId: string) => {
@@ -264,12 +295,33 @@ export default function BudgetScreen() {
 
   const handleExpenseDelete = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (selectedExpenseId && activeMonthId) {
+    if (!selectedExpenseId || !activeMonthId) return;
+    const isPremium = premiumStatus.type !== 'None' && premiumStatus.type !== 'Expired';
+    if (isPremium && skipConfirmations) {
       deleteExpense(activeMonthId, selectedExpenseId);
       setShowExpenseOptionsModal(false);
       setSelectedExpenseId(null);
-      console.log('Expense deleted');
+      console.log('Expense deleted (no confirm)');
+      return;
     }
+    const expenseName = activeMonth?.expenses.find(e => e.id === selectedExpenseId)?.name ?? 'diese Ausgabe';
+    Alert.alert(
+      'Ausgabe löschen',
+      `Möchtest du "${expenseName}" wirklich löschen?`,
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: () => {
+            deleteExpense(activeMonthId!, selectedExpenseId!);
+            setShowExpenseOptionsModal(false);
+            setSelectedExpenseId(null);
+            console.log('Expense deleted');
+          },
+        },
+      ]
+    );
   };
 
   const handleChangeView = async () => {

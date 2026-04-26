@@ -28,6 +28,7 @@ export default function ProfileScreen() {
   const [tempUsername, setTempUsername] = useState('');
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [skipConfirmations, setSkipConfirmations] = useState(false);
   
   const router = useRouter();
   const { language, setLanguage, t } = useLanguage();
@@ -67,6 +68,24 @@ export default function ProfileScreen() {
     fetchPremiumStatus().catch(err => console.warn('Could not fetch premium status:', err));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    AsyncStorage.getItem('@easy_budget_skip_confirmations').then(val => {
+      if (val === 'true') setSkipConfirmations(true);
+    });
+  }, []);
+
+  const handleToggleSkipConfirmations = async () => {
+    if (premiumStatus.type === 'None' || premiumStatus.type === 'Expired') {
+      router.push('/paywall');
+      return;
+    }
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const newVal = !skipConfirmations;
+    setSkipConfirmations(newVal);
+    await AsyncStorage.setItem('@easy_budget_skip_confirmations', newVal ? 'true' : 'false');
+    console.log('[Profile] skipConfirmations set to:', newVal);
+  };
 
   const loadUsername = async () => {
     try {
@@ -424,6 +443,39 @@ export default function ProfileScreen() {
               <Text style={styles.menuItemText}>{t('language')}: {currentLanguageText}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={24} color="#666666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={handleToggleSkipConfirmations}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuItemLeft}>
+              <MaterialIcons name="notifications-off" size={24} color="#BFFE84" />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuItemText}>Bestätigungen deaktivieren</Text>
+                {(premiumStatus.type === 'None' || premiumStatus.type === 'Expired') && (
+                  <Text style={{ fontSize: 11, color: '#888888', marginTop: 2 }}>Nur für Premium</Text>
+                )}
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              {(premiumStatus.type === 'None' || premiumStatus.type === 'Expired') ? (
+                <MaterialIcons name="lock" size={18} color="#888888" />
+              ) : (
+                <View style={{
+                  width: 44, height: 26, borderRadius: 13,
+                  backgroundColor: skipConfirmations ? '#BFFE84' : '#3A3A3C',
+                  justifyContent: 'center', paddingHorizontal: 3,
+                }}>
+                  <View style={{
+                    width: 20, height: 20, borderRadius: 10,
+                    backgroundColor: '#FFFFFF',
+                    transform: [{ translateX: skipConfirmations ? 18 : 0 }],
+                  }} />
+                </View>
+              )}
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity 
