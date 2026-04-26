@@ -57,12 +57,12 @@ interface BudgetContextType {
   addExpense: (monthId: string, name: string, amount: number) => boolean;
   deleteExpense: (monthId: string, expenseId: string) => void;
   updateExpense: (monthId: string, expenseId: string, name: string, amount: number) => void;
-  duplicateExpense: (monthId: string, expenseId: string) => void;
+  duplicateExpense: (monthId: string, expenseId: string) => boolean;
   togglePinExpense: (monthId: string, expenseId: string) => void;
   addSubscription: (name: string, amount: number) => boolean;
   deleteSubscription: (id: string) => void;
   updateSubscription: (id: string, name: string, amount: number) => void;
-  duplicateSubscription: (id: string) => void;
+  duplicateSubscription: (id: string) => boolean;
   togglePinSubscription: (id: string) => void;
   loadData: () => Promise<void>;
   saveData: () => Promise<void>;
@@ -457,7 +457,12 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     console.log('Expense updated:', expenseId, name, amount);
   };
 
-  const duplicateExpense = (monthId: string, expenseId: string) => {
+  const duplicateExpense = (monthId: string, expenseId: string): boolean => {
+    const month = months.find(m => m.id === monthId);
+    if (!isPremiumActive() && month && month.expenses.length >= 8) {
+      console.log('[Paywall] Expense duplicate limit reached (8), triggering paywall');
+      return false;
+    }
     setMonths(months.map(m => {
       if (m.id === monthId) {
         const expenseToDuplicate = m.expenses.find(e => e.id === expenseId);
@@ -473,6 +478,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       return m;
     }));
     console.log('Expense duplicated:', expenseId);
+    return true;
   };
 
   const togglePinExpense = (monthId: string, expenseId: string) => {
@@ -514,7 +520,11 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     console.log('Subscription updated:', id, name, amount);
   };
 
-  const duplicateSubscription = (id: string) => {
+  const duplicateSubscription = (id: string): boolean => {
+    if (!isPremiumActive() && subscriptions.length >= 5) {
+      console.log('[Paywall] Subscription duplicate limit reached (5), triggering paywall');
+      return false;
+    }
     const subToDuplicate = subscriptions.find(s => s.id === id);
     if (subToDuplicate) {
       const newSub: Subscription = {
@@ -525,6 +535,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       setSubscriptions([...subscriptions, newSub]);
       console.log('Subscription duplicated:', subToDuplicate.name);
     }
+    return true;
   };
 
   const togglePinSubscription = (id: string) => {

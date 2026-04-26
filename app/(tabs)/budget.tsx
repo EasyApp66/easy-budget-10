@@ -276,9 +276,14 @@ export default function BudgetScreen() {
   const handleExpenseDuplicate = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedExpenseId && activeMonthId) {
-      duplicateExpense(activeMonthId, selectedExpenseId);
+      const success = duplicateExpense(activeMonthId, selectedExpenseId);
       setShowExpenseOptionsModal(false);
       setSelectedExpenseId(null);
+      if (!success) {
+        console.log('[Paywall] Expense duplicate blocked — showing paywall');
+        setShowPaywallModal(true);
+        return;
+      }
       console.log('Expense duplicated');
     }
   };

@@ -584,7 +584,7 @@ export default function ProfileScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{t('legal')}</Text>
+            <Text style={[styles.modalTitle, { fontSize: 16 }]}>AGB & Datenschutz</Text>
             <TouchableOpacity onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setShowLegalModal(false);

@@ -151,8 +151,8 @@ export default function ProfileScreen() {
 
   const handlePremiumPress = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    console.log('[Profile] Premium holen pressed — navigating to paywall');
-    router.push('/paywall');
+    console.log('[Profile] Premium holen pressed — opening premium modal');
+    setShowPremiumModal(true);
   };
 
   const handleDonationPress = async () => {
@@ -691,7 +691,7 @@ export default function ProfileScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>AGB und Datenschutz</Text>
+            <Text style={styles.modalTitle}>AGB & Datenschutz</Text>
             <TouchableOpacity onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setShowLegalModal(false);
@@ -1275,7 +1275,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#2C2C2E',
   },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },

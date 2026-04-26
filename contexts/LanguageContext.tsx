@@ -51,7 +51,7 @@ const translations = {
     adjustNumber: 'Zahl anpassen',
     
     // Subscriptions Screen
-    subscriptionCosts: 'ABO KOSTEN',
+    subscriptionCosts: 'ABOS',
     newSubscription: 'Neues Abo',
     subscriptionNameExample: 'Name (z.B. NETFLIX)',
     editSubscription: 'Abo bearbeiten',
@@ -459,7 +459,7 @@ const translations = {
     adjustNumber: 'Ajustar Cantidad',
     
     // Subscriptions Screen
-    subscriptionCosts: 'SUBS',
+    subscriptionCosts: 'ABOS',
     newSubscription: 'Nueva Suscripción',
     subscriptionNameExample: 'Nombre (ej. NETFLIX)',
     editSubscription: 'Editar Suscripción',

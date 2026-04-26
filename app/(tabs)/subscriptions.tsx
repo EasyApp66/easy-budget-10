@@ -138,9 +138,14 @@ export default function SubscriptionsScreen() {
   const handleSubDuplicate = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedSubId) {
-      duplicateSubscription(selectedSubId);
+      const success = duplicateSubscription(selectedSubId);
       setShowOptionsModal(false);
       setSelectedSubId(null);
+      if (!success) {
+        console.log('[Paywall] Subscription duplicate blocked — showing paywall');
+        setShowPaywallModal(true);
+        return;
+      }
       console.log('Subscription duplicated');
     }
   };
@@ -218,8 +223,27 @@ export default function SubscriptionsScreen() {
               subscription={sub}
               onDelete={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                deleteSubscription(sub.id);
-                console.log('Subscription deleted:', sub.id);
+                const isPremium = premiumStatus.type !== 'None' && premiumStatus.type !== 'Expired';
+                if (isPremium && skipConfirmations) {
+                  deleteSubscription(sub.id);
+                  console.log('Subscription swipe-deleted (no confirm):', sub.id);
+                  return;
+                }
+                Alert.alert(
+                  'Abo löschen',
+                  `Möchtest du "${sub.name}" wirklich löschen?`,
+                  [
+                    { text: 'Abbrechen', style: 'cancel' },
+                    {
+                      text: 'Löschen',
+                      style: 'destructive',
+                      onPress: () => {
+                        deleteSubscription(sub.id);
+                        console.log('Subscription swipe-deleted:', sub.id);
+                      },
+                    },
+                  ]
+                );
               }}
               onTogglePin={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
