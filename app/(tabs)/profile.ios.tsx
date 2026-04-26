@@ -630,17 +630,6 @@ export default function ProfileScreen() {
       >
         <View style={styles.centeredModalOverlay}>
           <View style={styles.premiumModal}>
-            <TouchableOpacity 
-              style={styles.closeModalButton}
-              onPress={async () => {
-                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                console.log('[Profile] Premium modal closed');
-                setShowPremiumModal(false);
-              }}
-            >
-              <MaterialIcons name="close" size={18} color="#FFFFFF" />
-            </TouchableOpacity>
-
             <View style={styles.premiumIconContainer}>
               <MaterialIcons name="star" size={32} color="#BFFE84" />
             </View>
@@ -716,6 +705,16 @@ export default function ProfileScreen() {
                  language === 'es' ? 'Restaurar compras' :
                  'Restore Purchases'}
               </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.backButton}
+              activeOpacity={0.7}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowPremiumModal(false);
+              }}
+            >
+              <Text style={styles.backButtonText}>← Zurück</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -1179,8 +1178,8 @@ const styles = StyleSheet.create({
   },
   closeModalButton: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: 14,
+    right: 14,
     zIndex: 10,
     width: 28,
     height: 28,
@@ -1188,6 +1187,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  backButton: {
+    marginTop: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 14,
+    color: '#888888',
   },
   premiumIconContainer: {
     width: 52,
