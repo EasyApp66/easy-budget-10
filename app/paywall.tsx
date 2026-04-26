@@ -16,6 +16,7 @@ import {
   Alert,
   Platform,
   Dimensions,
+  Linking,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -223,6 +224,9 @@ export default function PaywallScreen() {
                 </Text>
               )}
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 6, alignItems: 'center' }}>
+              <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>AGB und Datenschutz</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Separator */}
@@ -248,6 +252,9 @@ export default function PaywallScreen() {
                   {noPackages ? "Nicht verfügbar" : "Bezahlen"}
                 </Text>
               )}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 6, alignItems: 'center' }}>
+              <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>AGB und Datenschutz</Text>
             </TouchableOpacity>
           </View>
 
@@ -284,6 +291,9 @@ export default function PaywallScreen() {
               ? "Vorschaumodus — Käufe sind in der mobilen App verfügbar"
               : `Die Zahlung wird über dein ${Platform.OS === "ios" ? "Apple ID" : "Google Play"} Konto abgerechnet. Das Abo verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt wird.`}
           </Text>
+          <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 4, alignItems: 'center' }}>
+            <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>AGB und Datenschutz ansehen</Text>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
 

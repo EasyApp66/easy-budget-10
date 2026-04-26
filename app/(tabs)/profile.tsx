@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert, Animated, ActivityIndicator } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useBudget } from '@/contexts/BudgetContext';
 import * as MailComposer from 'expo-mail-composer';
@@ -28,6 +29,7 @@ export default function ProfileScreen() {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   
+  const router = useRouter();
   const { language, setLanguage, t } = useLanguage();
   const { premiumStatus, applyPremiumCode, purchasePremium, fetchPremiumStatus, cancelPremium } = useBudget();
 
@@ -284,6 +286,29 @@ export default function ProfileScreen() {
     setShowPromoModal(true);
   };
 
+  const handleDeleteAllData = async () => {
+    Alert.alert(
+      'Alle Daten löschen',
+      'Möchtest du wirklich alle Daten löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.clear();
+              router.replace('/');
+            } catch (error) {
+              console.error('Error deleting data:', error);
+              Alert.alert('Fehler', 'Daten konnten nicht gelöscht werden.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const getPremiumStatusText = () => {
     if (premiumStatus.type === 'Lifetime') {
       return t('premiumForever');
@@ -471,6 +496,18 @@ export default function ProfileScreen() {
               <Text style={styles.menuItemText}>Promo Code</Text>
             </View>
             <MaterialIcons name="chevron-right" size={24} color="#666666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.menuItem, { borderWidth: 1, borderColor: '#FF3B30', backgroundColor: '#1A0000' }]}
+            onPress={handleDeleteAllData}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuItemLeft}>
+              <MaterialIcons name="delete-forever" size={24} color="#FF3B30" />
+              <Text style={[styles.menuItemText, { color: '#FF3B30' }]}>Alle Daten löschen</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color="#FF3B30" />
           </TouchableOpacity>
         </Animated.View>
 

@@ -357,6 +357,29 @@ export default function ProfileScreen() {
     setShowPromoModal(true);
   };
 
+  const handleDeleteAllData = async () => {
+    Alert.alert(
+      'Alle Daten löschen',
+      'Möchtest du wirklich alle Daten löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.clear();
+              router.replace('/');
+            } catch (error) {
+              console.error('Error deleting data:', error);
+              Alert.alert('Fehler', 'Daten konnten nicht gelöscht werden.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const getPremiumStatusText = () => {
     if (premiumStatus.type === 'Lifetime') {
       return t('premiumForever');
@@ -545,6 +568,18 @@ export default function ProfileScreen() {
             </View>
             <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.menuItem, { borderWidth: 1, borderColor: '#FF3B30', backgroundColor: '#1A0000' }]}
+            onPress={handleDeleteAllData}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuItemLeft}>
+              <MaterialIcons name="delete-forever" size={24} color="#FF3B30" />
+              <Text style={[styles.menuItemText, { color: '#FF3B30' }]}>Alle Daten löschen</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color="#FF3B30" />
+          </TouchableOpacity>
         </Animated.View>
 
         <View style={styles.footer}>
@@ -563,7 +598,7 @@ export default function ProfileScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{t('legal')}</Text>
+            <Text style={styles.modalTitle}>AGB und Datenschutz</Text>
             <TouchableOpacity onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setShowLegalModal(false);
@@ -630,6 +665,15 @@ export default function ProfileScreen() {
       >
         <View style={styles.centeredModalOverlay}>
           <View style={styles.premiumModal}>
+            <TouchableOpacity
+              style={styles.closeModalButton}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowPremiumModal(false);
+              }}
+            >
+              <MaterialIcons name="close" size={18} color="#FFFFFF" />
+            </TouchableOpacity>
             <View style={styles.premiumIconContainer}>
               <MaterialIcons name="star" size={32} color="#BFFE84" />
             </View>
@@ -668,6 +712,9 @@ export default function ProfileScreen() {
                     <Text style={styles.pricingButtonText}>{t('pay')}</Text>
                   )}
                 </TouchableOpacity>
+                <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 6, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 10, color: '#BFFE84', textDecorationLine: 'underline' }}>AGB und Datenschutz</Text>
+                </TouchableOpacity>
               </View>
 
               <Text style={styles.orText}>{t('or')}</Text>
@@ -690,6 +737,9 @@ export default function ProfileScreen() {
                     <Text style={styles.pricingButtonText}>{t('pay')}</Text>
                   )}
                 </TouchableOpacity>
+                <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 6, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 10, color: '#BFFE84', textDecorationLine: 'underline' }}>AGB und Datenschutz</Text>
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -705,16 +755,6 @@ export default function ProfileScreen() {
                  language === 'es' ? 'Restaurar compras' :
                  'Restore Purchases'}
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.backButton}
-              activeOpacity={0.7}
-              onPress={async () => {
-                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setShowPremiumModal(false);
-              }}
-            >
-              <Text style={styles.backButtonText}>← Zurück</Text>
             </TouchableOpacity>
           </View>
         </View>
