@@ -48,18 +48,18 @@ interface BudgetContextType {
   purchasePremium: (purchaseType: 'lifetime' | 'monthly', appleTransactionId?: string) => Promise<boolean>;
   fetchPremiumStatus: () => Promise<void>;
   cancelPremium: () => Promise<boolean>;
-  addMonth: (name: string, budgetAmount: number) => void;
+  addMonth: (name: string, budgetAmount: number) => boolean;
   deleteMonth: (id: string) => void;
   duplicateMonth: (id: string) => void;
   renameMonth: (id: string, newName: string) => void;
   togglePinMonth: (id: string) => void;
   updateMonthBudget: (id: string, budgetAmount: number) => void;
-  addExpense: (monthId: string, name: string, amount: number) => void;
+  addExpense: (monthId: string, name: string, amount: number) => boolean;
   deleteExpense: (monthId: string, expenseId: string) => void;
   updateExpense: (monthId: string, expenseId: string, name: string, amount: number) => void;
   duplicateExpense: (monthId: string, expenseId: string) => void;
   togglePinExpense: (monthId: string, expenseId: string) => void;
-  addSubscription: (name: string, amount: number) => void;
+  addSubscription: (name: string, amount: number) => boolean;
   deleteSubscription: (id: string) => void;
   updateSubscription: (id: string, name: string, amount: number) => void;
   duplicateSubscription: (id: string) => void;
@@ -346,7 +346,15 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     }
   }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions]);
 
-  const addMonth = (name: string, budgetAmount: number = 0) => {
+  const isPremiumActive = () => {
+    return premiumStatus.type !== 'None' && premiumStatus.type !== 'Expired';
+  };
+
+  const addMonth = (name: string, budgetAmount: number = 0): boolean => {
+    if (!isPremiumActive() && months.length >= 2) {
+      console.log('[Paywall] Month limit reached (2), triggering paywall');
+      return false;
+    }
     const newMonth: Month = {
       id: Date.now().toString(),
       name,
@@ -356,6 +364,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     };
     setMonths([...months, newMonth]);
     console.log('Month added:', name, 'with budget:', budgetAmount);
+    return true;
   };
 
   const deleteMonth = (id: string) => {
@@ -403,7 +412,12 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     console.log('Month budget updated:', id, budgetAmount);
   };
 
-  const addExpense = (monthId: string, name: string, amount: number) => {
+  const addExpense = (monthId: string, name: string, amount: number): boolean => {
+    const month = months.find(m => m.id === monthId);
+    if (!isPremiumActive() && month && month.expenses.length >= 8) {
+      console.log('[Paywall] Expense limit reached (8), triggering paywall');
+      return false;
+    }
     setMonths(months.map(m => {
       if (m.id === monthId) {
         const newExpense: Expense = {
@@ -417,6 +431,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       return m;
     }));
     console.log('Expense added to month:', monthId, name, amount);
+    return true;
   };
 
   const deleteExpense = (monthId: string, expenseId: string) => {
@@ -473,7 +488,11 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     console.log('Expense pin toggled:', expenseId);
   };
 
-  const addSubscription = (name: string, amount: number) => {
+  const addSubscription = (name: string, amount: number): boolean => {
+    if (!isPremiumActive() && subscriptions.length >= 5) {
+      console.log('[Paywall] Subscription limit reached (5), triggering paywall');
+      return false;
+    }
     const newSub: Subscription = {
       id: Date.now().toString(),
       name,
@@ -482,6 +501,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     };
     setSubscriptions([...subscriptions, newSub]);
     console.log('Subscription added:', name, amount);
+    return true;
   };
 
   const deleteSubscription = (id: string) => {

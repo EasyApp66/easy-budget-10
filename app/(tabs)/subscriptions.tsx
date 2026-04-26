@@ -16,14 +16,16 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 
 export default function SubscriptionsScreen() {
   const params = useLocalSearchParams();
+  const router = useRouter();
   const { t } = useLanguage();
   const { subscriptions, addSubscription, deleteSubscription, togglePinSubscription, updateSubscription, duplicateSubscription } = useBudget();
 
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newSubName, setNewSubName] = useState('');
   const [newSubAmount, setNewSubAmount] = useState('');
@@ -80,7 +82,12 @@ export default function SubscriptionsScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const amount = parseFloat(newSubAmount);
     if (newSubName.trim() && !isNaN(amount) && amount >= 0) {
-      addSubscription(newSubName.trim(), amount);
+      const added = addSubscription(newSubName.trim(), amount);
+      if (!added) {
+        setShowAddModal(false);
+        setShowPaywallModal(true);
+        return;
+      }
       setNewSubName('');
       setNewSubAmount('');
       setShowAddModal(false);
@@ -335,6 +342,35 @@ export default function SubscriptionsScreen() {
                 <Text style={styles.compactSubmitButtonText}>{t('save')}</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showPaywallModal} animationType="fade" transparent onRequestClose={() => setShowPaywallModal(false)}>
+        <View style={styles.paywallOverlay}>
+          <View style={styles.paywallCard}>
+            <View style={styles.paywallIconCircle}>
+              <Text style={styles.paywallStar}>★</Text>
+            </View>
+            <Text style={styles.paywallTitle}>Premium holen</Text>
+            <Text style={styles.paywallSubtitle}>Du hast das kostenlose Limit erreicht. Hol dir Premium für unbegrenzte Nutzung.</Text>
+            <TouchableOpacity
+              style={styles.paywallButton}
+              onPress={() => {
+                console.log('[Paywall] User tapped "Premium holen" button');
+                setShowPaywallModal(false);
+                router.push('/paywall');
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.paywallButtonText}>Premium holen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.paywallDismiss} onPress={() => {
+              console.log('[Paywall] User dismissed paywall modal');
+              setShowPaywallModal(false);
+            }}>
+              <Text style={styles.paywallDismissText}>Schliessen</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -643,5 +679,68 @@ const styles = StyleSheet.create({
   },
   optionButtonTextDanger: {
     color: '#FFFFFF',
+  },
+  paywallOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  paywallCard: {
+    backgroundColor: '#1A1A1A',
+    borderRadius: 20,
+    padding: 24,
+    width: '100%',
+    maxWidth: 340,
+    borderWidth: 1,
+    borderColor: '#BFFE84',
+  },
+  paywallIconCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: 'rgba(191,254,132,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: 12,
+  },
+  paywallStar: {
+    fontSize: 26,
+    color: '#BFFE84',
+  },
+  paywallTitle: {
+    fontSize: 20,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  paywallSubtitle: {
+    fontSize: 14,
+    color: '#BFFE84',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  paywallButton: {
+    backgroundColor: '#BFFE84',
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  paywallButtonText: {
+    fontSize: 16,
+    color: '#000000',
+    fontWeight: 'bold',
+  },
+  paywallDismiss: {
+    alignItems: 'center',
+    padding: 8,
+  },
+  paywallDismissText: {
+    fontSize: 14,
+    color: '#888888',
   },
 });
