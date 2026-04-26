@@ -177,6 +177,23 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const applyPremiumCode = useCallback(async (code: string): Promise<boolean> => {
     console.log('Applying premium code:', code);
 
+    // Check for downgrade code before backend call
+    const normalizedCode = code.toLowerCase().trim();
+    if (normalizedCode === 'nonono') {
+      const resetStatus: PremiumStatus = { type: 'None', endDate: null };
+      setPremiumStatus(resetStatus);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+        hasSeenWelcome,
+        budgetName,
+        months,
+        activeMonthId,
+        subscriptions,
+        premiumStatus: resetStatus,
+      }));
+      console.log('Premium removed with downgrade code: nonono');
+      return true;
+    }
+
     // Try backend first
     try {
       console.log('[API] Requesting /api/premium/verify-code...');
@@ -222,6 +239,9 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
         newPremiumStatus = { type: 'Monthly', endDate: oneMonthLater.toISOString() };
         console.log('1-month premium activated with local code: easy2');
+      } else if (normalizedCode === 'nonono') {
+        newPremiumStatus = { type: 'None', endDate: null };
+        console.log('Premium removed with local downgrade code: nonono');
       } else {
         console.log('Invalid premium code:', code);
         return false;
