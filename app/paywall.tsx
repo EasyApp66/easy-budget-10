@@ -294,6 +294,9 @@ export default function PaywallScreen() {
           <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 4, alignItems: 'center' }}>
             <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>AGB und Datenschutz ansehen</Text>
           </TouchableOpacity>
+          <Text style={{ fontSize: 11, color: '#555555', textAlign: 'center', lineHeight: 16, marginTop: 12, paddingHorizontal: 8 }}>
+            {'Abo kündigen: Einstellungen → Apple ID → Abonnements → Easy Budget → Kündigen'}
+          </Text>
         </ScrollView>
       </SafeAreaView>
 

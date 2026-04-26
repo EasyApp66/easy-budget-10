@@ -248,12 +248,49 @@ export default function ProfileScreen() {
   };
 
   const handleDonation = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const amount = customDonationAmount ? parseFloat(customDonationAmount) : selectedDonationAmount;
-    console.log('[Profile] Donation amount:', amount);
-    setShowDonationModal(false);
-    setModalMessage(t('donationThankYou'));
-    setShowSuccessModal(true);
+    console.log('[Profile] Donation initiated, amount:', amount);
+
+    // Find the matching tip package from RC offerings
+    const tipIdentifier = `tip_${amount}`;
+    const tipPkg = packages.find(p => p.identifier === tipIdentifier || p.product?.identifier === tipIdentifier);
+
+    if (!tipPkg) {
+      console.warn('[Profile] Tip package not found in RC offerings:', tipIdentifier);
+      // Fallback: show info that tips are not yet configured
+      setModalMessage(language === 'de'
+        ? 'Trinkgeld-Pakete sind noch nicht eingerichtet. Bitte versuche es später erneut.'
+        : 'Tip packages are not yet configured. Please try again later.');
+      setShowDonationModal(false);
+      setShowErrorModal(true);
+      return;
+    }
+
+    setIsPurchasing(true);
+    try {
+      console.log('[Profile] Purchasing tip package:', tipPkg.identifier);
+      const success = await purchasePackage(tipPkg);
+      if (success) {
+        console.log('[Profile] Tip purchase successful');
+        setShowDonationModal(false);
+        setModalMessage(t('donationThankYou'));
+        setShowSuccessModal(true);
+      } else {
+        setShowDonationModal(false);
+        setModalMessage(t('error'));
+        setShowErrorModal(true);
+      }
+    } catch (error: any) {
+      console.error('[Profile] Tip purchase failed:', error);
+      if (!error.userCancelled) {
+        setShowDonationModal(false);
+        setModalMessage(t('error'));
+        setShowErrorModal(true);
+      }
+    } finally {
+      setIsPurchasing(false);
+    }
   };
 
   const handleOneTimePayment = async () => {
@@ -808,6 +845,9 @@ export default function ProfileScreen() {
                  'Restore Purchases'}
               </Text>
             </TouchableOpacity>
+            <Text style={{ fontSize: 10, color: '#555555', textAlign: 'center', lineHeight: 14, marginTop: 8, paddingHorizontal: 4 }}>
+              {'Abo kündigen: Einstellungen → Apple ID → Abonnements → Easy Budget'}
+            </Text>
           </View>
         </View>
       </Modal>
@@ -878,14 +918,21 @@ export default function ProfileScreen() {
             </View>
 
             <TouchableOpacity 
-              style={styles.donateButton}
+              style={[styles.donateButton, isPurchasing && { opacity: 0.6 }]}
               onPress={handleDonation}
               activeOpacity={0.8}
+              disabled={isPurchasing}
             >
-              <MaterialIcons name="favorite" size={14} color="#FFFFFF" />
-              <Text style={styles.donateButtonText}>
-                {t('donate')} CHF {customDonationAmount || selectedDonationAmount}.00
-              </Text>
+              {isPurchasing ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <>
+                  <MaterialIcons name="favorite" size={14} color="#FFFFFF" />
+                  <Text style={styles.donateButtonText}>
+                    {t('donate')} CHF {customDonationAmount || selectedDonationAmount}.00
+                  </Text>
+                </>
+              )}
             </TouchableOpacity>
           </View>
         </View>
