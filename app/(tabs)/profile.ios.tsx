@@ -634,6 +634,7 @@ export default function ProfileScreen() {
               style={styles.closeModalButton}
               onPress={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                console.log('[Profile] Premium modal closed');
                 setShowPremiumModal(false);
               }}
             >
@@ -667,7 +668,10 @@ export default function ProfileScreen() {
                   style={[styles.pricingButton, isPurchasing && styles.pricingButtonDisabled]}
                   activeOpacity={0.8}
                   disabled={isPurchasing}
-                  onPress={handleOneTimePayment}
+                  onPress={() => {
+                    console.log('[Profile] Bezahlen (Einmalige Zahlung) pressed');
+                    handleOneTimePayment();
+                  }}
                 >
                   {isPurchasing ? (
                     <ActivityIndicator size="small" color="#000000" />
@@ -686,7 +690,10 @@ export default function ProfileScreen() {
                   style={[styles.pricingButton, isPurchasing && styles.pricingButtonDisabled]}
                   activeOpacity={0.8}
                   disabled={isPurchasing}
-                  onPress={handleMonthlySubscription}
+                  onPress={() => {
+                    console.log('[Profile] Bezahlen (Monatsabo) pressed');
+                    handleMonthlySubscription();
+                  }}
                 >
                   {isPurchasing ? (
                     <ActivityIndicator size="small" color="#000000" />
@@ -1155,18 +1162,20 @@ const styles = StyleSheet.create({
   },
   centeredModalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   premiumModal: {
-    backgroundColor: '#2C2C2E',
+    backgroundColor: '#1A1A1A',
     borderRadius: 20,
     padding: 22,
     width: '100%',
     maxWidth: 380,
     position: 'relative',
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
   },
   closeModalButton: {
     position: 'absolute',
@@ -1176,7 +1185,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1199,12 +1208,13 @@ const styles = StyleSheet.create({
   },
   premiumModalSubtitle: {
     fontSize: 13,
-    color: '#CCCCCC',
+    color: '#BFFE84',
     textAlign: 'center',
     marginBottom: 16,
+    fontWeight: '500',
   },
   premiumFeatures: {
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0D',
     borderRadius: 12,
     padding: 14,
     marginBottom: 16,
@@ -1214,17 +1224,17 @@ const styles = StyleSheet.create({
   },
   premiumFeatureText: {
     fontSize: 13,
-    color: '#FFFFFF',
+    color: '#BFFE84',
     lineHeight: 20,
   },
   premiumPricing: {
-    gap: 12,
+    gap: 0,
   },
   pricingOption: {
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0D',
     borderRadius: 12,
     padding: 14,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: '#BFFE84',
   },
   pricingTitle: {
@@ -1234,7 +1244,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   pricingAmount: {
-    fontSize: 18,
+    fontSize: 20,
     color: '#BFFE84',
     fontWeight: 'bold',
     marginBottom: 10,
@@ -1244,9 +1254,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 11,
     alignItems: 'center',
+    width: '100%',
   },
   pricingButtonText: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#000000',
     fontWeight: 'bold',
   },
@@ -1254,7 +1265,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666666',
     textAlign: 'center',
-    fontWeight: '600',
+    fontWeight: '500',
+    marginVertical: 10,
   },
   donationModal: {
     backgroundColor: '#2C2C2E',
