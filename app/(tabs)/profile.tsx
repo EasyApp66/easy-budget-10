@@ -566,11 +566,9 @@ export default function ProfileScreen() {
         <View style={styles.footer}>
           <Text style={styles.versionText}>Version 1.0.0</Text>
           <Text style={styles.madeWithText}>Made with ❤️</Text>
-          <TouchableOpacity onPress={() => { console.log('[Profile] Tapped Design Studio Dübendorf link'); Linking.openURL('https://n55.ch'); }} activeOpacity={0.7}>
-            <Text style={{ fontSize: 13, color: '#666666', marginTop: 4 }}>
-              by{' '}
-              <Text style={{ color: '#BFFE84', textDecorationLine: 'underline' }}>Design Studio Dübendorf</Text>
-            </Text>
+          <Text style={{ fontSize: 13, color: '#666666', marginTop: 4 }}>by Design Studio Dübendorf</Text>
+          <TouchableOpacity onPress={() => { console.log('[Profile] Tapped n55.ch link'); Linking.openURL('https://n55.ch'); }} activeOpacity={0.7}>
+            <Text style={{ fontSize: 13, color: '#BFFE84', textDecorationLine: 'underline', marginTop: 2 }}>n55.ch</Text>
           </TouchableOpacity>
         </View>
 
