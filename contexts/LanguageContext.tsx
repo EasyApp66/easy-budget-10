@@ -158,6 +158,9 @@ const translations = {
 
     // Actions
     deleteAllData: 'Alle Daten löschen',
+    deleteAllDataMessage: 'Möchtest du wirklich alle Daten löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+    deleteAllDataError: 'Daten konnten nicht gelöscht werden.',
+    requestAccountDeletion: 'Vollständige Kontolöschung anfragen',
     promoCode: 'Promo Code',
     copy: 'Kopieren',
   },
@@ -303,6 +306,9 @@ const translations = {
 
     // Actions
     deleteAllData: 'Delete All Data',
+    deleteAllDataMessage: 'Do you really want to delete all data? This action cannot be undone.',
+    deleteAllDataError: 'Data could not be deleted.',
+    requestAccountDeletion: 'Request full account deletion',
     promoCode: 'Promo Code',
     copy: 'Copy',
   },
@@ -448,6 +454,9 @@ const translations = {
 
     // Actions
     deleteAllData: 'Supprimer toutes les données',
+    deleteAllDataMessage: 'Voulez-vous vraiment supprimer toutes les données ? Cette action est irréversible.',
+    deleteAllDataError: 'Les données n\'ont pas pu être supprimées.',
+    requestAccountDeletion: 'Demander la suppression complète du compte',
     promoCode: 'Code Promo',
     copy: 'Copier',
   },
@@ -593,6 +602,9 @@ const translations = {
 
     // Actions
     deleteAllData: 'Eliminar todos los datos',
+    deleteAllDataMessage: '¿Realmente deseas eliminar todos los datos? Esta acción no se puede deshacer.',
+    deleteAllDataError: 'Los datos no se pudieron eliminar.',
+    requestAccountDeletion: 'Solicitar eliminación completa de la cuenta',
     promoCode: 'Código Promocional',
     copy: 'Copiar',
   },

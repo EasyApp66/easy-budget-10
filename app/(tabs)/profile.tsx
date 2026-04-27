@@ -309,19 +309,27 @@ export default function ProfileScreen() {
     console.log('[Profile] Delete All Data pressed');
     Alert.alert(
       t('deleteAllData'),
-      'Möchtest du wirklich alle Daten löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+      t('deleteAllDataMessage'),
       [
         { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('requestAccountDeletion'),
+          onPress: () => {
+            console.log('[Profile] Request account deletion pressed');
+            Linking.openURL('mailto:ivanmirosnic006@gmail.com?subject=Account%20Deletion%20Request');
+          },
+        },
         {
           text: t('delete'),
           style: 'destructive',
           onPress: async () => {
+            console.log('[Profile] Confirm delete all data pressed');
             try {
               await AsyncStorage.clear();
               router.replace('/');
             } catch (error) {
               console.error('Error deleting data:', error);
-              Alert.alert(t('error'), 'Daten konnten nicht gelöscht werden.');
+              Alert.alert(t('error'), t('deleteAllDataError'));
             }
           },
         },
