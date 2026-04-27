@@ -23,6 +23,7 @@ import { useRouter } from "expo-router";
 import { PurchasesPackage } from "react-native-purchases";
 
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -39,6 +40,8 @@ const FEATURES = [
 
 export default function PaywallScreen() {
   const router = useRouter();
+
+  const { t } = useLanguage();
 
   const {
     packages,
@@ -229,7 +232,7 @@ export default function PaywallScreen() {
               )}
             </TouchableOpacity>
             <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 6, alignItems: 'center' }}>
-              <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>AGB und Datenschutz</Text>
+              <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -258,7 +261,7 @@ export default function PaywallScreen() {
               )}
             </TouchableOpacity>
             <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 6, alignItems: 'center' }}>
-              <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>AGB und Datenschutz</Text>
+              <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -296,7 +299,7 @@ export default function PaywallScreen() {
               : `Die Zahlung wird über dein ${Platform.OS === "ios" ? "Apple ID" : "Google Play"} Konto abgerechnet. Das Abo verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt wird.`}
           </Text>
           <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 4, alignItems: 'center' }}>
-            <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>AGB und Datenschutz ansehen</Text>
+            <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacyView')}</Text>
           </TouchableOpacity>
           <Text style={{ fontSize: 11, color: '#555555', textAlign: 'center', lineHeight: 16, marginTop: 12, paddingHorizontal: 8 }}>
             {'Abo kündigen: Einstellungen → Apple ID → Abonnements → Easy Budget → Kündigen'}

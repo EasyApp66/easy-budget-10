@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert, Animated, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert, Animated, ActivityIndicator, Clipboard } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -306,13 +306,14 @@ export default function ProfileScreen() {
   };
 
   const handleDeleteAllData = async () => {
+    console.log('[Profile] Delete All Data pressed');
     Alert.alert(
-      'Alle Daten löschen',
+      t('deleteAllData'),
       'Möchtest du wirklich alle Daten löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
       [
-        { text: 'Abbrechen', style: 'cancel' },
+        { text: t('cancel'), style: 'cancel' },
         {
-          text: 'Löschen',
+          text: t('delete'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -320,7 +321,7 @@ export default function ProfileScreen() {
               router.replace('/');
             } catch (error) {
               console.error('Error deleting data:', error);
-              Alert.alert('Fehler', 'Daten konnten nicht gelöscht werden.');
+              Alert.alert(t('error'), 'Daten konnten nicht gelöscht werden.');
             }
           },
         },
@@ -545,7 +546,7 @@ export default function ProfileScreen() {
           >
             <View style={styles.menuItemLeft}>
               <MaterialIcons name="card-giftcard" size={24} color="#BFFE84" />
-              <Text style={styles.menuItemText}>Promo Code</Text>
+              <Text style={styles.menuItemText}>{t('promoCode')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
@@ -557,7 +558,7 @@ export default function ProfileScreen() {
           >
             <View style={styles.menuItemLeft}>
               <MaterialIcons name="delete-forever" size={24} color="#FF3B30" />
-              <Text style={[styles.menuItemText, { color: '#FF3B30' }]}>Alle Daten löschen</Text>
+              <Text style={[styles.menuItemText, { color: '#FF3B30' }]}>{t('deleteAllData')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={24} color="#FF3B30" />
           </TouchableOpacity>
@@ -584,7 +585,7 @@ export default function ProfileScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { fontSize: 16 }]}>AGB & Datenschutz</Text>
+            <Text style={[styles.modalTitle, { fontSize: 16 }]}>{t('termsAndPrivacy')}</Text>
             <TouchableOpacity onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setShowLegalModal(false);
@@ -800,7 +801,7 @@ export default function ProfileScreen() {
               style={{ marginTop: 10, alignItems: 'center' }}
             >
               <Text style={{ fontSize: 11, color: '#888888', textDecorationLine: 'underline' }}>
-                AGB & Datenschutz
+                {t('termsAndPrivacy')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -840,12 +841,14 @@ export default function ProfileScreen() {
             <TouchableOpacity 
               style={styles.promoOkButton}
               onPress={async () => {
+                console.log('[Profile] Copy promo code pressed');
+                Clipboard.setString('easy2');
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setShowPromoModal(false);
               }}
               activeOpacity={0.8}
             >
-              <Text style={styles.promoOkButtonText}>OK</Text>
+              <Text style={styles.promoOkButtonText}>{t('copy')}</Text>
             </TouchableOpacity>
           </View>
         </View>

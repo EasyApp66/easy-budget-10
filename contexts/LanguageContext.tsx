@@ -151,6 +151,15 @@ const translations = {
     // Promo Code Popup
     promoCodeTitle: 'Gratis Premium!',
     promoCodeMessage: 'Erhalte einen Monat gratis Premium mit dem Code easy2',
+
+    // Terms & Privacy
+    termsAndPrivacy: 'AGB & Datenschutz',
+    termsAndPrivacyView: 'AGB und Datenschutz ansehen',
+
+    // Actions
+    deleteAllData: 'Alle Daten löschen',
+    promoCode: 'Promo Code',
+    copy: 'Kopieren',
   },
   en: {
     // Welcome Screen
@@ -287,6 +296,15 @@ const translations = {
     // Promo Code Popup
     promoCodeTitle: 'Free Premium!',
     promoCodeMessage: 'Get one month free Premium with code easy2',
+
+    // Terms & Privacy
+    termsAndPrivacy: 'Terms & Privacy',
+    termsAndPrivacyView: 'View Terms & Privacy',
+
+    // Actions
+    deleteAllData: 'Delete All Data',
+    promoCode: 'Promo Code',
+    copy: 'Copy',
   },
   fr: {
     // Welcome Screen
@@ -423,6 +441,15 @@ const translations = {
     // Promo Code Popup
     promoCodeTitle: 'Premium Gratuit!',
     promoCodeMessage: 'Obtenez un mois de Premium gratuit avec le code easy2',
+
+    // Terms & Privacy
+    termsAndPrivacy: 'CGV & Confidentialité',
+    termsAndPrivacyView: 'Voir CGV & Confidentialité',
+
+    // Actions
+    deleteAllData: 'Supprimer toutes les données',
+    promoCode: 'Code Promo',
+    copy: 'Copier',
   },
   es: {
     // Welcome Screen
@@ -559,6 +586,15 @@ const translations = {
     // Promo Code Popup
     promoCodeTitle: '¡Premium Gratis!',
     promoCodeMessage: 'Obtén un mes de Premium gratis con el código easy2',
+
+    // Terms & Privacy
+    termsAndPrivacy: 'Términos & Privacidad',
+    termsAndPrivacyView: 'Ver Términos & Privacidad',
+
+    // Actions
+    deleteAllData: 'Eliminar todos los datos',
+    promoCode: 'Código Promocional',
+    copy: 'Copiar',
   },
 };
 
