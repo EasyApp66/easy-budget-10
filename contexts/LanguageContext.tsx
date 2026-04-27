@@ -440,7 +440,7 @@ const translations = {
     twoWeeksPremium: 'Obtienes dos semanas Premium',
     
     // Budget Screen
-    budget: 'PRESUPUESTO',
+    budget: 'Budget',
     total: 'TOTAL',
     remaining: 'QUEDA',
     newExpense: 'Nuevo Gasto',
