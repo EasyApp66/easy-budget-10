@@ -937,6 +937,17 @@ export default function ProfileScreen() {
                 </>
               )}
             </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                console.log('[Profile] AGB & Datenschutz link pressed');
+                Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9');
+              }}
+              style={{ marginTop: 10, alignItems: 'center' }}
+            >
+              <Text style={{ fontSize: 11, color: '#888888', textDecorationLine: 'underline' }}>
+                AGB & Datenschutz
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
