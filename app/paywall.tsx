@@ -123,7 +123,11 @@ export default function PaywallScreen() {
 
   const handleClose = () => {
     console.log("[Paywall] Close button pressed");
-    router.replace("/(tabs)/(home)");
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/(home)");
+    }
   };
 
   // Already subscribed
