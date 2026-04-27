@@ -12,6 +12,7 @@ import {
   Alert,
   Animated,
   ActivityIndicator,
+  AppState,
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
@@ -72,6 +73,19 @@ export default function ProfileScreen() {
         useNativeDriver: true,
       }),
     ]).start();
+  }, [fadeAnims.header, fadeAnims.code, fadeAnims.menu]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        console.log('[Profile] App returned to foreground — resetting fade animations');
+        // Reset all fade values and replay animation
+        fadeAnims.header.setValue(1);
+        fadeAnims.code.setValue(1);
+        fadeAnims.menu.setValue(1);
+      }
+    });
+    return () => subscription.remove();
   }, [fadeAnims.header, fadeAnims.code, fadeAnims.menu]);
 
   useEffect(() => {
@@ -463,6 +477,8 @@ export default function ProfileScreen() {
         style={styles.scrollView} 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        scrollEventThrottle={16}
       >
         <Animated.View style={[styles.profileHeader, { opacity: fadeAnims.header }]}>
           <View style={styles.avatarContainer}>
