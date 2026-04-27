@@ -89,7 +89,7 @@ export default function ProfileScreen() {
 
   const handleToggleSkipConfirmations = async () => {
     if (premiumStatus.type === 'None' || premiumStatus.type === 'Expired') {
-      router.push('/paywall');
+      setShowPremiumModal(true);
       return;
     }
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

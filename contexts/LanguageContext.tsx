@@ -323,7 +323,7 @@ const translations = {
     adjustNumber: 'Ajuster le Montant',
     
     // Subscriptions Screen
-    subscriptionCosts: 'ABOS',
+    subscriptionCosts: 'ABONNEMENTS',
     newSubscription: 'Nouvel Abonnement',
     subscriptionNameExample: 'Nom (ex. NETFLIX)',
     editSubscription: 'Modifier l\'Abonnement',
@@ -459,7 +459,7 @@ const translations = {
     adjustNumber: 'Ajustar Cantidad',
     
     // Subscriptions Screen
-    subscriptionCosts: 'ABOS',
+    subscriptionCosts: 'SUSCRIPCIONES',
     newSubscription: 'Nueva Suscripción',
     subscriptionNameExample: 'Nombre (ej. NETFLIX)',
     editSubscription: 'Editar Suscripción',
