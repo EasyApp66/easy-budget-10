@@ -13,8 +13,8 @@ import {
   Animated,
   ActivityIndicator,
   AppState,
-  Clipboard,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
 import * as MailComposer from 'expo-mail-composer';
@@ -79,11 +79,27 @@ export default function ProfileScreen() {
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') {
-        console.log('[Profile] App returned to foreground — resetting fade animations');
-        // Reset all fade values and replay animation
-        fadeAnims.header.setValue(1);
-        fadeAnims.code.setValue(1);
-        fadeAnims.menu.setValue(1);
+        console.log('[Profile] App returned to foreground — replaying stagger animation');
+        fadeAnims.header.setValue(0);
+        fadeAnims.code.setValue(0);
+        fadeAnims.menu.setValue(0);
+        Animated.stagger(80, [
+          Animated.timing(fadeAnims.header, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(fadeAnims.code, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(fadeAnims.menu, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ]).start();
       }
     });
     return () => subscription.remove();
@@ -104,6 +120,7 @@ export default function ProfileScreen() {
 
   const handleToggleSkipConfirmations = async () => {
     if (premiumStatus.type === 'None' || premiumStatus.type === 'Expired') {
+      closeAllModals();
       setShowPremiumModal(true);
       return;
     }
@@ -160,18 +177,21 @@ export default function ProfileScreen() {
   const handleLegalPress = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     console.log('Legal button pressed');
+    closeAllModals();
     setShowLegalModal(true);
   };
 
   const handlePremiumPress = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     console.log('[Profile] Premium holen pressed — opening premium modal');
+    closeAllModals();
     setShowPremiumModal(true);
   };
 
   const handleDonationPress = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     console.log('Donation button pressed');
+    closeAllModals();
     setShowDonationModal(true);
   };
 
@@ -240,6 +260,7 @@ export default function ProfileScreen() {
     
     if (!codeInput.trim()) {
       setModalMessage(t('enterCode'));
+      closeAllModals();
       setShowErrorModal(true);
       return;
     }
@@ -248,15 +269,18 @@ export default function ProfileScreen() {
       const success = await applyPremiumCode(codeInput.trim());
       if (success) {
         setModalMessage(t('premiumActivated'));
+        closeAllModals();
         setShowSuccessModal(true);
         setCodeInput('');
       } else {
         setModalMessage(t('invalidCode'));
+        closeAllModals();
         setShowErrorModal(true);
       }
     } catch (error) {
       console.error('[Profile] Error applying code:', error);
       setModalMessage(t('invalidCode'));
+      closeAllModals();
       setShowErrorModal(true);
     }
   };
@@ -272,11 +296,10 @@ export default function ProfileScreen() {
 
     if (!tipPkg) {
       console.warn('[Profile] Tip package not found in RC offerings:', tipIdentifier);
-      // Fallback: show info that tips are not yet configured
       setModalMessage(language === 'de'
         ? 'Trinkgeld-Pakete sind noch nicht eingerichtet. Bitte versuche es später erneut.'
         : 'Tip packages are not yet configured. Please try again later.');
-      setShowDonationModal(false);
+      closeAllModals();
       setShowErrorModal(true);
       return;
     }
@@ -287,18 +310,18 @@ export default function ProfileScreen() {
       const success = await purchasePackage(tipPkg);
       if (success) {
         console.log('[Profile] Tip purchase successful');
-        setShowDonationModal(false);
+        closeAllModals();
         setModalMessage(t('donationThankYou'));
         setShowSuccessModal(true);
       } else {
-        setShowDonationModal(false);
+        closeAllModals();
         setModalMessage(t('error'));
         setShowErrorModal(true);
       }
     } catch (error: any) {
       console.error('[Profile] Tip purchase failed:', error);
       if (!error.userCancelled) {
-        setShowDonationModal(false);
+        closeAllModals();
         setModalMessage(t('error'));
         setShowErrorModal(true);
       }
@@ -325,16 +348,18 @@ export default function ProfileScreen() {
       const success = await purchasePackage(lifetimePkg);
       if (success) {
         console.log('[Profile] Lifetime purchase successful');
-        setShowPremiumModal(false);
+        closeAllModals();
         setModalMessage(t('premiumActivated'));
         setShowSuccessModal(true);
       } else {
         setModalMessage(t('error'));
+        closeAllModals();
         setShowErrorModal(true);
       }
     } catch (error) {
       console.error('[Profile] One-time payment failed:', error);
       setModalMessage(t('error'));
+      closeAllModals();
       setShowErrorModal(true);
     } finally {
       setIsPurchasing(false);
@@ -344,31 +369,34 @@ export default function ProfileScreen() {
   const handleMonthlySubscription = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     console.log('[Profile] Monthly subscription initiated via RevenueCat');
-    const monthlyPkg = packages.find(
+    const monthlyPkgToPurchase = packages.find(
       (p) => p.identifier === '$rc_monthly' || p.packageType === 'MONTHLY'
     ) ?? packages[0];
-    if (!monthlyPkg) {
+    if (!monthlyPkgToPurchase) {
       console.warn('[Profile] No monthly package found in RevenueCat offerings');
       setModalMessage(t('error'));
+      closeAllModals();
       setShowErrorModal(true);
       return;
     }
     setIsPurchasing(true);
     try {
-      console.log('[Profile] Purchasing package:', monthlyPkg.identifier);
-      const success = await purchasePackage(monthlyPkg);
+      console.log('[Profile] Purchasing package:', monthlyPkgToPurchase.identifier);
+      const success = await purchasePackage(monthlyPkgToPurchase);
       if (success) {
         console.log('[Profile] Monthly subscription purchase successful');
-        setShowPremiumModal(false);
+        closeAllModals();
         setModalMessage(t('premiumActivated'));
         setShowSuccessModal(true);
       } else {
         setModalMessage(t('error'));
+        closeAllModals();
         setShowErrorModal(true);
       }
     } catch (error) {
       console.error('[Profile] Monthly subscription failed:', error);
       setModalMessage(t('error'));
+      closeAllModals();
       setShowErrorModal(true);
     } finally {
       setIsPurchasing(false);
@@ -383,16 +411,18 @@ export default function ProfileScreen() {
       const restored = await restorePurchases();
       console.log('[Profile] Restore purchases result:', restored);
       if (restored) {
-        setShowPremiumModal(false);
+        closeAllModals();
         setModalMessage(t('premiumActivated'));
         setShowSuccessModal(true);
       } else {
         setModalMessage(language === 'de' ? 'Keine früheren Käufe gefunden.' : 'No previous purchases found.');
+        closeAllModals();
         setShowErrorModal(true);
       }
     } catch (error) {
       console.error('[Profile] Restore purchases failed:', error);
       setModalMessage(t('error'));
+      closeAllModals();
       setShowErrorModal(true);
     } finally {
       setIsPurchasing(false);
@@ -401,6 +431,7 @@ export default function ProfileScreen() {
 
   const handleCancelPremium = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    closeAllModals();
     setShowCancelConfirmModal(true);
   };
 
@@ -424,6 +455,7 @@ export default function ProfileScreen() {
 
   const handlePromoCodePress = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    closeAllModals();
     setShowPromoModal(true);
   };
 
@@ -477,6 +509,21 @@ export default function ProfileScreen() {
     }
   };
 
+  const closeAllModals = () => {
+    setShowLegalModal(false);
+    setShowPremiumModal(false);
+    setShowDonationModal(false);
+    setShowPromoModal(false);
+    setShowCancelConfirmModal(false);
+    setShowSuccessModal(false);
+    setShowErrorModal(false);
+  };
+
+  const lifetimePkg = packages.find(p => p.identifier === '$rc_lifetime' || p.packageType === 'LIFETIME');
+  const monthlyPkg = packages.find(p => p.identifier === '$rc_monthly' || p.packageType === 'MONTHLY');
+  const lifetimePrice = lifetimePkg?.product?.priceString ?? 'CHF 10.00';
+  const monthlyPrice = monthlyPkg?.product?.priceString ? `${monthlyPkg.product.priceString}/Monat` : 'CHF 1.00/Monat';
+
   const currentLanguageText = language === 'de' ? 'Deutsch' : language === 'en' ? 'English' : language === 'fr' ? 'Français' : 'Español';
   const premiumStatusText = getPremiumStatusText();
 
@@ -489,6 +536,7 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         scrollEventThrottle={16}
+        nestedScrollEnabled={true}
       >
         <Animated.View style={[styles.profileHeader, { opacity: fadeAnims.header }]}>
           <View style={styles.avatarContainer}>
@@ -550,6 +598,7 @@ export default function ProfileScreen() {
               style={styles.menuItem} 
               onPress={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                closeAllModals();
                 setShowCancelConfirmModal(true);
               }}
               activeOpacity={0.7}
@@ -814,7 +863,7 @@ export default function ProfileScreen() {
             <View style={styles.premiumPricing}>
               <View style={styles.pricingOption}>
                 <Text style={styles.pricingTitle}>{t('oneTimePayment')}</Text>
-                <Text style={styles.pricingAmount}>CHF 10.00</Text>
+                <Text style={styles.pricingAmount}>{lifetimePrice}</Text>
                 <TouchableOpacity 
                   style={[styles.pricingButton, isPurchasing && styles.pricingButtonDisabled]}
                   activeOpacity={0.8}
@@ -839,7 +888,7 @@ export default function ProfileScreen() {
 
               <View style={styles.pricingOption}>
                 <Text style={styles.pricingTitle}>{t('monthlySubscription')}</Text>
-                <Text style={styles.pricingAmount}>CHF 1.00/{t('month')}</Text>
+                <Text style={styles.pricingAmount}>{monthlyPrice}</Text>
                 <TouchableOpacity 
                   style={[styles.pricingButton, isPurchasing && styles.pricingButtonDisabled]}
                   activeOpacity={0.8}
@@ -995,7 +1044,7 @@ export default function ProfileScreen() {
               style={styles.promoOkButton}
               onPress={async () => {
                 console.log('[Profile] Copy promo code pressed');
-                Clipboard.setString('easy2');
+                await Clipboard.setStringAsync('easy2');
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setShowPromoModal(false);
               }}
