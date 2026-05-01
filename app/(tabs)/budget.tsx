@@ -380,6 +380,8 @@ export default function BudgetScreen() {
               keyboardType="decimal-pad"
               autoFocus
               selectTextOnFocus
+              adjustsFontSizeToFit
+              numberOfLines={1}
             />
           ) : (
             <TouchableOpacity onPress={async () => {
@@ -387,7 +389,7 @@ export default function BudgetScreen() {
               setTempBudgetAmount(budgetAmount.toString());
               setEditingBudgetAmount(true);
             }}>
-              <Text style={styles.budgetAmount}>{budgetText.replace(/\s/g, "'")}</Text>
+              <Text style={styles.budgetAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>{budgetText.replace(/\s/g, "'")}</Text>
             </TouchableOpacity>
           )}
         </Animated.View>
@@ -395,11 +397,11 @@ export default function BudgetScreen() {
         <Animated.View style={[styles.summaryCard, glassEnabled && styles.glassCard, { opacity: fadeAnims.summary }]}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('total')}</Text>
-            <Text style={styles.summaryValue}>{totalText.replace(/\s/g, "'")}</Text>
+            <Text style={styles.summaryValue} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>{totalText.replace(/\s/g, "'")}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('remaining')}</Text>
-            <Text style={[styles.summaryValue, { color: remainingColor }]}>
+            <Text style={[styles.summaryValue, { color: remainingColor }]} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>
               {remaining < 0 ? '-' : ''}{remainingText.replace(/\s/g, "'")}
             </Text>
           </View>
@@ -488,7 +490,7 @@ export default function BudgetScreen() {
                         <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
                       </TouchableOpacity>
                     </View>
-                    <Text style={styles.expenseAmount}>{expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
+                    <Text style={styles.expenseAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.4}>{expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
                   </Pressable>
                   </React.Fragment>
                 );
@@ -844,7 +846,7 @@ function ExpenseListCard({
         <Pressable onLongPress={onLongPress}>
           <AnimatedReanimated.View style={[styles.expenseListCard, expense.isPinned && styles.expenseListCardPinned, animatedStyle]}>
             <Text style={styles.expenseListName}>{expense.name}</Text>
-            <Text style={styles.expenseListAmount}>{amountText}</Text>
+            <Text style={styles.expenseListAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>{amountText}</Text>
           </AnimatedReanimated.View>
         </Pressable>
       </GestureDetector>
