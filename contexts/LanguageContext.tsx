@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 
-type Language = 'de' | 'en' | 'fr' | 'es';
+type Language = 'de' | 'en' | 'fr' | 'es' | 'ru';
 
 interface LanguageContextType {
   language: Language;
@@ -163,6 +163,14 @@ const translations = {
     requestAccountDeletion: 'Vollständige Kontolöschung anfragen',
     promoCode: 'Promo Code',
     copy: 'Kopieren',
+    appGuide: 'App Guide',
+    appGuideTitle: 'App Guide — Version 1.0.0',
+    appGuideBudgetTitle: '📊 Budget',
+    appGuideBudgetContent: '• Tippe auf das grüne + um einen neuen Ausgabe zu erstellen\n• Langes Drücken auf eine Ausgabe öffnet das Menü: umbenennen, duplizieren, fixieren/lösen, löschen\n• Fixierte Ausgaben erscheinen immer oben\n• Tippe auf den Betrag einer Ausgabe um ihn schnell zu ändern\n• Wische eine Ausgabe nach links um sie zu löschen\n• Wechsle zwischen Listen- und Rasteransicht\n• Setze ein Gesamtbudget — der Restbetrag wird automatisch aktualisiert\n• Alle Daten werden offline auf deinem Gerät gespeichert',
+    appGuideSubsTitle: '🔄 Abos',
+    appGuideSubsContent: '• Tippe auf + um ein neues Abo hinzuzufügen\n• Gib Name, Betrag und nächstes Zahlungsdatum ein\n• Langes Drücken: Abo bearbeiten oder löschen\n• Der Gesamtbetrag aller Abos wird oben angezeigt\n• Abos werden nach dem nächsten Zahlungsdatum sortiert\n• Alle Daten werden offline gespeichert',
+    appGuideProfileTitle: '👤 Profil',
+    appGuideProfileContent: '• Ändere die App-Sprache (DE, EN, FR, ES, RU)\n• Aktiviere Premium für unbegrenzte Ausgaben, Abos und Monate\n• Käufe wiederherstellen falls du das Gerät gewechselt hast\n• Promo Code eingeben für gratis Premium\n• Support kontaktieren oder Bug melden\n• Spende um die Entwicklung zu unterstützen',
   },
   en: {
     // Welcome Screen
@@ -311,6 +319,14 @@ const translations = {
     requestAccountDeletion: 'Request full account deletion',
     promoCode: 'Promo Code',
     copy: 'Copy',
+    appGuide: 'App Guide',
+    appGuideTitle: 'App Guide — Version 1.0.0',
+    appGuideBudgetTitle: '📊 Budget',
+    appGuideBudgetContent: '• Tap the green + button to create a new expense\n• Long press an expense to open the menu: rename, duplicate, pin/unpin, delete\n• Pinned expenses always appear at the top\n• Tap an expense amount to quickly change it\n• Swipe left on an expense to delete it\n• Switch between list and grid view\n• Set a total budget — the remaining amount updates automatically\n• All data is saved offline on your device',
+    appGuideSubsTitle: '🔄 Subscriptions',
+    appGuideSubsContent: '• Tap + to add a new subscription\n• Enter name, amount and next payment date\n• Long press: edit or delete a subscription\n• Total amount of all subscriptions shown at the top\n• Subscriptions sorted by next payment date\n• All data saved offline',
+    appGuideProfileTitle: '👤 Profile',
+    appGuideProfileContent: '• Change the app language (DE, EN, FR, ES, RU)\n• Activate Premium for unlimited expenses, subscriptions and months\n• Restore purchases if you changed your device\n• Enter a promo code for free Premium\n• Contact support or report a bug\n• Donate to support development',
   },
   fr: {
     // Welcome Screen
@@ -459,6 +475,14 @@ const translations = {
     requestAccountDeletion: 'Demander la suppression complète du compte',
     promoCode: 'Code Promo',
     copy: 'Copier',
+    appGuide: 'Guide App',
+    appGuideTitle: 'Guide App — Version 1.0.0',
+    appGuideBudgetTitle: '📊 Budget',
+    appGuideBudgetContent: '• Appuyez sur le + vert pour créer une nouvelle dépense\n• Appui long sur une dépense: renommer, dupliquer, épingler/détacher, supprimer\n• Les dépenses épinglées apparaissent toujours en haut\n• Appuyez sur le montant pour le modifier rapidement\n• Glissez vers la gauche pour supprimer une dépense\n• Basculez entre vue liste et grille\n• Définissez un budget total — le reste se met à jour automatiquement\n• Toutes les données sont sauvegardées hors ligne sur votre appareil',
+    appGuideSubsTitle: '🔄 Abonnements',
+    appGuideSubsContent: '• Appuyez sur + pour ajouter un nouvel abonnement\n• Entrez le nom, le montant et la prochaine date de paiement\n• Appui long: modifier ou supprimer un abonnement\n• Le montant total de tous les abonnements est affiché en haut\n• Abonnements triés par prochaine date de paiement\n• Toutes les données sauvegardées hors ligne',
+    appGuideProfileTitle: '👤 Profil',
+    appGuideProfileContent: '• Changez la langue de l\'application (DE, EN, FR, ES, RU)\n• Activez Premium pour des dépenses, abonnements et mois illimités\n• Restaurez les achats si vous avez changé d\'appareil\n• Entrez un code promo pour Premium gratuit\n• Contactez le support ou signalez un bug\n• Faites un don pour soutenir le développement',
   },
   es: {
     // Welcome Screen
@@ -607,6 +631,172 @@ const translations = {
     requestAccountDeletion: 'Solicitar eliminación completa de la cuenta',
     promoCode: 'Código Promocional',
     copy: 'Copiar',
+    appGuide: 'Guía App',
+    appGuideTitle: 'Guía App — Versión 1.0.0',
+    appGuideBudgetTitle: '📊 Presupuesto',
+    appGuideBudgetContent: '• Toca el + verde para crear un nuevo gasto\n• Mantén presionado un gasto para abrir el menú: renombrar, duplicar, fijar/desfijar, eliminar\n• Los gastos fijados siempre aparecen arriba\n• Toca el monto de un gasto para cambiarlo rápidamente\n• Desliza a la izquierda para eliminar un gasto\n• Cambia entre vista de lista y cuadrícula\n• Establece un presupuesto total — el monto restante se actualiza automáticamente\n• Todos los datos se guardan sin conexión en tu dispositivo',
+    appGuideSubsTitle: '🔄 Suscripciones',
+    appGuideSubsContent: '• Toca + para agregar una nueva suscripción\n• Ingresa nombre, monto y próxima fecha de pago\n• Mantén presionado: editar o eliminar una suscripción\n• El monto total de todas las suscripciones se muestra arriba\n• Suscripciones ordenadas por próxima fecha de pago\n• Todos los datos guardados sin conexión',
+    appGuideProfileTitle: '👤 Perfil',
+    appGuideProfileContent: '• Cambia el idioma de la aplicación (DE, EN, FR, ES, RU)\n• Activa Premium para gastos, suscripciones y meses ilimitados\n• Restaura compras si cambiaste de dispositivo\n• Ingresa un código promocional para Premium gratis\n• Contacta soporte o reporta un error\n• Dona para apoyar el desarrollo',
+  },
+  ru: {
+    // Welcome Screen
+    hiIAm: 'ПРИВЕТ Я',
+    easyBudget: 'EASY BUDGET',
+    keepTrack: 'Следи за всеми',
+    expenses: 'Расходами',
+    and: 'и',
+    subscriptions: 'Подписками',
+    inOneGlance: 'с первого взгляда.',
+    go: 'ВПЕРЁД',
+    privacy: 'Конфиденциальность',
+    terms: 'Условия использования',
+    agb: 'Условия',
+    twoWeeksPremium: 'Вы получаете две недели Premium',
+
+    // Budget Screen
+    budget: 'БЮДЖЕТ',
+    total: 'ИТОГО',
+    remaining: 'ОСТАТОК',
+    newExpense: 'Новый расход',
+    nameExample: 'Название (напр. ЕДА)',
+    amount: 'Сумма',
+    add: 'Добавить',
+    cancel: 'Отмена',
+    save: 'Сохранить',
+    rename: 'Переименовать',
+    duplicate: 'Дублировать',
+    pin: 'Закрепить',
+    unpin: 'Открепить',
+    delete: 'Удалить',
+    editExpense: 'Редактировать расход',
+    changeView: 'Изменить вид',
+    adjustNumber: 'Изменить сумму',
+
+    // Subscriptions Screen
+    subscriptionCosts: 'ПОДПИСКИ',
+    newSubscription: 'Новая подписка',
+    subscriptionNameExample: 'Название (напр. NETFLIX)',
+    editSubscription: 'Редактировать подписку',
+
+    // Profile Screen
+    profile: 'Профиль',
+    premiumStatus: 'Статус Premium',
+    status: 'Статус',
+    premiumYes: 'Premium: Да',
+    premiumNo: 'Нет',
+    premiumExpired: 'Истёк',
+    premiumForever: 'Premium: Да, навсегда!',
+    premiumTrial: 'Пробный период',
+    premiumMonthly: 'Premium',
+    trial: 'Пробный период',
+    premiumActive: 'Premium',
+    daysLeft: 'дней осталось',
+    days: 'дней',
+    premium: 'Premium',
+    changeLanguage: 'Изменить язык',
+    language: 'Язык',
+    termsOfUse: 'Условия использования',
+    privacyPolicy: 'Политика конфиденциальности',
+    imprint: 'Выходные данные',
+    impressum: 'Выходные данные',
+    support: 'Поддержка',
+    reportBug: 'Сообщить об ошибке',
+    suggestion: 'Предложение',
+    donation: 'Пожертвование',
+    legal: 'Правовая информация',
+    close: 'Закрыть',
+    getPremium: 'Получить Premium',
+    cancelPremium: 'Отменить подписку Premium',
+    cancelSubscription: 'Отменить подписку Premium',
+    enterPremiumCode: 'Ввести код Premium',
+    premiumCodePlaceholder: 'Введите код',
+    codePlaceholder: 'Введите код',
+    apply: 'Применить',
+    success: 'Успех',
+    error: 'Ошибка',
+    premiumActivated: 'Premium активирован!',
+    invalidCode: 'Неверный код',
+    enterCode: 'Пожалуйста, введите код',
+
+    // Premium Modal
+    premiumTitle: 'Получить Premium',
+    premiumSubtitle: 'Получите неограниченные функции приложения',
+    unlimitedFeatures: 'Неограниченные функции',
+    unlimitedSubscriptions: 'Неограниченные подписки',
+    unlimitedExpenses: 'Неограниченные расходы',
+    unlimitedMonths: 'Неограниченные месяцы',
+    feature1: 'Неограниченный счётчик подписок',
+    feature2: 'Неограниченный список расходов',
+    feature3: 'Неограниченные месяцы',
+    monthlyPrice: 'Ежемесячная цена',
+    oneTimePayment: 'Единовременный платёж',
+    monthlySubscription: 'Ежемесячная подписка',
+    month: 'месяц',
+    pay: 'Оплатить',
+    or: 'или',
+    subscribe: 'Подписаться',
+    restorePurchases: 'Восстановить покупки',
+
+    // Donation Modal
+    donationTitle: 'Пожертвование',
+    donationText: 'Поддержите разработку приложения пожертвованием. Любая сумма поможет!',
+    supportDevelopment: 'Поддержать разработку',
+    customAmount: 'Произвольная сумма',
+    donate: 'Пожертвовать',
+    thankYou: 'Спасибо!',
+    donationThankYou: 'Спасибо за вашу поддержку!',
+
+    // Email
+    supportSubject: 'Easy Budget - Поддержка',
+    supportBody: '',
+    bugReportSubject: 'Easy Budget - Сообщение об ошибке',
+    bugReportBody: '',
+    suggestionSubject: 'Easy Budget - Предложение',
+    suggestionBody: '',
+    emailNotAvailable: 'Электронная почта недоступна на этом устройстве',
+
+    // Legal Texts
+    privacyText1: 'Easy Budget 10 уважает вашу конфиденциальность. Все ваши финансовые данные хранятся исключительно локально на вашем устройстве. Мы не собираем, не передаём и не храним личные данные на внешних серверах.',
+    privacyText2: 'Приложение не требует подключения к интернету и не отправляет данные третьим лицам. Ваши бюджеты, расходы и подписки остаются полностью конфиденциальными и под вашим контролем.',
+    termsText1: 'Используя Easy Budget 10, вы соглашаетесь со следующими условиями:',
+    termsText2: '1. Приложение предоставляется "как есть" без каких-либо гарантий.\n2. Вы несёте ответственность за резервное копирование своих данных.\n3. Приложение предназначено только для информационных целей и не заменяет профессиональные финансовые консультации.\n4. Мы не несём ответственности за убытки или ущерб, возникшие в результате использования приложения.',
+    termsText3: 'Применимое право: Настоящие условия регулируются швейцарским законодательством. Место юрисдикции — Цюрих, Швейцария.',
+    privacyText: 'Easy Budget 10 уважает вашу конфиденциальность. Все ваши финансовые данные хранятся исключительно локально на вашем устройстве. Мы не собираем, не передаём и не храним личные данные на внешних серверах.\n\nПриложение не требует подключения к интернету и не отправляет данные третьим лицам. Ваши бюджеты, расходы и подписки остаются полностью конфиденциальными и под вашим контролем.',
+    termsText: 'Используя Easy Budget 10, вы соглашаетесь со следующими условиями:\n\n1. Приложение предоставляется "как есть" без каких-либо гарантий.\n2. Вы несёте ответственность за резервное копирование своих данных.\n3. Приложение предназначено только для информационных целей и не заменяет профессиональные финансовые консультации.\n4. Мы не несём ответственности за убытки или ущерб, возникшие в результате использования приложения.\n\nПрименимое право: Настоящие условия регулируются швейцарским законодательством. Место юрисдикции — Цюрих, Швейцария.',
+    agbText: 'Общие условия:\n\n1. Область применения: Настоящие условия применяются к использованию приложения Easy Budget 10.\n\n2. Услуги: Приложение предоставляет функции для управления бюджетами, расходами и подписками.\n\n3. Права использования: Вы получаете неисключительное, непередаваемое право на использование приложения.\n\n4. Ответственность: Ответственность ограничена умыслом и грубой халатностью.\n\n5. Изменения: Мы оставляем за собой право изменять настоящие условия в любое время.\n\nПо вопросам обращайтесь: ivanmirosnic006@gmail.com',
+
+    // Tab Labels
+    tabBudget: 'Бюджет',
+    tabSubs: 'Подписки',
+    tabProfile: 'Профиль',
+
+    // Promo Code Popup
+    promoCodeTitle: 'Бесплатный Premium!',
+    promoCodeMessage: 'Получите один месяц Premium бесплатно с кодом easy2',
+
+    // Terms & Privacy
+    termsAndPrivacy: 'Условия и конфиденциальность',
+    termsAndPrivacyView: 'Просмотреть условия и конфиденциальность',
+
+    // Actions
+    deleteAllData: 'Удалить все данные',
+    deleteAllDataMessage: 'Вы действительно хотите удалить все данные? Это действие нельзя отменить.',
+    deleteAllDataError: 'Данные не удалось удалить.',
+    requestAccountDeletion: 'Запросить полное удаление аккаунта',
+    promoCode: 'Промокод',
+    copy: 'Копировать',
+
+    // App Guide
+    appGuide: 'App Guide',
+    appGuideTitle: 'App Guide — Version 1.0.0',
+    appGuideBudgetTitle: '📊 Бюджет',
+    appGuideBudgetContent: '• Нажмите зелёную кнопку + чтобы создать новый расход\n• Долгое нажатие на расход открывает меню: переименовать, дублировать, закрепить/открепить, удалить\n• Закреплённые расходы всегда отображаются вверху\n• Нажмите на сумму расхода чтобы быстро изменить её\n• Проведите пальцем влево по расходу чтобы удалить\n• Переключайте вид между списком и сеткой\n• Установите общий бюджет — остаток обновляется автоматически\n• Все данные сохраняются офлайн на вашем устройстве',
+    appGuideSubsTitle: '🔄 Подписки',
+    appGuideSubsContent: '• Нажмите + чтобы добавить новую подписку\n• Введите название, сумму и дату следующего платежа\n• Долгое нажатие: редактировать или удалить подписку\n• Общая сумма всех подписок отображается вверху\n• Подписки сортируются по дате следующего платежа\n• Все данные сохраняются офлайн',
+    appGuideProfileTitle: '👤 Профиль',
+    appGuideProfileContent: '• Смените язык приложения (DE, EN, FR, ES, RU)\n• Активируйте Premium для неограниченных расходов, подписок и месяцев\n• Восстановите покупки если сменили устройство\n• Введите промокод для бесплатного Premium\n• Свяжитесь с поддержкой или сообщите об ошибке\n• Сделайте пожертвование чтобы поддержать разработку',
   },
 };
 
@@ -637,6 +827,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           detectedLanguage = 'es';
         } else if (deviceLanguageCode.startsWith('de')) {
           detectedLanguage = 'de';
+        } else if (deviceLanguageCode.startsWith('ru')) {
+          detectedLanguage = 'ru';
         }
         
         setLanguageState(detectedLanguage);

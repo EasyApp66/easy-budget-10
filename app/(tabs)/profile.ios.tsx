@@ -38,6 +38,7 @@ export default function ProfileScreen() {
   const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showAppGuideModal, setShowAppGuideModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [codeInput, setCodeInput] = useState('');
   const [selectedDonationAmount, setSelectedDonationAmount] = useState(5);
@@ -245,9 +246,9 @@ export default function ProfileScreen() {
 
   const handleLanguageToggle = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Cycle through all 4 languages: de -> en -> fr -> es -> de
-    const langCycle: ('de' | 'en' | 'fr' | 'es')[] = ['de', 'en', 'fr', 'es'];
-    const currentIndex = langCycle.indexOf(language as 'de' | 'en' | 'fr' | 'es');
+    // Cycle through all 5 languages: de -> en -> fr -> es -> ru -> de
+    const langCycle: ('de' | 'en' | 'fr' | 'es' | 'ru')[] = ['de', 'en', 'fr', 'es', 'ru'];
+    const currentIndex = langCycle.indexOf(language as 'de' | 'en' | 'fr' | 'es' | 'ru');
     const nextIndex = (currentIndex + 1) % langCycle.length;
     const newLang = langCycle[nextIndex];
     console.log('Language toggle pressed, switching to:', newLang);
@@ -517,6 +518,7 @@ export default function ProfileScreen() {
     setShowCancelConfirmModal(false);
     setShowSuccessModal(false);
     setShowErrorModal(false);
+    setShowAppGuideModal(false);
   };
 
   const lifetimePkg = packages.find(p => p.identifier === '$rc_lifetime' || p.packageType === 'LIFETIME');
@@ -524,7 +526,7 @@ export default function ProfileScreen() {
   const lifetimePrice = lifetimePkg?.product?.priceString ?? 'CHF 10.00';
   const monthlyPrice = monthlyPkg?.product?.priceString ? `${monthlyPkg.product.priceString}/Monat` : 'CHF 1.00/Monat';
 
-  const currentLanguageText = language === 'de' ? 'Deutsch' : language === 'en' ? 'English' : language === 'fr' ? 'Français' : 'Español';
+  const currentLanguageText = language === 'de' ? 'Deutsch' : language === 'en' ? 'English' : language === 'fr' ? 'Français' : language === 'es' ? 'Español' : 'Русский';
   const premiumStatusText = getPremiumStatusText();
 
   return (
@@ -716,6 +718,22 @@ export default function ProfileScreen() {
             <View style={styles.menuItemLeft}>
               <MaterialIcons name="favorite" size={24} color="#FF3B30" />
               <Text style={styles.menuItemText}>{t('donation')}</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color="#666666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => {
+              console.log('[Profile] App Guide pressed');
+              closeAllModals();
+              setShowAppGuideModal(true);
+            }}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuItemLeft}>
+              <MaterialIcons name="menu-book" size={24} color="#BFFE84" />
+              <Text style={styles.menuItemText}>{t('appGuide')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
@@ -1190,6 +1208,28 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
+
+      <Modal visible={showAppGuideModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.appGuideModal, { maxHeight: '85%' }]}>
+            <Text style={styles.appGuideModalTitle}>{t('appGuideTitle')}</Text>
+            <ScrollView showsVerticalScrollIndicator={false} style={{ marginBottom: 16 }}>
+              <Text style={[styles.appGuideSectionTitle, { marginTop: 8 }]}>{t('appGuideBudgetTitle')}</Text>
+              <Text style={styles.guideText}>{t('appGuideBudgetContent')}</Text>
+              <Text style={[styles.appGuideSectionTitle, { marginTop: 20 }]}>{t('appGuideSubsTitle')}</Text>
+              <Text style={styles.guideText}>{t('appGuideSubsContent')}</Text>
+              <Text style={[styles.appGuideSectionTitle, { marginTop: 20 }]}>{t('appGuideProfileTitle')}</Text>
+              <Text style={styles.guideText}>{t('appGuideProfileContent')}</Text>
+            </ScrollView>
+            <TouchableOpacity style={styles.appGuideCloseButton} onPress={() => {
+              console.log('[Profile] App Guide modal closed');
+              setShowAppGuideModal(false);
+            }}>
+              <Text style={styles.appGuideCloseButtonText}>{t('close')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -1648,5 +1688,51 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#888888',
     textDecorationLine: 'underline',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'flex-end',
+    padding: 16,
+    paddingBottom: 32,
+  },
+  appGuideModal: {
+    backgroundColor: '#1A1A1A',
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
+  },
+  appGuideModalTitle: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  appGuideSectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#BFFE84',
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  guideText: {
+    fontSize: 14,
+    color: '#CCCCCC',
+    lineHeight: 22,
+    marginTop: 4,
+  },
+  appGuideCloseButton: {
+    backgroundColor: '#BFFE84',
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  appGuideCloseButtonText: {
+    fontSize: 16,
+    color: '#000000',
+    fontWeight: 'bold',
   },
 });
