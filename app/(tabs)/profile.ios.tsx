@@ -24,14 +24,16 @@ import { useBudget } from '@/contexts/BudgetContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useGlass } from '@/contexts/GlassContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Purchases from 'react-native-purchases';
 
 const USER_NAME_KEY = '@easy_budget_username';
 const SUPPORT_EMAIL = 'ivanmirosnic006@gmail.com';
+const TERMS_URL = 'https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9';
 
 export default function ProfileScreen() {
   const { premiumStatus, applyPremiumCode, fetchPremiumStatus, cancelPremium } = useBudget();
   const { language, setLanguage, t } = useLanguage();
-  const { packages, purchasePackage, restorePurchases } = useSubscription();
+  const { packages, purchasePackage, restorePurchases, checkSubscription } = useSubscription();
   const router = useRouter();
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
@@ -468,7 +470,18 @@ export default function ProfileScreen() {
     try {
       const success = await cancelPremium();
       if (success) {
-        setModalMessage(t('cancelPremium'));
+        let successMsg = t('cancelPremium');
+        try {
+          const customerInfo = await Purchases.getCustomerInfo();
+          const expirationDate = customerInfo.entitlements.active['pro']?.expirationDate;
+          if (expirationDate) {
+            const formattedDate = new Date(expirationDate).toLocaleDateString();
+            successMsg = t('premiumEndsOn').replace('{date}', formattedDate);
+          }
+        } catch (infoErr) {
+          console.warn('[Profile] Could not fetch customer info for expiry date:', infoErr);
+        }
+        setModalMessage(successMsg);
         setShowSuccessModal(true);
       }
     } catch (error) {
@@ -609,6 +622,7 @@ export default function ProfileScreen() {
               placeholder={t('premiumCodePlaceholder')}
               placeholderTextColor="#666666"
               autoCapitalize="none"
+              maxLength={20}
             />
             <TouchableOpacity 
               style={styles.applyCodeButton} 
@@ -618,6 +632,14 @@ export default function ProfileScreen() {
               <Text style={styles.applyCodeButtonText}>{t('apply')}</Text>
             </TouchableOpacity>
           </View>
+          {codeInput.length > 0 && (
+            <Text style={{ fontSize: 11, color: '#666666', marginTop: 4, textAlign: 'right' }}>
+              {codeInput.length}/20
+            </Text>
+          )}
+          <Text style={{ fontSize: 11, color: '#666666', marginTop: 4 }}>
+            {t('premiumCodeHint')}
+          </Text>
         </Animated.View>
 
         <Animated.View style={[styles.menuSection, { opacity: fadeAnims.menu }]}>
@@ -965,7 +987,7 @@ export default function ProfileScreen() {
               <View style={styles.pricingOption}>
                 <Text style={styles.pricingTitle}>{t('oneTimePayment')}</Text>
                 <Text style={styles.pricingAmount}>{lifetimePrice}</Text>
-                <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => Linking.openURL(TERMS_URL)} style={{ marginBottom: 6, alignItems: 'center' }}>
                   <Text style={{ fontSize: 10, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
@@ -990,7 +1012,7 @@ export default function ProfileScreen() {
               <View style={styles.pricingOption}>
                 <Text style={styles.pricingTitle}>{t('monthlySubscription')}</Text>
                 <Text style={styles.pricingAmount}>{monthlyPrice}</Text>
-                <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => Linking.openURL(TERMS_URL)} style={{ marginBottom: 6, alignItems: 'center' }}>
                   <Text style={{ fontSize: 10, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
@@ -1056,6 +1078,10 @@ export default function ProfileScreen() {
             <Text style={styles.donationModalTitle}>{t('donation')}</Text>
             <Text style={styles.donationModalSubtitle}>{t('supportDevelopment')}</Text>
 
+            <Text style={{ fontSize: 12, color: '#888888', textAlign: 'center', marginBottom: 12, lineHeight: 18 }}>
+              {t('donationDisclaimer')}
+            </Text>
+
             <View style={styles.donationAmounts}>
               {[1, 5, 10, 20].map((amount) => (
                 <TouchableOpacity
@@ -1083,7 +1109,7 @@ export default function ProfileScreen() {
             <TouchableOpacity
               onPress={() => {
                 console.log('[Profile] AGB & Datenschutz link pressed');
-                Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9');
+                Linking.openURL(TERMS_URL);
               }}
               style={{ marginBottom: 10, alignItems: 'center' }}
             >

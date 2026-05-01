@@ -29,6 +29,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const GREEN = "#BFFE84";
 const BG = "#0D0D0D";
+const TERMS_URL = 'https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9';
 const CARD_DARK = "#111111";
 const CARD_MID = "#1A1A1A";
 
@@ -47,8 +48,10 @@ export default function PaywallScreen() {
     purchasePackage,
     restorePurchases,
     mockWebPurchase,
-    mockNativePurchase,
+    checkSubscription,
   } = useSubscription();
+
+  const [retrying, setRetrying] = useState(false);
 
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
@@ -208,7 +211,7 @@ export default function PaywallScreen() {
             disabled={restoring}
           >
             {restoring ? (
-              <ActivityIndicator size="small" color="#AAAAAA" />
+              <ActivityIndicator size="small" color="#BFFE84" />
             ) : (
               <Text style={styles.restoreButtonText}>{t('paywallRestore')}</Text>
             )}
@@ -218,7 +221,10 @@ export default function PaywallScreen() {
           <View style={styles.pricingCard}>
             <Text style={styles.pricingLabel}>{t('paywallOneTime')}</Text>
             <Text style={styles.pricingPrice}>{lifetimePrice}</Text>
-            <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginBottom: 8, alignItems: 'center' }}>
+            {!noPackages && lifetimePkg && (
+              <Text style={{ fontSize: 11, color: '#888888', marginBottom: 8 }}>{t('paywallOneTimeDesc')}</Text>
+            )}
+            <TouchableOpacity onPress={() => Linking.openURL(TERMS_URL)} style={{ marginBottom: 8, alignItems: 'center' }}>
               <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -247,7 +253,10 @@ export default function PaywallScreen() {
           <View style={styles.pricingCard}>
             <Text style={styles.pricingLabel}>{t('paywallMonthly')}</Text>
             <Text style={styles.pricingPrice}>{monthlyPrice}</Text>
-            <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginBottom: 8, alignItems: 'center' }}>
+            {!noPackages && monthlyPkg && (
+              <Text style={{ fontSize: 11, color: '#888888', marginBottom: 8 }}>{t('paywallMonthlyDesc')}</Text>
+            )}
+            <TouchableOpacity onPress={() => Linking.openURL(TERMS_URL)} style={{ marginBottom: 8, alignItems: 'center' }}>
               <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -269,18 +278,29 @@ export default function PaywallScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Dev mock button */}
-          {!isWeb && noPackages && __DEV__ && (
-            <TouchableOpacity
-              style={styles.devMockButton}
-              onPress={async () => {
-                console.log("[Paywall] Dev: Simulate Purchase pressed");
-                await mockNativePurchase();
-                router.replace("/(tabs)");
-              }}
-            >
-              <Text style={styles.devMockButtonText}>Dev: Kauf simulieren</Text>
-            </TouchableOpacity>
+          {/* No packages retry */}
+          {noPackages && (
+            <>
+              <Text style={{ fontSize: 12, color: '#888888', textAlign: 'center', marginTop: 8, marginBottom: 4, lineHeight: 18 }}>
+                {t('paywallPriceUnavailableHint')}
+              </Text>
+              <TouchableOpacity
+                style={[styles.retryButton, { marginTop: 4 }]}
+                disabled={retrying}
+                onPress={async () => {
+                  console.log('[Paywall] Retry loading packages pressed');
+                  setRetrying(true);
+                  await checkSubscription();
+                  setRetrying(false);
+                }}
+              >
+                {retrying ? (
+                  <ActivityIndicator size="small" color={GREEN} />
+                ) : (
+                  <Text style={styles.retryButtonText}>{t('paywallRetry')}</Text>
+                )}
+              </TouchableOpacity>
+            </>
           )}
 
           {/* Legal */}
@@ -289,7 +309,7 @@ export default function PaywallScreen() {
               ? "Vorschaumodus — Käufe sind in der mobilen App verfügbar"
               : t('paywallLegal')}
           </Text>
-          <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 4, alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => Linking.openURL(TERMS_URL)} style={{ marginTop: 4, alignItems: 'center' }}>
             <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacyView')}</Text>
           </TouchableOpacity>
           <Text style={{ fontSize: 11, color: '#555555', textAlign: 'center', lineHeight: 16, marginTop: 12, paddingHorizontal: 8 }}>
@@ -522,14 +542,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: "center",
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#444444",
+    borderWidth: 1.5,
+    borderColor: "#BFFE84",
     width: "100%",
   },
   restoreButtonText: {
     fontSize: 14,
-    color: "#AAAAAA",
-    fontWeight: "500",
+    color: "#BFFE84",
+    fontWeight: "600",
+  },
+  retryButton: {
+    marginBottom: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: "#BFFE84",
+    width: "100%",
+  },
+  retryButtonText: {
+    fontSize: 14,
+    color: "#BFFE84",
+    fontWeight: "600",
   },
   legalText: {
     fontSize: 11,
