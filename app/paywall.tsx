@@ -218,6 +218,9 @@ export default function PaywallScreen() {
           <View style={styles.pricingCard}>
             <Text style={styles.pricingLabel}>{t('paywallOneTime')}</Text>
             <Text style={styles.pricingPrice}>{lifetimePrice}</Text>
+            <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginBottom: 8, alignItems: 'center' }}>
+              <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.payButton,
@@ -235,9 +238,6 @@ export default function PaywallScreen() {
                 </Text>
               )}
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 6, alignItems: 'center' }}>
-              <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
-            </TouchableOpacity>
           </View>
 
           {/* Separator */}
@@ -247,6 +247,9 @@ export default function PaywallScreen() {
           <View style={styles.pricingCard}>
             <Text style={styles.pricingLabel}>{t('paywallMonthly')}</Text>
             <Text style={styles.pricingPrice}>{monthlyPrice}</Text>
+            <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginBottom: 8, alignItems: 'center' }}>
+              <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.payButton,
@@ -263,9 +266,6 @@ export default function PaywallScreen() {
                   {noPackages ? t('paywallNotAvailable') : t('paywallPay')}
                 </Text>
               )}
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 6, alignItems: 'center' }}>
-              <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
             </TouchableOpacity>
           </View>
 

@@ -43,6 +43,7 @@ export default function ProfileScreen() {
   const [modalMessage, setModalMessage] = useState('');
   const [codeInput, setCodeInput] = useState('');
   const [selectedDonationAmount, setSelectedDonationAmount] = useState(5);
+  const [customDonationAmount, setCustomDonationAmount] = useState('');
   const [username, setUsername] = useState('');
   const [editingUsername, setEditingUsername] = useState(false);
   const [tempUsername, setTempUsername] = useState('');
@@ -289,7 +290,19 @@ export default function ProfileScreen() {
 
   const handleDonation = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    const amount = selectedDonationAmount;
+    let amount: number;
+    if (customDonationAmount) {
+      const parsed = parseFloat(customDonationAmount.replace(',', '.'));
+      if (isNaN(parsed) || parsed <= 0) {
+        setModalMessage(t('invalidDonationAmount'));
+        closeAllModals();
+        setShowErrorModal(true);
+        return;
+      }
+      amount = parsed;
+    } else {
+      amount = selectedDonationAmount;
+    }
     console.log('[Profile] Donation button pressed, amount:', amount);
 
     // Find the matching tip package from RC offerings
@@ -919,6 +932,9 @@ export default function ProfileScreen() {
               <View style={styles.pricingOption}>
                 <Text style={styles.pricingTitle}>{t('oneTimePayment')}</Text>
                 <Text style={styles.pricingAmount}>{lifetimePrice}</Text>
+                <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginBottom: 6, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 10, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
+                </TouchableOpacity>
                 <TouchableOpacity 
                   style={[styles.pricingButton, isPurchasing && styles.pricingButtonDisabled]}
                   activeOpacity={0.8}
@@ -934,9 +950,6 @@ export default function ProfileScreen() {
                     <Text style={styles.pricingButtonText}>{t('pay')}</Text>
                   )}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 6, alignItems: 'center' }}>
-                  <Text style={{ fontSize: 10, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
-                </TouchableOpacity>
               </View>
 
               <Text style={styles.orText}>{t('or')}</Text>
@@ -944,6 +957,9 @@ export default function ProfileScreen() {
               <View style={styles.pricingOption}>
                 <Text style={styles.pricingTitle}>{t('monthlySubscription')}</Text>
                 <Text style={styles.pricingAmount}>{monthlyPrice}</Text>
+                <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginBottom: 6, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 10, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
+                </TouchableOpacity>
                 <TouchableOpacity 
                   style={[styles.pricingButton, isPurchasing && styles.pricingButtonDisabled]}
                   activeOpacity={0.8}
@@ -958,9 +974,6 @@ export default function ProfileScreen() {
                   ) : (
                     <Text style={styles.pricingButtonText}>{t('pay')}</Text>
                   )}
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 6, alignItems: 'center' }}>
-                  <Text style={{ fontSize: 10, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -1016,22 +1029,38 @@ export default function ProfileScreen() {
                   key={amount}
                   style={[
                     styles.donationAmountButton,
-                    selectedDonationAmount === amount && styles.donationAmountButtonSelected,
+                    selectedDonationAmount === amount && !customDonationAmount && styles.donationAmountButtonSelected,
                   ]}
                   onPress={async () => {
                     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     setSelectedDonationAmount(amount);
+                    setCustomDonationAmount('');
                   }}
                   activeOpacity={0.8}
                 >
                   <Text style={[
                     styles.donationAmountText,
-                    selectedDonationAmount === amount && styles.donationAmountTextSelected,
+                    selectedDonationAmount === amount && !customDonationAmount && styles.donationAmountTextSelected,
                   ]}>
                     {`CHF ${amount}`}
                   </Text>
                 </TouchableOpacity>
               ))}
+            </View>
+
+            <View style={styles.customAmountContainer}>
+              <Text style={styles.customAmountLabel}>CHF {t('customAmount')}</Text>
+              <TextInput
+                style={styles.customAmountInput}
+                value={customDonationAmount}
+                onChangeText={(text) => {
+                  setCustomDonationAmount(text);
+                  setSelectedDonationAmount(0);
+                }}
+                placeholder="0"
+                placeholderTextColor="#666666"
+                keyboardType="decimal-pad"
+              />
             </View>
 
             <TouchableOpacity
@@ -1057,7 +1086,7 @@ export default function ProfileScreen() {
                 <>
                   <MaterialIcons name="favorite" size={14} color="#FFFFFF" />
                   <Text style={styles.donateButtonText}>
-                    {t('donate')} CHF {selectedDonationAmount}.00
+                    {t('donate')} CHF {customDonationAmount ? parseFloat(customDonationAmount.replace(',', '.')).toFixed(2) : selectedDonationAmount.toFixed(2)}
                   </Text>
                 </>
               )}
