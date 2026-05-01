@@ -3,11 +3,13 @@ import { Stack } from 'expo-router';
 import { BudgetProvider } from '@/contexts/BudgetContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { GlassProvider } from '@/contexts/GlassContext';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <GlassProvider>
       <SubscriptionProvider>
         <LanguageProvider>
           <BudgetProvider>
@@ -19,6 +21,7 @@ export default function RootLayout() {
           </BudgetProvider>
         </LanguageProvider>
       </SubscriptionProvider>
+      </GlassProvider>
     </GestureHandlerRootView>
   );
 }

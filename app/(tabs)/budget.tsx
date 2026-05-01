@@ -15,6 +15,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useGlass } from '@/contexts/GlassContext';
 import { IconSymbol } from '@/components/IconSymbol';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -44,6 +45,7 @@ export default function BudgetScreen() {
     premiumStatus,
   } = useBudget();
 
+  const { glassEnabled } = useGlass();
   const [editingBudgetAmount, setEditingBudgetAmount] = useState(false);
   const [tempBudgetAmount, setTempBudgetAmount] = useState('0');
 
@@ -390,7 +392,7 @@ export default function BudgetScreen() {
           )}
         </Animated.View>
 
-        <Animated.View style={[styles.summaryCard, { opacity: fadeAnims.summary }]}>
+        <Animated.View style={[styles.summaryCard, glassEnabled && styles.glassCard, { opacity: fadeAnims.summary }]}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('total')}</Text>
             <Text style={styles.summaryValue}>{totalText.replace(/\s/g, "'")}</Text>
@@ -430,6 +432,7 @@ export default function BudgetScreen() {
                     styles.monthPill,
                     isActive && styles.monthPillActive,
                     month.isPinned && styles.monthPillPinned,
+                    glassEnabled && (isActive ? styles.glassMonthActive : styles.glassMonthInactive),
                   ]}
                 >
                   <Text style={[styles.monthPillText, isActive && styles.monthPillTextActive]}>
@@ -467,6 +470,7 @@ export default function BudgetScreen() {
                       styles.expenseCard,
                       expense.isPinned && styles.expenseCardPinned,
                       isLeftColumn ? styles.expenseCardLeft : styles.expenseCardRight,
+                      glassEnabled && styles.glassCard,
                     ]}
                   >
                     <View style={styles.expenseHeader}>
@@ -531,7 +535,7 @@ export default function BudgetScreen() {
         onRequestClose={() => setShowAddExpenseModal(false)}
       >
         <View style={styles.centeredModalOverlay}>
-          <View style={styles.compactModal}>
+          <View style={[styles.compactModal, glassEnabled && styles.glassModal]}>
             <Text style={styles.compactModalTitle}>{t('newExpense')}</Text>
             
             <TextInput
@@ -585,7 +589,7 @@ export default function BudgetScreen() {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           setShowMonthOptionsModal(false);
         }}>
-          <View style={styles.optionsModal}>
+          <View style={[styles.optionsModal, glassEnabled && styles.glassModal]}>
             <Text style={styles.optionsTitle}>{selectedMonth?.name}</Text>
             <TouchableOpacity style={styles.optionButton} onPress={handleMonthRename} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>{t('rename')}</Text>
@@ -620,7 +624,7 @@ export default function BudgetScreen() {
         onRequestClose={() => setShowRenameMonthModal(false)}
       >
         <View style={styles.centeredModalOverlay}>
-          <View style={styles.compactModal}>
+          <View style={[styles.compactModal, glassEnabled && styles.glassModal]}>
             <Text style={styles.compactModalTitle}>{t('rename')}</Text>
             
             <TextInput
@@ -665,7 +669,7 @@ export default function BudgetScreen() {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           setShowExpenseOptionsModal(false);
         }}>
-          <View style={styles.optionsModal}>
+          <View style={[styles.optionsModal, glassEnabled && styles.glassModal]}>
             <Text style={styles.optionsTitle}>{selectedExpense?.name}</Text>
             <TouchableOpacity style={styles.optionButton} onPress={handleExpenseEdit} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>{t('rename')}</Text>
@@ -704,7 +708,7 @@ export default function BudgetScreen() {
         onRequestClose={() => setShowEditExpenseModal(false)}
       >
         <View style={styles.centeredModalOverlay}>
-          <View style={styles.compactModal}>
+          <View style={[styles.compactModal, glassEnabled && styles.glassModal]}>
             <Text style={styles.compactModalTitle}>{t('editExpense')}</Text>
             
             <TextInput
@@ -1158,5 +1162,25 @@ const styles = StyleSheet.create({
   },
   optionButtonTextDanger: {
     color: '#FFFFFF',
+  },
+  glassCard: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  glassModal: {
+    backgroundColor: 'rgba(20,20,20,0.92)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+  },
+  glassMonthActive: {
+    backgroundColor: 'rgba(191,254,132,0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(191,254,132,0.5)',
+  },
+  glassMonthInactive: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
   },
 });

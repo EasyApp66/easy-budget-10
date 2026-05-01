@@ -191,6 +191,8 @@ const translations = {
     deleteLocalDataMessage: 'Alle lokalen Daten werden gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.',
     requestAccountDeletionTitle: 'Konto löschen anfragen',
     requestAccountDeletionMessage: 'Eine E-Mail wird geöffnet, um die Kontolöschung zu beantragen.',
+    glassMode: 'Apple Glass Modus',
+    premiumOnly: 'Nur für Premium',
   },
   en: {
     // Welcome Screen
@@ -367,6 +369,8 @@ const translations = {
     deleteLocalDataMessage: 'All local data will be deleted. This action cannot be undone.',
     requestAccountDeletionTitle: 'Request Account Deletion',
     requestAccountDeletionMessage: 'An email will open to request account deletion.',
+    glassMode: 'Apple Glass Mode',
+    premiumOnly: 'Premium only',
   },
   fr: {
     // Welcome Screen
@@ -543,6 +547,8 @@ const translations = {
     deleteLocalDataMessage: 'Toutes les données locales seront supprimées. Cette action est irréversible.',
     requestAccountDeletionTitle: 'Demander la suppression du compte',
     requestAccountDeletionMessage: "Un e-mail s'ouvrira pour demander la suppression du compte.",
+    glassMode: 'Mode Apple Glass',
+    premiumOnly: 'Premium uniquement',
   },
   es: {
     // Welcome Screen
@@ -719,6 +725,8 @@ const translations = {
     deleteLocalDataMessage: 'Todos los datos locales serán eliminados. Esta acción no se puede deshacer.',
     requestAccountDeletionTitle: 'Solicitar eliminación de cuenta',
     requestAccountDeletionMessage: 'Se abrirá un correo para solicitar la eliminación de la cuenta.',
+    glassMode: 'Modo Apple Glass',
+    premiumOnly: 'Solo Premium',
   },
   ru: {
     // Welcome Screen
@@ -897,6 +905,8 @@ const translations = {
     deleteLocalDataMessage: 'Все локальные данные будут удалены. Это действие нельзя отменить.',
     requestAccountDeletionTitle: 'Запросить удаление аккаунта',
     requestAccountDeletionMessage: 'Откроется письмо для запроса удаления аккаунта.',
+    glassMode: 'Режим Apple Glass',
+    premiumOnly: 'Только для Premium',
   },
 };
 

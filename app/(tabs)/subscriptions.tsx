@@ -15,6 +15,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useGlass } from '@/contexts/GlassContext';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -27,6 +28,7 @@ export default function SubscriptionsScreen() {
   const { t } = useLanguage();
   const { subscriptions, addSubscription, deleteSubscription, togglePinSubscription, updateSubscription, duplicateSubscription, premiumStatus } = useBudget();
 
+  const { glassEnabled } = useGlass();
   const [showAddModal, setShowAddModal] = useState(false);
   const [skipConfirmations, setSkipConfirmations] = useState(false);
   const [newSubName, setNewSubName] = useState('');
@@ -202,14 +204,14 @@ export default function SubscriptionsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View style={[styles.summaryCard, { opacity: fadeAnims.summary }]}>
+        <Animated.View style={[styles.summaryCard, glassEnabled && styles.glassCard, { opacity: fadeAnims.summary }]}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('subscriptionCosts')}</Text>
             <Text style={styles.summaryValue}>{subCount}</Text>
           </View>
         </Animated.View>
 
-        <Animated.View style={[styles.totalCard, { opacity: fadeAnims.total }]}>
+        <Animated.View style={[styles.totalCard, glassEnabled && styles.glassCard, { opacity: fadeAnims.total }]}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>{t('total')}</Text>
             <Text style={styles.totalValue}>{totalCostText}</Text>
@@ -266,7 +268,7 @@ export default function SubscriptionsScreen() {
         onRequestClose={() => setShowAddModal(false)}
       >
         <View style={styles.centeredModalOverlay}>
-          <View style={styles.compactModal}>
+          <View style={[styles.compactModal, glassEnabled && styles.glassModal]}>
             <Text style={styles.compactModalTitle}>{t('newSubscription')}</Text>
             
             <TextInput
@@ -320,7 +322,7 @@ export default function SubscriptionsScreen() {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           setShowOptionsModal(false);
         }}>
-          <View style={styles.optionsModal}>
+          <View style={[styles.optionsModal, glassEnabled && styles.glassModal]}>
             <Text style={styles.optionsTitle}>{selectedSub?.name}</Text>
             <TouchableOpacity style={styles.optionButton} onPress={handleSubTogglePin} activeOpacity={0.7}>
               <Text style={styles.optionButtonText}>
@@ -356,7 +358,7 @@ export default function SubscriptionsScreen() {
         onRequestClose={() => setShowEditModal(false)}
       >
         <View style={styles.centeredModalOverlay}>
-          <View style={styles.compactModal}>
+          <View style={[styles.compactModal, glassEnabled && styles.glassModal]}>
             <Text style={styles.compactModalTitle}>{t('editSubscription')}</Text>
             
             <TextInput
@@ -705,5 +707,15 @@ const styles = StyleSheet.create({
   },
   optionButtonTextDanger: {
     color: '#FFFFFF',
+  },
+  glassCard: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  glassModal: {
+    backgroundColor: 'rgba(20,20,20,0.92)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
 });

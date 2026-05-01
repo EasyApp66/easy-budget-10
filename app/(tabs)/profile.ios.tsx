@@ -22,6 +22,7 @@ import { useRouter } from 'expo-router';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useGlass } from '@/contexts/GlassContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const USER_NAME_KEY = '@easy_budget_username';
@@ -49,6 +50,7 @@ export default function ProfileScreen() {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [skipConfirmations, setSkipConfirmations] = useState(false);
+  const { glassEnabled, setGlassEnabled } = useGlass();
 
   // Fade-in animations
   const [fadeAnims] = useState(() => ({
@@ -131,6 +133,17 @@ export default function ProfileScreen() {
     setSkipConfirmations(newVal);
     await AsyncStorage.setItem('@easy_budget_skip_confirmations', newVal ? 'true' : 'false');
     console.log('[Profile] skipConfirmations set to:', newVal);
+  };
+
+  const handleToggleGlass = async () => {
+    if (premiumStatus.type === 'None' || premiumStatus.type === 'Expired') {
+      closeAllModals();
+      router.push('/paywall');
+      return;
+    }
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await setGlassEnabled(!glassEnabled);
+    console.log('[Profile] Glass mode set to:', !glassEnabled);
   };
 
   const loadUsername = async () => {
@@ -586,7 +599,7 @@ export default function ProfileScreen() {
           <Text style={styles.premiumBadge}>{premiumStatusText}</Text>
         </Animated.View>
 
-        <Animated.View style={[styles.premiumCodeSection, { opacity: fadeAnims.code }]}>
+        <Animated.View style={[styles.premiumCodeSection, glassEnabled && styles.glassCard, { opacity: fadeAnims.code }]}>
           <Text style={styles.premiumCodeLabel}>{t('enterPremiumCode')}</Text>
           <View style={styles.premiumCodeRow}>
             <TextInput
@@ -609,7 +622,7 @@ export default function ProfileScreen() {
 
         <Animated.View style={[styles.menuSection, { opacity: fadeAnims.menu }]}>
           <TouchableOpacity 
-            style={styles.menuItem} 
+            style={[styles.menuItem, glassEnabled && styles.glassCard]} 
             onPress={handlePremiumPress}
             activeOpacity={0.7}
           >
@@ -643,7 +656,7 @@ export default function ProfileScreen() {
           )}
 
           <TouchableOpacity 
-            style={styles.menuItem} 
+            style={[styles.menuItem, glassEnabled && styles.glassCard]} 
             onPress={handleLanguageToggle}
             activeOpacity={0.7}
           >
@@ -655,7 +668,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.menuItem}
+            style={[styles.menuItem, glassEnabled && styles.glassCard]}
             onPress={handleToggleSkipConfirmations}
             activeOpacity={0.7}
           >
@@ -687,8 +700,41 @@ export default function ProfileScreen() {
             </View>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={[styles.menuItem, glassEnabled && styles.glassCard]}
+            onPress={handleToggleGlass}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuItemLeft}>
+              <MaterialIcons name="blur-on" size={24} color="#BFFE84" />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuItemText}>{t('glassMode')}</Text>
+                {(premiumStatus.type === 'None' || premiumStatus.type === 'Expired') && (
+                  <Text style={{ fontSize: 11, color: '#888888', marginTop: 2 }}>{t('premiumOnly')}</Text>
+                )}
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              {(premiumStatus.type === 'None' || premiumStatus.type === 'Expired') ? (
+                <MaterialIcons name="lock" size={18} color="#888888" />
+              ) : (
+                <View style={{
+                  width: 44, height: 26, borderRadius: 13,
+                  backgroundColor: glassEnabled ? '#BFFE84' : '#3A3A3C',
+                  justifyContent: 'center', paddingHorizontal: 3,
+                }}>
+                  <View style={{
+                    width: 20, height: 20, borderRadius: 10,
+                    backgroundColor: '#FFFFFF',
+                    transform: [{ translateX: glassEnabled ? 18 : 0 }],
+                  }} />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
+
           <TouchableOpacity 
-            style={styles.menuItem} 
+            style={[styles.menuItem, glassEnabled && styles.glassCard]} 
             onPress={handleLegalPress}
             activeOpacity={0.7}
           >
@@ -700,7 +746,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={styles.menuItem} 
+            style={[styles.menuItem, glassEnabled && styles.glassCard]} 
             onPress={handleSupportPress}
             activeOpacity={0.7}
           >
@@ -712,7 +758,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={styles.menuItem} 
+            style={[styles.menuItem, glassEnabled && styles.glassCard]} 
             onPress={handleBugReportPress}
             activeOpacity={0.7}
           >
@@ -724,7 +770,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={styles.menuItem} 
+            style={[styles.menuItem, glassEnabled && styles.glassCard]} 
             onPress={handleSuggestionPress}
             activeOpacity={0.7}
           >
@@ -736,7 +782,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={styles.menuItem} 
+            style={[styles.menuItem, glassEnabled && styles.glassCard]} 
             onPress={handleDonationPress}
             activeOpacity={0.7}
           >
@@ -748,7 +794,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.menuItem}
+            style={[styles.menuItem, glassEnabled && styles.glassCard]}
             onPress={() => {
               console.log('[Profile] App Guide pressed');
               closeAllModals();
@@ -886,7 +932,7 @@ export default function ProfileScreen() {
         onRequestClose={() => setShowPremiumModal(false)}
       >
         <View style={styles.centeredModalOverlay}>
-          <View style={styles.premiumModal}>
+          <View style={[styles.premiumModal, glassEnabled && styles.glassModal]}>
             <TouchableOpacity
               style={styles.closeModalButton}
               onPress={async () => {
@@ -992,7 +1038,7 @@ export default function ProfileScreen() {
         onRequestClose={() => setShowDonationModal(false)}
       >
         <View style={styles.centeredModalOverlay}>
-          <View style={styles.donationModal}>
+          <View style={[styles.donationModal, glassEnabled && styles.glassModal]}>
             <TouchableOpacity 
               style={styles.closeModalButton}
               onPress={async () => {
@@ -1780,5 +1826,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000000',
     fontWeight: 'bold',
+  },
+  glassCard: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  glassModal: {
+    backgroundColor: 'rgba(20,20,20,0.92)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
 });

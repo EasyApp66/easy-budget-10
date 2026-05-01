@@ -12,6 +12,8 @@ import { useRouter, usePathname } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Href } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import { BlurView } from 'expo-blur';
+import { useGlass } from '@/contexts/GlassContext';
 
 export interface TabBarItem {
   name: string;
@@ -28,6 +30,7 @@ interface FloatingTabBarProps {
 export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { glassEnabled } = useGlass();
   const [scaleAnims] = React.useState(() => 
     tabs.map(() => new Animated.Value(1))
   );
@@ -97,68 +100,93 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
     }
   };
 
+  const tabsContent = (
+    <>
+      {tabs.map((tab, index) => {
+        const isActive = activeTabIndex === index;
+        let iconName: keyof typeof MaterialIcons.glyphMap = 'home';
+        
+        if (tab.name === 'budget') {
+          iconName = 'attach-money';
+        } else if (tab.name === 'subscriptions') {
+          iconName = 'sync';
+        } else if (tab.name === 'profile') {
+          iconName = 'person';
+        }
+
+        return (
+          <React.Fragment key={index}>
+          <TouchableOpacity
+            style={styles.tab}
+            onPress={() => handleTabPress(tab.route, index)}
+            activeOpacity={1}
+          >
+            <Animated.View 
+              style={[
+                styles.tabContent,
+                { transform: [{ scale: scaleAnims[index] }] }
+              ]}
+            >
+              <MaterialIcons
+                name={iconName}
+                size={24}
+                color={isActive ? '#BFFE84' : '#8E8E93'}
+              />
+              <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
+                {tab.label}
+              </Text>
+            </Animated.View>
+          </TouchableOpacity>
+          </React.Fragment>
+        );
+      })}
+      
+      <TouchableOpacity
+        style={styles.addButtonTab}
+        onPress={handleAddPress}
+        activeOpacity={1}
+      >
+        <Animated.View 
+          style={[
+            styles.addButtonGlow,
+            { transform: [{ scale: addButtonScale }] }
+          ]}
+        >
+          <View style={styles.addButton}>
+            <MaterialIcons
+              name="add"
+              size={32}
+              color="#000000"
+            />
+          </View>
+        </Animated.View>
+      </TouchableOpacity>
+    </>
+  );
+
+  if (glassEnabled) {
+    return (
+      <View style={styles.container}>
+        <BlurView
+          intensity={80}
+          tint="dark"
+          style={[styles.tabBar, {
+            backgroundColor: 'rgba(255,255,255,0.08)',
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.15)',
+            overflow: 'hidden',
+          }]}
+        >
+          {tabsContent}
+        </BlurView>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.tabBar}>
-        {tabs.map((tab, index) => {
-          const isActive = activeTabIndex === index;
-          let iconName: keyof typeof MaterialIcons.glyphMap = 'home';
-          
-          if (tab.name === 'budget') {
-            iconName = 'attach-money';
-          } else if (tab.name === 'subscriptions') {
-            iconName = 'sync';
-          } else if (tab.name === 'profile') {
-            iconName = 'person';
-          }
-
-          return (
-            <React.Fragment key={index}>
-            <TouchableOpacity
-              style={styles.tab}
-              onPress={() => handleTabPress(tab.route, index)}
-              activeOpacity={1}
-            >
-              <Animated.View 
-                style={[
-                  styles.tabContent,
-                  { transform: [{ scale: scaleAnims[index] }] }
-                ]}
-              >
-                <MaterialIcons
-                  name={iconName}
-                  size={24}
-                  color={isActive ? '#BFFE84' : '#8E8E93'}
-                />
-                <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
-                  {tab.label}
-                </Text>
-              </Animated.View>
-            </TouchableOpacity>
-            </React.Fragment>
-          );
-        })}
-        
-        <TouchableOpacity
-          style={styles.addButtonTab}
-          onPress={handleAddPress}
-          activeOpacity={1}
-        >
-          <Animated.View 
-            style={[
-              styles.addButtonGlow,
-              { transform: [{ scale: addButtonScale }] }
-            ]}
-          >
-            <View style={styles.addButton}>
-              <MaterialIcons
-                name="add"
-                size={32}
-                color="#000000"
-              />
-            </View>
-          </Animated.View>
-        </TouchableOpacity>
+        {tabsContent}
       </View>
     </View>
   );
