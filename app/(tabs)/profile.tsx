@@ -600,7 +600,7 @@ export default function ProfileScreen() {
             <View style={styles.menuItemLeft}>
               <MaterialIcons name="notifications-off" size={24} color="#BFFE84" />
               <View style={{ flex: 1 }}>
-                <Text style={styles.menuItemText}>Bestätigungen deaktivieren</Text>
+                <Text style={styles.menuItemText}>{t('skipConfirmationsLabel')}</Text>
                 {(premiumStatus.type === 'None' || premiumStatus.type === 'Expired') && (
                   <Text style={{ fontSize: 11, color: '#888888', marginTop: 2 }}>Nur für Premium</Text>
                 )}

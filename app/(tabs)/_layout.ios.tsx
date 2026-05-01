@@ -4,11 +4,35 @@ import React from 'react';
 import FloatingTabBar from '@/components/FloatingTabBar';
 import { useRouter, usePathname } from 'expo-router';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { PanResponder, View } from 'react-native';
+
+const TAB_ORDER = ['/(tabs)/budget', '/(tabs)/subscriptions', '/(tabs)/profile'];
 
 export default function TabLayout() {
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useLanguage();
+
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gestureState) => {
+      const { dx, dy } = gestureState;
+      return Math.abs(dx) > Math.abs(dy) * 2 && Math.abs(dx) > 15;
+    },
+    onPanResponderRelease: (_, gestureState) => {
+      const { dx, vx } = gestureState;
+      if (Math.abs(dx) < 120 || Math.abs(vx) < 0.3) return;
+      console.log('[TabSwipe] Swipe detected dx:', dx, 'vx:', vx, 'pathname:', pathname);
+      const currentTab = TAB_ORDER.find(tab => pathname.includes(tab.replace('/(tabs)/', ''))) ?? TAB_ORDER[0];
+      const currentIndex = TAB_ORDER.indexOf(currentTab);
+      if (dx < 0 && currentIndex < TAB_ORDER.length - 1) {
+        console.log('[TabSwipe] Navigating to next tab:', TAB_ORDER[currentIndex + 1]);
+        router.push(TAB_ORDER[currentIndex + 1] as any);
+      } else if (dx > 0 && currentIndex > 0) {
+        console.log('[TabSwipe] Navigating to previous tab:', TAB_ORDER[currentIndex - 1]);
+        router.push(TAB_ORDER[currentIndex - 1] as any);
+      }
+    },
+  });
 
   const handleAddPress = () => {
     console.log('Add button pressed, current path:', pathname);
@@ -50,7 +74,7 @@ export default function TabLayout() {
   ];
 
   return (
-    <>
+    <View style={{ flex: 1 }} {...panResponder.panHandlers}>
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -62,6 +86,6 @@ export default function TabLayout() {
         <Tabs.Screen name="profile" options={{ headerShown: false }} />
       </Tabs>
       <FloatingTabBar tabs={tabs} onAddPress={handleAddPress} />
-    </>
+    </View>
   );
 }

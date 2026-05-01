@@ -193,6 +193,7 @@ const translations = {
     requestAccountDeletionMessage: 'Eine E-Mail wird geöffnet, um die Kontolöschung zu beantragen.',
     glassMode: 'Apple Glass Modus',
     premiumOnly: 'Nur für Premium',
+    skipConfirmationsLabel: 'Bestätigungen deaktivieren',
   },
   en: {
     // Welcome Screen
@@ -371,6 +372,7 @@ const translations = {
     requestAccountDeletionMessage: 'An email will open to request account deletion.',
     glassMode: 'Apple Glass Mode',
     premiumOnly: 'Premium only',
+    skipConfirmationsLabel: 'Disable confirmations',
   },
   fr: {
     // Welcome Screen
@@ -549,6 +551,7 @@ const translations = {
     requestAccountDeletionMessage: "Un e-mail s'ouvrira pour demander la suppression du compte.",
     glassMode: 'Mode Apple Glass',
     premiumOnly: 'Premium uniquement',
+    skipConfirmationsLabel: 'Désactiver les confirmations',
   },
   es: {
     // Welcome Screen
@@ -727,6 +730,7 @@ const translations = {
     requestAccountDeletionMessage: 'Se abrirá un correo para solicitar la eliminación de la cuenta.',
     glassMode: 'Modo Apple Glass',
     premiumOnly: 'Solo Premium',
+    skipConfirmationsLabel: 'Desactivar confirmaciones',
   },
   ru: {
     // Welcome Screen
@@ -907,6 +911,7 @@ const translations = {
     requestAccountDeletionMessage: 'Откроется письмо для запроса удаления аккаунта.',
     glassMode: 'Режим Apple Glass',
     premiumOnly: 'Только для Premium',
+    skipConfirmationsLabel: 'Отключить подтверждения',
   },
 };
 

@@ -9,9 +9,14 @@ interface GlassContextType {
   setGlassEnabled: (val: boolean) => Promise<void>;
 }
 
+interface GlassProviderProps {
+  children: React.ReactNode;
+  isPremium?: boolean;
+}
+
 const GlassContext = createContext<GlassContextType | undefined>(undefined);
 
-export function GlassProvider({ children }: { children: React.ReactNode }) {
+export function GlassProvider({ children, isPremium }: GlassProviderProps) {
   const [glassEnabled, setGlassEnabledState] = useState(false);
 
   useEffect(() => {
@@ -19,6 +24,15 @@ export function GlassProvider({ children }: { children: React.ReactNode }) {
       if (val === 'true') setGlassEnabledState(true);
     });
   }, []);
+
+  // Auto-disable glass when premium is lost
+  useEffect(() => {
+    if (isPremium === false) {
+      console.log('[GlassContext] Premium lost — disabling glass mode');
+      setGlassEnabledState(false);
+      AsyncStorage.setItem(GLASS_KEY, 'false').catch(() => {});
+    }
+  }, [isPremium]);
 
   const setGlassEnabled = async (val: boolean) => {
     setGlassEnabledState(val);
