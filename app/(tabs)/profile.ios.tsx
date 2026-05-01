@@ -470,8 +470,22 @@ export default function ProfileScreen() {
         {
           text: t('requestAccountDeletion'),
           onPress: () => {
-            console.log('[Profile] Request account deletion pressed');
-            Linking.openURL('mailto:ivanmirosnic006@gmail.com?subject=Account%20Deletion%20Request');
+            console.log('[Profile] Request account deletion pressed — showing confirmation');
+            Alert.alert(
+              t('requestAccountDeletion'),
+              t('deleteAllDataMessage'),
+              [
+                { text: t('cancel'), style: 'cancel' },
+                {
+                  text: t('apply'),
+                  style: 'destructive',
+                  onPress: () => {
+                    console.log('[Profile] Account deletion confirmed — opening mailto');
+                    Linking.openURL('mailto:ivanmirosnic006@gmail.com?subject=Account%20Deletion%20Request');
+                  },
+                },
+              ]
+            );
           },
         },
         {

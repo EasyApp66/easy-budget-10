@@ -90,9 +90,7 @@ export default function PaywallScreen() {
       const success = await purchasePackage(pkg);
       if (success) {
         console.log("[Paywall] Purchase successful for:", pkg.identifier);
-        Alert.alert("Willkommen!", "Vielen Dank für deinen Kauf.", [
-          { text: "OK", onPress: () => router.replace("/(tabs)/(home)") },
-        ]);
+        router.replace("/(tabs)/(home)");
       }
     } catch (error: any) {
       console.error("[Paywall] Purchase failed:", error);
@@ -109,12 +107,9 @@ export default function PaywallScreen() {
       const restored = await restorePurchases();
       if (restored) {
         console.log("[Paywall] Restore successful");
-        Alert.alert("Wiederhergestellt!", "Dein Abo wurde wiederhergestellt.", [
-          { text: "OK", onPress: () => router.replace("/(tabs)/(home)") },
-        ]);
+        router.replace("/(tabs)/(home)");
       } else {
         console.log("[Paywall] No purchases found to restore");
-        Alert.alert("Keine Käufe gefunden", "Es wurden keine früheren Käufe gefunden.");
       }
     } catch (error: any) {
       console.error("[Paywall] Restore failed:", error);
@@ -302,7 +297,7 @@ export default function PaywallScreen() {
             <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacyView')}</Text>
           </TouchableOpacity>
           <Text style={{ fontSize: 11, color: '#555555', textAlign: 'center', lineHeight: 16, marginTop: 12, paddingHorizontal: 8 }}>
-            {'Abo kündigen: Einstellungen → Apple ID → Abonnements → Easy Budget → Kündigen'}
+            {t('cancelInfo')}
           </Text>
         </ScrollView>
       </SafeAreaView>
