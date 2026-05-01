@@ -195,7 +195,14 @@ export default function BudgetScreen() {
   const handleMonthDuplicate = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (selectedMonthId) {
-      duplicateMonth(selectedMonthId);
+      const success = duplicateMonth(selectedMonthId);
+      if (!success) {
+        console.log('[Paywall] Redirecting to paywall from month duplicate');
+        setShowMonthOptionsModal(false);
+        setSelectedMonthId(null);
+        router.push('/paywall');
+        return;
+      }
       setShowMonthOptionsModal(false);
       setSelectedMonthId(null);
       console.log('Month duplicated');

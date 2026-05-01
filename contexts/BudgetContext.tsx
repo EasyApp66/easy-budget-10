@@ -50,7 +50,7 @@ interface BudgetContextType {
   cancelPremium: () => Promise<boolean>;
   addMonth: (name: string, budgetAmount: number) => boolean;
   deleteMonth: (id: string) => void;
-  duplicateMonth: (id: string) => void;
+  duplicateMonth: (id: string) => boolean;
   renameMonth: (id: string, newName: string) => void;
   togglePinMonth: (id: string) => void;
   updateMonthBudget: (id: string, budgetAmount: number) => void;
@@ -390,7 +390,11 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     console.log('Month deleted:', id);
   };
 
-  const duplicateMonth = (id: string) => {
+  const duplicateMonth = (id: string): boolean => {
+    if (!isPremiumActive() && months.length >= 2) {
+      console.log('[Paywall] Month duplicate limit reached (2), triggering paywall');
+      return false;
+    }
     const monthToDuplicate = months.find(m => m.id === id);
     if (monthToDuplicate) {
       const newMonth: Month = {
@@ -405,6 +409,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       setMonths([...months, newMonth]);
       console.log('Month duplicated:', monthToDuplicate.name);
     }
+    return true;
   };
 
   const renameMonth = (id: string, newName: string) => {
