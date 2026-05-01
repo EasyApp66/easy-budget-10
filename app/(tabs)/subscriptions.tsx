@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import { useGlass } from '@/contexts/GlassContext';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 
 export default function SubscriptionsScreen() {
@@ -73,11 +73,18 @@ export default function SubscriptionsScreen() {
     }
   }, [params.triggerAdd]);
 
-  useEffect(() => {
-    AsyncStorage.getItem('@easy_budget_skip_confirmations').then(val => {
-      if (val === 'true') setSkipConfirmations(true);
-    });
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const isPremium = premiumStatus.type !== 'None' && premiumStatus.type !== 'Expired';
+      if (!isPremium) {
+        setSkipConfirmations(false);
+        return;
+      }
+      AsyncStorage.getItem('@easy_budget_skip_confirmations').then(val => {
+        setSkipConfirmations(val === 'true');
+      });
+    }, [premiumStatus.type])
+  );
 
   const totalCost = subscriptions.reduce((sum, sub) => sum + sub.amount, 0);
   const subCount = subscriptions.length;
@@ -223,6 +230,7 @@ export default function SubscriptionsScreen() {
             <React.Fragment key={sub.id}>
             <SubscriptionCard
               subscription={sub}
+              glassEnabled={glassEnabled}
               onDelete={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 const isPremium = premiumStatus.type !== 'None' && premiumStatus.type !== 'Expired';
@@ -411,11 +419,13 @@ function SubscriptionCard({
   onDelete,
   onTogglePin,
   onLongPress,
+  glassEnabled,
 }: {
   subscription: { id: string; name: string; amount: number; isPinned: boolean };
   onDelete: () => void;
   onTogglePin: () => void;
   onLongPress: () => void;
+  glassEnabled: boolean;
 }) {
   const translateX = useSharedValue(0);
   const deleteIconOpacity = useSharedValue(0);
@@ -487,7 +497,7 @@ function SubscriptionCard({
       </AnimatedReanimated.View>
       <GestureDetector gesture={panGesture}>
         <Pressable onLongPress={onLongPress}>
-          <AnimatedReanimated.View style={[styles.subscriptionCard, subscription.isPinned && styles.subscriptionCardPinned, animatedStyle]}>
+          <AnimatedReanimated.View style={[styles.subscriptionCard, subscription.isPinned && styles.subscriptionCardPinned, glassEnabled && styles.glassCard, animatedStyle]}>
             <Text style={styles.subscriptionName}>{subscription.name}</Text>
             <Text style={styles.subscriptionAmount}>{amountText}</Text>
           </AnimatedReanimated.View>
@@ -717,5 +727,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(20,20,20,0.92)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.15)',
+  },
+  glassButton: {
+    backgroundColor: 'rgba(191,254,132,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(191,254,132,0.4)',
   },
 });

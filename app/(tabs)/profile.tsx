@@ -1037,7 +1037,7 @@ export default function ProfileScreen() {
         onRequestClose={() => setShowPromoModal(false)}
       >
         <View style={styles.centeredModalOverlay}>
-          <View style={styles.promoModal}>
+          <View style={[styles.promoModal, glassEnabled && styles.glassModal]}>
             <TouchableOpacity 
               style={styles.closeModalButton}
               onPress={async () => {
@@ -1213,7 +1213,7 @@ export default function ProfileScreen() {
       {/* App Guide Modal */}
       <Modal visible={showAppGuideModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={[styles.appGuideModal, { maxHeight: '85%' }]}>
+          <View style={[styles.appGuideModal, { maxHeight: '85%' }, glassEnabled && styles.glassModal]}>
             <Text style={styles.appGuideModalTitle}>{t('appGuideTitle')}</Text>
             <ScrollView showsVerticalScrollIndicator={false} style={{ marginBottom: 16 }}>
               <Text style={[styles.appGuideSectionTitle, { marginTop: 8 }]}>{t('appGuideBudgetTitle')}</Text>

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useGlass } from '@/contexts/GlassContext';
 import { IconSymbol } from '@/components/IconSymbol';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -107,11 +107,18 @@ export default function BudgetScreen() {
     }
   }, [params.triggerAdd]);
 
-  useEffect(() => {
-    AsyncStorage.getItem('@easy_budget_skip_confirmations').then(val => {
-      if (val === 'true') setSkipConfirmations(true);
-    });
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const isPremium = premiumStatus.type !== 'None' && premiumStatus.type !== 'Expired';
+      if (!isPremium) {
+        setSkipConfirmations(false);
+        return;
+      }
+      AsyncStorage.getItem('@easy_budget_skip_confirmations').then(val => {
+        setSkipConfirmations(val === 'true');
+      });
+    }, [premiumStatus.type])
+  );
 
   const activeMonth = months.find(m => m.id === activeMonthId);
   const budgetAmount = activeMonth?.budgetAmount || 0;
@@ -368,7 +375,7 @@ export default function BudgetScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View style={[styles.budgetHeader, { opacity: fadeAnims.header }]}>
+        <Animated.View style={[styles.budgetHeader, glassEnabled && styles.glassCard, { opacity: fadeAnims.header }]}>
           <Text style={styles.budgetLabel}>{t('budget')}</Text>
 
           {editingBudgetAmount ? (
@@ -408,7 +415,7 @@ export default function BudgetScreen() {
         </Animated.View>
 
         <Animated.View style={[styles.monthsRow, { opacity: fadeAnims.months }]}>
-          <TouchableOpacity style={styles.addMonthButton} onPress={handleAddMonth} activeOpacity={0.7}>
+          <TouchableOpacity style={[styles.addMonthButton, glassEnabled && styles.glassButton]} onPress={handleAddMonth} activeOpacity={0.7}>
             <IconSymbol android_material_icon_name="add" ios_icon_name="plus" size={24} color="#000000" />
           </TouchableOpacity>
           
@@ -1174,6 +1181,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(20,20,20,0.92)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.15)',
+  },
+  glassButton: {
+    backgroundColor: 'rgba(191,254,132,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(191,254,132,0.4)',
   },
   glassMonthActive: {
     backgroundColor: 'rgba(191,254,132,0.25)',
