@@ -92,9 +92,12 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     const month1: Month = {
       id: Date.now().toString(),
       name: currentMonthName,
-      budgetAmount: 0,
+      budgetAmount: 2000,
       isPinned: false,
-      expenses: [],
+      expenses: [
+        { id: (Date.now() + 20).toString(), name: 'Miete', amount: 700, isPinned: false },
+        { id: (Date.now() + 21).toString(), name: 'Essen', amount: 500, isPinned: false },
+      ],
     };
 
     const month2: Month = {
@@ -107,6 +110,13 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
 
     setMonths([month1, month2]);
     setActiveMonthId(month1.id);
+
+    const defaultSubscriptions: Subscription[] = [
+      { id: (Date.now() + 10).toString(), name: 'Spotify', amount: 15, isPinned: false },
+      { id: (Date.now() + 11).toString(), name: 'Netflix', amount: 20, isPinned: false },
+    ];
+    setSubscriptions(defaultSubscriptions);
+    console.log('Default subscriptions initialized:', defaultSubscriptions.map(s => s.name));
 
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + 14);

@@ -1239,11 +1239,17 @@ export default function ProfileScreen() {
             <Text style={styles.appGuideModalTitle}>{t('appGuideTitle')}</Text>
             <ScrollView showsVerticalScrollIndicator={false} style={{ marginBottom: 16 }}>
               <Text style={[styles.appGuideSectionTitle, { marginTop: 8 }]}>{t('appGuideBudgetTitle')}</Text>
-              <Text style={styles.guideText}>{t('appGuideBudgetContent')}</Text>
-              <Text style={[styles.appGuideSectionTitle, { marginTop: 20 }]}>{t('appGuideSubsTitle')}</Text>
-              <Text style={styles.guideText}>{t('appGuideSubsContent')}</Text>
-              <Text style={[styles.appGuideSectionTitle, { marginTop: 20 }]}>{t('appGuideProfileTitle')}</Text>
-              <Text style={styles.guideText}>{t('appGuideProfileContent')}</Text>
+              {t('appGuideBudgetContent').split('\n').map((line, i) => (
+                <Text key={i} style={styles.appGuideItem}>{line}</Text>
+              ))}
+              <Text style={[styles.appGuideSectionTitle, { marginTop: 16 }]}>{t('appGuideSubsTitle')}</Text>
+              {t('appGuideSubsContent').split('\n').map((line, i) => (
+                <Text key={i} style={styles.appGuideItem}>{line}</Text>
+              ))}
+              <Text style={[styles.appGuideSectionTitle, { marginTop: 16 }]}>{t('appGuideProfileTitle')}</Text>
+              {t('appGuideProfileContent').split('\n').map((line, i) => (
+                <Text key={i} style={styles.appGuideItem}>{line}</Text>
+              ))}
             </ScrollView>
             <TouchableOpacity style={styles.appGuideCloseButton} onPress={() => {
               console.log('[Profile] App Guide modal closed');
@@ -1746,6 +1752,12 @@ const styles = StyleSheet.create({
     color: '#CCCCCC',
     lineHeight: 22,
     marginTop: 4,
+  },
+  appGuideItem: {
+    fontSize: 13,
+    color: '#CCCCCC',
+    lineHeight: 20,
+    marginBottom: 10,
   },
   appGuideCloseButton: {
     backgroundColor: '#BFFE84',
