@@ -94,7 +94,6 @@ const translations = {
     error: 'Fehler',
     premiumActivated: 'Premium wurde aktiviert!',
     invalidCode: 'Ungültiger Code',
-    invalidDonationAmount: 'Bitte einen gültigen Betrag eingeben',
     enterCode: 'Bitte Code eingeben',
     
     // Premium Modal
@@ -271,7 +270,6 @@ const translations = {
     error: 'Error',
     premiumActivated: 'Premium has been activated!',
     invalidCode: 'Invalid code',
-    invalidDonationAmount: 'Please enter a valid amount',
     enterCode: 'Please enter code',
     
     // Premium Modal
@@ -448,7 +446,6 @@ const translations = {
     error: 'Erreur',
     premiumActivated: 'Premium a été activé!',
     invalidCode: 'Code invalide',
-    invalidDonationAmount: 'Veuillez entrer un montant valide',
     enterCode: 'Veuillez entrer le code',
     
     // Premium Modal
@@ -625,7 +622,6 @@ const translations = {
     error: 'Error',
     premiumActivated: '¡Premium ha sido activado!',
     invalidCode: 'Código inválido',
-    invalidDonationAmount: 'Por favor ingresa un monto válido',
     enterCode: 'Por favor ingrese el código',
     
     // Premium Modal
@@ -802,7 +798,6 @@ const translations = {
     error: 'Ошибка',
     premiumActivated: 'Premium активирован!',
     invalidCode: 'Неверный код',
-    invalidDonationAmount: 'Пожалуйста, введите корректную сумму',
     enterCode: 'Пожалуйста, введите код',
 
     // Premium Modal
