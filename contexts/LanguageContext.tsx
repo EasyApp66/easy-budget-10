@@ -186,6 +186,11 @@ const translations = {
     paywallContinue: 'Weiter',
     paywallAllUnlocked: 'Alle Funktionen freigeschaltet',
     paywallLegal: 'Die Zahlung wird über dein Apple ID Konto abgerechnet. Das Abo verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt wird.',
+    priceNotAvailable: 'Preis nicht verfügbar',
+    deleteLocalData: 'Lokale Daten löschen',
+    deleteLocalDataMessage: 'Alle lokalen Daten werden gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.',
+    requestAccountDeletionTitle: 'Konto löschen anfragen',
+    requestAccountDeletionMessage: 'Eine E-Mail wird geöffnet, um die Kontolöschung zu beantragen.',
   },
   en: {
     // Welcome Screen
@@ -357,6 +362,11 @@ const translations = {
     paywallContinue: 'Continue',
     paywallAllUnlocked: 'All features unlocked',
     paywallLegal: 'Payment will be charged to your Apple ID account. The subscription auto-renews unless cancelled at least 24 hours before the end of the current period.',
+    priceNotAvailable: 'Price not available',
+    deleteLocalData: 'Delete Local Data',
+    deleteLocalDataMessage: 'All local data will be deleted. This action cannot be undone.',
+    requestAccountDeletionTitle: 'Request Account Deletion',
+    requestAccountDeletionMessage: 'An email will open to request account deletion.',
   },
   fr: {
     // Welcome Screen
@@ -528,6 +538,11 @@ const translations = {
     paywallContinue: 'Continuer',
     paywallAllUnlocked: 'Toutes les fonctionnalités débloquées',
     paywallLegal: "Le paiement sera débité de votre compte Apple ID. L'abonnement se renouvelle automatiquement sauf annulation au moins 24 heures avant la fin de la période en cours.",
+    priceNotAvailable: 'Prix non disponible',
+    deleteLocalData: 'Supprimer les données locales',
+    deleteLocalDataMessage: 'Toutes les données locales seront supprimées. Cette action est irréversible.',
+    requestAccountDeletionTitle: 'Demander la suppression du compte',
+    requestAccountDeletionMessage: "Un e-mail s'ouvrira pour demander la suppression du compte.",
   },
   es: {
     // Welcome Screen
@@ -699,6 +714,11 @@ const translations = {
     paywallContinue: 'Continuar',
     paywallAllUnlocked: 'Todas las funciones desbloqueadas',
     paywallLegal: 'El pago se cargará a tu cuenta de Apple ID. La suscripción se renueva automáticamente a menos que se cancele al menos 24 horas antes del final del período actual.',
+    priceNotAvailable: 'Precio no disponible',
+    deleteLocalData: 'Eliminar datos locales',
+    deleteLocalDataMessage: 'Todos los datos locales serán eliminados. Esta acción no se puede deshacer.',
+    requestAccountDeletionTitle: 'Solicitar eliminación de cuenta',
+    requestAccountDeletionMessage: 'Se abrirá un correo para solicitar la eliminación de la cuenta.',
   },
   ru: {
     // Welcome Screen
@@ -872,6 +892,11 @@ const translations = {
     paywallContinue: 'Продолжить',
     paywallAllUnlocked: 'Все функции разблокированы',
     paywallLegal: 'Оплата будет списана с вашего Apple ID. Подписка автоматически продлевается, если не отменена минимум за 24 часа до окончания текущего периода.',
+    priceNotAvailable: 'Цена недоступна',
+    deleteLocalData: 'Удалить локальные данные',
+    deleteLocalDataMessage: 'Все локальные данные будут удалены. Это действие нельзя отменить.',
+    requestAccountDeletionTitle: 'Запросить удаление аккаунта',
+    requestAccountDeletionMessage: 'Откроется письмо для запроса удаления аккаунта.',
   },
 };
 

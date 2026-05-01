@@ -63,10 +63,10 @@ export default function PaywallScreen() {
     (p) => p.identifier === "$rc_monthly" || p.packageType === "MONTHLY"
   ) ?? (packages.length > 0 ? packages[0] : null);
 
-  const lifetimePrice = lifetimePkg?.product?.priceString ?? "CHF 10.00";
+  const lifetimePrice = lifetimePkg?.product?.priceString ?? t('priceNotAvailable');
   const monthlyPrice = monthlyPkg?.product?.priceString
-    ? `${monthlyPkg.product.priceString}/Monat`
-    : "CHF 1.00/Monat";
+    ? `${monthlyPkg.product.priceString}/${t('month')}`
+    : t('priceNotAvailable');
 
   const handlePurchase = async (pkg: PurchasesPackage | null, label: string) => {
     console.log(`[Paywall] Bezahlen pressed — package: ${label}`);
@@ -201,6 +201,19 @@ export default function PaywallScreen() {
             ))}
           </View>
 
+          {/* Restore */}
+          <TouchableOpacity
+            style={styles.restoreButton}
+            onPress={handleRestore}
+            disabled={restoring}
+          >
+            {restoring ? (
+              <ActivityIndicator size="small" color="#AAAAAA" />
+            ) : (
+              <Text style={styles.restoreButtonText}>{t('paywallRestore')}</Text>
+            )}
+          </TouchableOpacity>
+
           {/* Lifetime card */}
           <View style={styles.pricingCard}>
             <Text style={styles.pricingLabel}>{t('paywallOneTime')}</Text>
@@ -269,19 +282,6 @@ export default function PaywallScreen() {
               <Text style={styles.devMockButtonText}>Dev: Kauf simulieren</Text>
             </TouchableOpacity>
           )}
-
-          {/* Restore */}
-          <TouchableOpacity
-            style={styles.restoreButton}
-            onPress={handleRestore}
-            disabled={restoring}
-          >
-            {restoring ? (
-              <ActivityIndicator size="small" color="#888888" />
-            ) : (
-              <Text style={styles.restoreButtonText}>{t('paywallRestore')}</Text>
-            )}
-          </TouchableOpacity>
 
           {/* Legal */}
           <Text style={styles.legalText}>
@@ -517,14 +517,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   restoreButton: {
-    marginTop: 20,
-    paddingVertical: 10,
+    marginBottom: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     alignItems: "center",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#444444",
+    width: "100%",
   },
   restoreButtonText: {
-    fontSize: 13,
-    color: "#888888",
-    textDecorationLine: "underline",
+    fontSize: 14,
+    color: "#AAAAAA",
+    fontWeight: "500",
   },
   legalText: {
     fontSize: 11,

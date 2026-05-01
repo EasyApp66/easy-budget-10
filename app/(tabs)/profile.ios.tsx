@@ -473,39 +473,18 @@ export default function ProfileScreen() {
     setShowPromoModal(true);
   };
 
-  const handleDeleteAllData = async () => {
-    console.log('[Profile] Delete All Data pressed');
+  const handleDeleteLocalData = async () => {
+    console.log('[Profile] Delete Local Data pressed');
     Alert.alert(
-      t('deleteAllData'),
-      t('deleteAllDataMessage'),
+      t('deleteLocalData'),
+      t('deleteLocalDataMessage'),
       [
         { text: t('cancel'), style: 'cancel' },
-        {
-          text: t('requestAccountDeletion'),
-          onPress: () => {
-            console.log('[Profile] Request account deletion pressed — showing confirmation');
-            Alert.alert(
-              t('requestAccountDeletion'),
-              t('deleteAllDataMessage'),
-              [
-                { text: t('cancel'), style: 'cancel' },
-                {
-                  text: t('apply'),
-                  style: 'destructive',
-                  onPress: () => {
-                    console.log('[Profile] Account deletion confirmed — opening mailto');
-                    Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=Account%20Deletion%20Request`);
-                  },
-                },
-              ]
-            );
-          },
-        },
         {
           text: t('delete'),
           style: 'destructive',
           onPress: async () => {
-            console.log('[Profile] Confirm delete all data pressed');
+            console.log('[Profile] Confirm delete local data pressed');
             try {
               await AsyncStorage.clear();
               router.replace('/');
@@ -513,6 +492,25 @@ export default function ProfileScreen() {
               console.error('Error deleting data:', error);
               Alert.alert(t('error'), t('deleteAllDataError'));
             }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleRequestAccountDeletion = async () => {
+    console.log('[Profile] Request Account Deletion pressed');
+    Alert.alert(
+      t('requestAccountDeletionTitle'),
+      t('requestAccountDeletionMessage'),
+      [
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('apply'),
+          style: 'destructive',
+          onPress: () => {
+            console.log('[Profile] Account deletion confirmed — opening mailto');
+            Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=Account%20Deletion%20Request`);
           },
         },
       ]
@@ -550,8 +548,8 @@ export default function ProfileScreen() {
 
   const lifetimePkg = packages.find(p => p.identifier === '$rc_lifetime' || p.packageType === 'LIFETIME');
   const monthlyPkg = packages.find(p => p.identifier === '$rc_monthly' || p.packageType === 'MONTHLY');
-  const lifetimePrice = lifetimePkg?.product?.priceString ?? 'CHF 10.00';
-  const monthlyPrice = monthlyPkg?.product?.priceString ? `${monthlyPkg.product.priceString}/Monat` : 'CHF 1.00/Monat';
+  const lifetimePrice = lifetimePkg?.product?.priceString ?? t('priceNotAvailable');
+  const monthlyPrice = monthlyPkg?.product?.priceString ? `${monthlyPkg.product.priceString}/${t('month')}` : t('priceNotAvailable');
 
   const currentLanguageText = language === 'de' ? 'Deutsch' : language === 'en' ? 'English' : language === 'fr' ? 'Français' : language === 'es' ? 'Español' : 'Русский';
   const premiumStatusText = getPremiumStatusText();
@@ -778,13 +776,25 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            style={[styles.menuItem, { borderWidth: 1, borderColor: '#FF9500', backgroundColor: '#1A0D00' }]}
+            onPress={handleDeleteLocalData}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuItemLeft}>
+              <MaterialIcons name="delete-sweep" size={24} color="#FF9500" />
+              <Text style={[styles.menuItemText, { color: '#FF9500' }]}>{t('deleteLocalData')}</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color="#FF9500" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={[styles.menuItem, { borderWidth: 1, borderColor: '#FF3B30', backgroundColor: '#1A0000' }]}
-            onPress={handleDeleteAllData}
+            onPress={handleRequestAccountDeletion}
             activeOpacity={0.7}
           >
             <View style={styles.menuItemLeft}>
               <MaterialIcons name="delete-forever" size={24} color="#FF3B30" />
-              <Text style={[styles.menuItemText, { color: '#FF3B30' }]}>{t('deleteAllData')}</Text>
+              <Text style={[styles.menuItemText, { color: '#FF3B30' }]}>{t('requestAccountDeletionTitle')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={24} color="#FF3B30" />
           </TouchableOpacity>
@@ -1024,6 +1034,17 @@ export default function ProfileScreen() {
               ))}
             </View>
 
+            <TouchableOpacity
+              onPress={() => {
+                console.log('[Profile] AGB & Datenschutz link pressed');
+                Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9');
+              }}
+              style={{ marginBottom: 10, alignItems: 'center' }}
+            >
+              <Text style={{ fontSize: 11, color: '#888888', textDecorationLine: 'underline' }}>
+                {t('termsAndPrivacy')}
+              </Text>
+            </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.donateButton, isPurchasing && { opacity: 0.6 }]}
               onPress={handleDonation}
@@ -1040,17 +1061,6 @@ export default function ProfileScreen() {
                   </Text>
                 </>
               )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                console.log('[Profile] AGB & Datenschutz link pressed');
-                Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9');
-              }}
-              style={{ marginTop: 10, alignItems: 'center' }}
-            >
-              <Text style={{ fontSize: 11, color: '#888888', textDecorationLine: 'underline' }}>
-                {t('termsAndPrivacy')}
-              </Text>
             </TouchableOpacity>
           </View>
         </View>
