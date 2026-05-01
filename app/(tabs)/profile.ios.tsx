@@ -25,6 +25,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const USER_NAME_KEY = '@easy_budget_username';
+const SUPPORT_EMAIL = 'ivanmirosnic006@gmail.com';
 
 export default function ProfileScreen() {
   const { premiumStatus, applyPremiumCode, fetchPremiumStatus, cancelPremium } = useBudget();
@@ -203,7 +204,7 @@ export default function ProfileScreen() {
     const isAvailable = await MailComposer.isAvailableAsync();
     if (isAvailable) {
       await MailComposer.composeAsync({
-        recipients: ['ivanmirosnic006@gmail.com'],
+        recipients: [SUPPORT_EMAIL],
         subject: 'Easy Budget - Support',
         body: '',
       });
@@ -219,7 +220,7 @@ export default function ProfileScreen() {
     const isAvailable = await MailComposer.isAvailableAsync();
     if (isAvailable) {
       await MailComposer.composeAsync({
-        recipients: ['ivanmirosnic006@gmail.com'],
+        recipients: [SUPPORT_EMAIL],
         subject: 'Easy Budget - Bug Report',
         body: '',
       });
@@ -235,7 +236,7 @@ export default function ProfileScreen() {
     const isAvailable = await MailComposer.isAvailableAsync();
     if (isAvailable) {
       await MailComposer.composeAsync({
-        recipients: ['ivanmirosnic006@gmail.com'],
+        recipients: [SUPPORT_EMAIL],
         subject: 'Easy Budget - Vorschlag',
         body: '',
       });
@@ -289,7 +290,7 @@ export default function ProfileScreen() {
   const handleDonation = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const amount = selectedDonationAmount;
-    console.log('[Profile] Donation initiated, amount:', amount);
+    console.log('[Profile] Donation button pressed, amount:', amount);
 
     // Find the matching tip package from RC offerings
     const tipIdentifier = `tip_${amount}`;
@@ -305,30 +306,42 @@ export default function ProfileScreen() {
       return;
     }
 
-    setIsPurchasing(true);
-    try {
-      console.log('[Profile] Purchasing tip package:', tipPkg.identifier);
-      const success = await purchasePackage(tipPkg);
-      if (success) {
-        console.log('[Profile] Tip purchase successful');
-        closeAllModals();
-        setModalMessage(t('donationThankYou'));
-        setShowSuccessModal(true);
-      } else {
-        closeAllModals();
-        setModalMessage(t('error'));
-        setShowErrorModal(true);
-      }
-    } catch (error: any) {
-      console.error('[Profile] Tip purchase failed:', error);
-      if (!error.userCancelled) {
-        closeAllModals();
-        setModalMessage(t('error'));
-        setShowErrorModal(true);
-      }
-    } finally {
-      setIsPurchasing(false);
-    }
+    Alert.alert(
+      t('donationTitle'),
+      `${t('donate')} CHF ${amount}?`,
+      [
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('donate'),
+          onPress: async () => {
+            setIsPurchasing(true);
+            try {
+              console.log('[Profile] Purchasing tip package:', tipPkg.identifier);
+              const success = await purchasePackage(tipPkg);
+              if (success) {
+                console.log('[Profile] Tip purchase successful');
+                closeAllModals();
+                setModalMessage(t('donationThankYou'));
+                setShowSuccessModal(true);
+              } else {
+                closeAllModals();
+                setModalMessage(t('error'));
+                setShowErrorModal(true);
+              }
+            } catch (error: any) {
+              console.error('[Profile] Tip purchase failed:', error);
+              if (!error.userCancelled) {
+                closeAllModals();
+                setModalMessage(t('error'));
+                setShowErrorModal(true);
+              }
+            } finally {
+              setIsPurchasing(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleOneTimePayment = async () => {
@@ -481,7 +494,7 @@ export default function ProfileScreen() {
                   style: 'destructive',
                   onPress: () => {
                     console.log('[Profile] Account deletion confirmed — opening mailto');
-                    Linking.openURL('mailto:ivanmirosnic006@gmail.com?subject=Account%20Deletion%20Request');
+                    Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=Account%20Deletion%20Request`);
                   },
                 },
               ]
@@ -1005,7 +1018,7 @@ export default function ProfileScreen() {
                     styles.donationAmountText,
                     selectedDonationAmount === amount && styles.donationAmountTextSelected,
                   ]}>
-                    {amount}
+                    {`CHF ${amount}`}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -1112,10 +1125,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.promoModalTitle}>{t('cancelPremium')}</Text>
             <Text style={[styles.promoModalMessage, { color: '#CCCCCC' }]}>
-              {language === 'de' ? 'Möchtest du dein Premium-Abo wirklich beenden?' :
-               language === 'fr' ? 'Voulez-vous vraiment annuler votre abonnement Premium?' :
-               language === 'es' ? '¿Realmente deseas cancelar tu suscripción Premium?' :
-               'Do you really want to cancel your Premium subscription?'}
+              {t('cancelPremiumConfirmMessage')}
             </Text>
 
             <View style={{ flexDirection: 'row', gap: 12 }}>

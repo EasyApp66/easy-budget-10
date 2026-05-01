@@ -32,16 +32,12 @@ const BG = "#0D0D0D";
 const CARD_DARK = "#111111";
 const CARD_MID = "#1A1A1A";
 
-const FEATURES = [
-  "Unbegrenzte Abos",
-  "Unbegrenzte Ausgaben",
-  "Unbegrenzte Monate",
-];
-
 export default function PaywallScreen() {
   const router = useRouter();
 
   const { t } = useLanguage();
+
+  const FEATURES = [t('unlimitedSubscriptions'), t('unlimitedExpenses'), t('unlimitedMonths')];
 
   const {
     packages,
@@ -90,7 +86,7 @@ export default function PaywallScreen() {
       const success = await purchasePackage(pkg);
       if (success) {
         console.log("[Paywall] Purchase successful for:", pkg.identifier);
-        router.replace("/(tabs)/(home)");
+        router.replace("/(tabs)");
       }
     } catch (error: any) {
       console.error("[Paywall] Purchase failed:", error);
@@ -107,7 +103,7 @@ export default function PaywallScreen() {
       const restored = await restorePurchases();
       if (restored) {
         console.log("[Paywall] Restore successful");
-        router.replace("/(tabs)/(home)");
+        router.replace("/(tabs)");
       } else {
         console.log("[Paywall] No purchases found to restore");
       }
@@ -124,7 +120,7 @@ export default function PaywallScreen() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace("/(tabs)/(home)");
+      router.replace("/(tabs)");
     }
   };
 
@@ -140,8 +136,8 @@ export default function PaywallScreen() {
             <View style={styles.starCircle}>
               <Text style={styles.starIcon}>✓</Text>
             </View>
-            <Text style={styles.title}>Du bist Premium!</Text>
-            <Text style={styles.subtitle}>Alle Funktionen freigeschaltet</Text>
+            <Text style={styles.title}>{t('youHavePremium')}</Text>
+            <Text style={styles.subtitle}>{t('paywallAllUnlocked')}</Text>
             <View style={styles.featuresCard}>
               {FEATURES.map((f, i) => (
                 <View key={i} style={styles.featureRow}>
@@ -150,7 +146,7 @@ export default function PaywallScreen() {
               ))}
             </View>
             <TouchableOpacity style={styles.payButton} onPress={handleClose}>
-              <Text style={styles.payButtonText}>Weiter</Text>
+              <Text style={styles.payButtonText}>{t('paywallContinue')}</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -165,7 +161,7 @@ export default function PaywallScreen() {
         <SafeAreaView edges={["top", "bottom"]} style={styles.safeArea}>
           <View style={styles.centeredContainer}>
             <ActivityIndicator size="large" color={GREEN} />
-            <Text style={styles.loadingText}>Laden...</Text>
+            <Text style={styles.loadingText}>{t('paywallLoading')}</Text>
           </View>
         </SafeAreaView>
       </View>
@@ -193,8 +189,8 @@ export default function PaywallScreen() {
           </View>
 
           {/* Title */}
-          <Text style={styles.title}>Premium holen</Text>
-          <Text style={styles.subtitle}>Unbegrenzte Funktionen</Text>
+          <Text style={styles.title}>{t('paywallTitle')}</Text>
+          <Text style={styles.subtitle}>{t('paywallSubtitle')}</Text>
 
           {/* Features card */}
           <View style={styles.featuresCard}>
@@ -207,7 +203,7 @@ export default function PaywallScreen() {
 
           {/* Lifetime card */}
           <View style={styles.pricingCard}>
-            <Text style={styles.pricingLabel}>Einmalige Zahlung</Text>
+            <Text style={styles.pricingLabel}>{t('paywallOneTime')}</Text>
             <Text style={styles.pricingPrice}>{lifetimePrice}</Text>
             <TouchableOpacity
               style={[
@@ -222,7 +218,7 @@ export default function PaywallScreen() {
                 <ActivityIndicator size="small" color="#000000" />
               ) : (
                 <Text style={styles.payButtonText}>
-                  {noPackages ? "Nicht verfügbar" : "Bezahlen"}
+                  {noPackages ? t('paywallNotAvailable') : t('paywallPay')}
                 </Text>
               )}
             </TouchableOpacity>
@@ -232,11 +228,11 @@ export default function PaywallScreen() {
           </View>
 
           {/* Separator */}
-          <Text style={styles.orText}>oder</Text>
+          <Text style={styles.orText}>{t('paywallOr')}</Text>
 
           {/* Monthly card */}
           <View style={styles.pricingCard}>
-            <Text style={styles.pricingLabel}>Monatsabo</Text>
+            <Text style={styles.pricingLabel}>{t('paywallMonthly')}</Text>
             <Text style={styles.pricingPrice}>{monthlyPrice}</Text>
             <TouchableOpacity
               style={[
@@ -251,7 +247,7 @@ export default function PaywallScreen() {
                 <ActivityIndicator size="small" color="#000000" />
               ) : (
                 <Text style={styles.payButtonText}>
-                  {noPackages ? "Nicht verfügbar" : "Bezahlen"}
+                  {noPackages ? t('paywallNotAvailable') : t('paywallPay')}
                 </Text>
               )}
             </TouchableOpacity>
@@ -267,7 +263,7 @@ export default function PaywallScreen() {
               onPress={async () => {
                 console.log("[Paywall] Dev: Simulate Purchase pressed");
                 await mockNativePurchase();
-                router.replace("/(tabs)/(home)");
+                router.replace("/(tabs)");
               }}
             >
               <Text style={styles.devMockButtonText}>Dev: Kauf simulieren</Text>
@@ -283,7 +279,7 @@ export default function PaywallScreen() {
             {restoring ? (
               <ActivityIndicator size="small" color="#888888" />
             ) : (
-              <Text style={styles.restoreButtonText}>Käufe wiederherstellen</Text>
+              <Text style={styles.restoreButtonText}>{t('paywallRestore')}</Text>
             )}
           </TouchableOpacity>
 
@@ -291,7 +287,7 @@ export default function PaywallScreen() {
           <Text style={styles.legalText}>
             {isWeb
               ? "Vorschaumodus — Käufe sind in der mobilen App verfügbar"
-              : `Die Zahlung wird über dein ${Platform.OS === "ios" ? "Apple ID" : "Google Play"} Konto abgerechnet. Das Abo verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt wird.`}
+              : t('paywallLegal')}
           </Text>
           <TouchableOpacity onPress={() => Linking.openURL('https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9')} style={{ marginTop: 4, alignItems: 'center' }}>
             <Text style={{ fontSize: 11, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacyView')}</Text>
@@ -331,7 +327,7 @@ export default function PaywallScreen() {
                     console.log("[Paywall] Web mock: Test Valid Purchase selected");
                     setWebMockDialogState("hidden");
                     mockWebPurchase();
-                    router.replace("/(tabs)/(home)");
+                    router.replace("/(tabs)");
                   }}
                 >
                   <Text style={[styles.webDialogButtonText, { color: "#007AFF" }]}>
