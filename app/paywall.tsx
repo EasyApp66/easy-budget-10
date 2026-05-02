@@ -83,20 +83,35 @@ export default function PaywallScreen() {
       setWebMockDialogState("selecting");
       return;
     }
-    try {
-      setPurchasing(label);
-      console.log("[Paywall] Initiating purchase for:", pkg.identifier);
-      const success = await purchasePackage(pkg);
-      if (success) {
-        console.log("[Paywall] Purchase successful for:", pkg.identifier);
-        router.replace("/(tabs)");
-      }
-    } catch (error: any) {
-      console.error("[Paywall] Purchase failed:", error);
-      Alert.alert("Kauf fehlgeschlagen", error.message || "Bitte versuche es erneut.");
-    } finally {
-      setPurchasing(null);
-    }
+    const confirmMessage = label === 'lifetime'
+      ? t('confirmLifetimePurchase').replace('{price}', lifetimePrice)
+      : t('confirmMonthlyPurchase').replace('{price}', monthlyPrice);
+    Alert.alert(
+      t('confirmPurchaseTitle'),
+      confirmMessage,
+      [
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('paywallPay'),
+          onPress: async () => {
+            try {
+              setPurchasing(label);
+              console.log("[Paywall] Initiating purchase for:", pkg.identifier);
+              const success = await purchasePackage(pkg);
+              if (success) {
+                console.log("[Paywall] Purchase successful for:", pkg.identifier);
+                router.replace("/(tabs)");
+              }
+            } catch (error: any) {
+              console.error("[Paywall] Purchase failed:", error);
+              Alert.alert("Kauf fehlgeschlagen", error.message || "Bitte versuche es erneut.");
+            } finally {
+              setPurchasing(null);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleRestore = async () => {

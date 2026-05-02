@@ -557,16 +557,24 @@ export default function ProfileScreen() {
   const handleRequestAccountDeletion = async () => {
     console.log('[Profile] Request Account Deletion pressed');
     Alert.alert(
-      t('requestAccountDeletionTitle'),
-      t('requestAccountDeletionMessage'),
+      t('accountDeletionTitle'),
+      t('accountDeletionMessage'),
       [
         { text: t('cancel'), style: 'cancel' },
         {
-          text: t('apply'),
-          style: 'destructive',
-          onPress: () => {
-            console.log('[Profile] Account deletion confirmed — opening mailto');
-            Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=Account%20Deletion%20Request`);
+          text: t('accountDeletionSendEmail'),
+          onPress: async () => {
+            console.log('[Profile] Account deletion confirmed — opening mail composer');
+            const isAvailable = await MailComposer.isAvailableAsync();
+            if (isAvailable) {
+              await MailComposer.composeAsync({
+                recipients: [SUPPORT_EMAIL],
+                subject: 'Easy Budget - Account Deletion',
+                body: '',
+              });
+            } else {
+              Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=Easy%20Budget%20-%20Account%20Deletion`);
+            }
           },
         },
       ]
