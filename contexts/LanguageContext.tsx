@@ -201,6 +201,11 @@ const translations = {
     paywallPriceUnavailableHint: 'Preise konnten nicht geladen werden. Bitte Internetverbindung prüfen.',
     paywallOneTimeDesc: 'Einmalig — kein Abo, kein Ablaufdatum',
     paywallMonthlyDesc: 'Monatlich kündbar, jederzeit',
+    confirmPurchaseTitle: 'Kauf bestätigen',
+    confirmLifetimePurchase: 'Einmalige Zahlung von {price}. Kein Abo, kein Ablaufdatum.',
+    confirmMonthlyPurchase: 'Monatliches Abo für {price}/Monat. Jederzeit kündbar.',
+    confirmDonationTitle: 'Spende bestätigen',
+    confirmDonationMessage: 'Möchtest du {amount} spenden? Dies ist freiwillig und schaltet keine Funktionen frei.',
   },
   en: {
     // Welcome Screen
@@ -387,6 +392,11 @@ const translations = {
     paywallPriceUnavailableHint: 'Prices could not be loaded. Please check your internet connection.',
     paywallOneTimeDesc: 'One-time — no subscription, no expiry',
     paywallMonthlyDesc: 'Cancel anytime, monthly',
+    confirmPurchaseTitle: 'Confirm Purchase',
+    confirmLifetimePurchase: 'One-time payment of {price}. No subscription, no expiry.',
+    confirmMonthlyPurchase: 'Monthly subscription for {price}/month. Cancel anytime.',
+    confirmDonationTitle: 'Confirm Donation',
+    confirmDonationMessage: 'Would you like to donate {amount}? This is voluntary and does not unlock any features.',
   },
   fr: {
     // Welcome Screen
@@ -573,6 +583,11 @@ const translations = {
     paywallPriceUnavailableHint: 'Les prix n\'ont pas pu être chargés. Veuillez vérifier votre connexion.',
     paywallOneTimeDesc: "Unique — pas d'abonnement, pas d'expiration",
     paywallMonthlyDesc: 'Résiliable à tout moment, mensuel',
+    confirmPurchaseTitle: "Confirmer l'achat",
+    confirmLifetimePurchase: "Paiement unique de {price}. Pas d'abonnement, pas d'expiration.",
+    confirmMonthlyPurchase: 'Abonnement mensuel pour {price}/mois. Résiliable à tout moment.',
+    confirmDonationTitle: 'Confirmer le don',
+    confirmDonationMessage: "Voulez-vous faire un don de {amount}? C'est volontaire et ne débloque aucune fonctionnalité.",
   },
   es: {
     // Welcome Screen
@@ -721,7 +736,7 @@ const translations = {
     requestAccountDeletion: 'Solicitar eliminación completa de la cuenta',
     promoCode: 'Código Promocional',
     copy: 'Copiar',
-    cancelInfo: 'Cancelar suscripción: Ajustes → ID de Apple → Suscripciones → Easy Budget → Cancelar',
+    cancelInfo: 'Cancelar suscripción: Ajustes → Apple ID → Suscripciones → Easy Budget → Cancelar',
     appGuide: 'Guía App',
     appGuideTitle: 'Guía App — Versión 1.0.0',
     appGuideBudgetTitle: '📊 Presupuesto',
@@ -759,6 +774,11 @@ const translations = {
     paywallPriceUnavailableHint: 'No se pudieron cargar los precios. Por favor verifica tu conexión.',
     paywallOneTimeDesc: 'Único — sin suscripción, sin vencimiento',
     paywallMonthlyDesc: 'Cancelable en cualquier momento, mensual',
+    confirmPurchaseTitle: 'Confirmar compra',
+    confirmLifetimePurchase: 'Pago único de {price}. Sin suscripción, sin vencimiento.',
+    confirmMonthlyPurchase: 'Suscripción mensual por {price}/mes. Cancelable en cualquier momento.',
+    confirmDonationTitle: 'Confirmar donación',
+    confirmDonationMessage: '¿Deseas donar {amount}? Esto es voluntario y no desbloquea ninguna función.',
   },
   ru: {
     // Welcome Screen
@@ -947,6 +967,11 @@ const translations = {
     paywallPriceUnavailableHint: 'Не удалось загрузить цены. Проверьте подключение к интернету.',
     paywallOneTimeDesc: 'Единоразово — без подписки, без срока действия',
     paywallMonthlyDesc: 'Отмена в любое время, ежемесячно',
+    confirmPurchaseTitle: 'Подтвердить покупку',
+    confirmLifetimePurchase: 'Единоразовый платёж {price}. Без подписки, без срока действия.',
+    confirmMonthlyPurchase: 'Ежемесячная подписка за {price}/месяц. Отмена в любое время.',
+    confirmDonationTitle: 'Подтвердить пожертвование',
+    confirmDonationMessage: 'Хотите пожертвовать {amount}? Это добровольно и не открывает никаких функций.',
   },
 };
 

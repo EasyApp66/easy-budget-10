@@ -321,13 +321,15 @@ export default function ProfileScreen() {
       return;
     }
 
+    const donationAmountStr = `CHF ${selectedDonationAmount.toFixed(2)}`;
     Alert.alert(
-      t('donationTitle'),
-      `${t('donate')} CHF ${amount}?`,
+      t('confirmDonationTitle'),
+      t('confirmDonationMessage').replace('{amount}', donationAmountStr),
       [
         { text: t('cancel'), style: 'cancel' },
         {
           text: t('donate'),
+          style: 'default',
           onPress: async () => {
             setIsPurchasing(true);
             try {
@@ -371,28 +373,42 @@ export default function ProfileScreen() {
       setShowErrorModal(true);
       return;
     }
-    setIsPurchasing(true);
-    try {
-      console.log('[Profile] Purchasing package:', lifetimePkg.identifier);
-      const success = await purchasePackage(lifetimePkg);
-      if (success) {
-        console.log('[Profile] Lifetime purchase successful');
-        closeAllModals();
-        setModalMessage(t('premiumActivated'));
-        setShowSuccessModal(true);
-      } else {
-        setModalMessage(t('error'));
-        closeAllModals();
-        setShowErrorModal(true);
-      }
-    } catch (error) {
-      console.error('[Profile] One-time payment failed:', error);
-      setModalMessage(t('error'));
-      closeAllModals();
-      setShowErrorModal(true);
-    } finally {
-      setIsPurchasing(false);
-    }
+    const lifetimePrice = lifetimePkg?.product?.priceString ?? t('priceNotAvailable');
+    Alert.alert(
+      t('confirmPurchaseTitle'),
+      t('confirmLifetimePurchase').replace('{price}', lifetimePrice),
+      [
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('paywallPay'),
+          style: 'default',
+          onPress: async () => {
+            setIsPurchasing(true);
+            try {
+              console.log('[Profile] Purchasing package:', lifetimePkg.identifier);
+              const success = await purchasePackage(lifetimePkg);
+              if (success) {
+                console.log('[Profile] Lifetime purchase successful');
+                closeAllModals();
+                setModalMessage(t('premiumActivated'));
+                setShowSuccessModal(true);
+              } else {
+                setModalMessage(t('error'));
+                closeAllModals();
+                setShowErrorModal(true);
+              }
+            } catch (error) {
+              console.error('[Profile] One-time payment failed:', error);
+              setModalMessage(t('error'));
+              closeAllModals();
+              setShowErrorModal(true);
+            } finally {
+              setIsPurchasing(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleMonthlySubscription = async () => {
@@ -408,28 +424,42 @@ export default function ProfileScreen() {
       setShowErrorModal(true);
       return;
     }
-    setIsPurchasing(true);
-    try {
-      console.log('[Profile] Purchasing package:', monthlyPkgToPurchase.identifier);
-      const success = await purchasePackage(monthlyPkgToPurchase);
-      if (success) {
-        console.log('[Profile] Monthly subscription purchase successful');
-        closeAllModals();
-        setModalMessage(t('premiumActivated'));
-        setShowSuccessModal(true);
-      } else {
-        setModalMessage(t('error'));
-        closeAllModals();
-        setShowErrorModal(true);
-      }
-    } catch (error) {
-      console.error('[Profile] Monthly subscription failed:', error);
-      setModalMessage(t('error'));
-      closeAllModals();
-      setShowErrorModal(true);
-    } finally {
-      setIsPurchasing(false);
-    }
+    const monthlyPrice = monthlyPkgToPurchase?.product?.priceString ?? t('priceNotAvailable');
+    Alert.alert(
+      t('confirmPurchaseTitle'),
+      t('confirmMonthlyPurchase').replace('{price}', monthlyPrice),
+      [
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('subscribe'),
+          style: 'default',
+          onPress: async () => {
+            setIsPurchasing(true);
+            try {
+              console.log('[Profile] Purchasing package:', monthlyPkgToPurchase.identifier);
+              const success = await purchasePackage(monthlyPkgToPurchase);
+              if (success) {
+                console.log('[Profile] Monthly subscription purchase successful');
+                closeAllModals();
+                setModalMessage(t('premiumActivated'));
+                setShowSuccessModal(true);
+              } else {
+                setModalMessage(t('error'));
+                closeAllModals();
+                setShowErrorModal(true);
+              }
+            } catch (error) {
+              console.error('[Profile] Monthly subscription failed:', error);
+              setModalMessage(t('error'));
+              closeAllModals();
+              setShowErrorModal(true);
+            } finally {
+              setIsPurchasing(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleRestorePurchases = async () => {
