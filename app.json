@@ -14,7 +14,7 @@
     },
     "ios": {
       "icon": "./assets/images/591d508b-941d-4fe6-a4e1-741690930094.jpeg",
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.ivanmirosnic.easybudget10",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
