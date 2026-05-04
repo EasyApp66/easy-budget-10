@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert, Animated, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert, Animated, ActivityIndicator, Keyboard } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
@@ -35,11 +35,12 @@ export default function ProfileScreen() {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [skipConfirmations, setSkipConfirmations] = useState(false);
+  const [purchaseSuccessful, setPurchaseSuccessful] = useState(false);
   
   const router = useRouter();
   const { glassEnabled, setGlassEnabled } = useGlass();
   const { language, setLanguage, t } = useLanguage();
-  const { premiumStatus, applyPremiumCode, purchasePremium, fetchPremiumStatus, cancelPremium } = useBudget();
+  const { premiumStatus, setPremiumStatus, applyPremiumCode, purchasePremium, fetchPremiumStatus, cancelPremium, setMonths, setSubscriptions, setBudgetName, setActiveMonthId, setHasSeenWelcome } = useBudget();
   const { packages, purchasePackage, restorePurchases, checkSubscription } = useSubscription();
 
   // Fade-in animations
@@ -141,6 +142,7 @@ export default function ProfileScreen() {
   };
 
   const saveUsername = async () => {
+    Keyboard.dismiss();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (tempUsername.trim()) {
       setUsername(tempUsername.trim());
@@ -225,6 +227,7 @@ export default function ProfileScreen() {
   };
 
   const handleApplyCode = async () => {
+    Keyboard.dismiss();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (!premiumCode.trim()) {
       setModalMessage(t('enterCode'));
@@ -239,6 +242,7 @@ export default function ProfileScreen() {
         closeAllModals();
         setShowSuccessModal(true);
         setPremiumCode('');
+        fetchPremiumStatus().catch(err => console.warn('[Profile] fetchPremiumStatus after code:', err));
       } else {
         setModalMessage(t('invalidCode'));
         closeAllModals();
@@ -332,7 +336,9 @@ export default function ProfileScreen() {
               if (success) {
                 closeAllModals();
                 setModalMessage(t('premiumActivated'));
+                setPurchaseSuccessful(true);
                 setShowSuccessModal(true);
+                fetchPremiumStatus().catch(err => console.warn('[Profile] fetchPremiumStatus after lifetime:', err));
               } else {
                 setModalMessage(t('error'));
                 closeAllModals();
@@ -374,7 +380,9 @@ export default function ProfileScreen() {
               if (success) {
                 closeAllModals();
                 setModalMessage(t('premiumActivated'));
+                setPurchaseSuccessful(true);
                 setShowSuccessModal(true);
+                fetchPremiumStatus().catch(err => console.warn('[Profile] fetchPremiumStatus after monthly:', err));
               } else {
                 setModalMessage(t('error'));
                 closeAllModals();
@@ -404,7 +412,9 @@ export default function ProfileScreen() {
       if (restored) {
         closeAllModals();
         setModalMessage(t('premiumActivated'));
+        setPurchaseSuccessful(true);
         setShowSuccessModal(true);
+        fetchPremiumStatus().catch(err => console.warn('[Profile] fetchPremiumStatus after restore:', err));
       } else {
         setModalMessage(language === 'de' ? 'Keine früheren Käufe gefunden.' : 'No previous purchases found.');
         closeAllModals();
@@ -475,6 +485,12 @@ export default function ProfileScreen() {
             console.log('[Profile] Confirm delete local data pressed');
             try {
               await AsyncStorage.clear();
+              setMonths([]);
+              setSubscriptions([]);
+              setPremiumStatus({ type: 'None', endDate: null });
+              setBudgetName('Budget');
+              setActiveMonthId('');
+              setHasSeenWelcome(false);
               router.replace('/');
             } catch (error) {
               console.error('Error deleting data:', error);
@@ -1229,6 +1245,10 @@ export default function ProfileScreen() {
               onPress={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setShowSuccessModal(false);
+                if (purchaseSuccessful) {
+                  setPurchaseSuccessful(false);
+                  router.replace('/(tabs)/(home)');
+                }
               }}
               activeOpacity={0.8}
             >

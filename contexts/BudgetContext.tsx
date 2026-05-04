@@ -44,6 +44,7 @@ interface BudgetContextType {
   setSubscriptions: (subs: Subscription[]) => void;
   premiumStatus: PremiumStatus;
   setPremiumStatus: (status: PremiumStatus) => void;
+  setRevenueCatSubscribed: (value: boolean) => void;
   applyPremiumCode: (code: string) => Promise<boolean>;
   purchasePremium: (purchaseType: 'lifetime' | 'monthly', appleTransactionId?: string) => Promise<boolean>;
   fetchPremiumStatus: () => Promise<void>;
@@ -79,6 +80,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const [activeMonthId, setActiveMonthId] = useState('');
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [premiumStatus, setPremiumStatus] = useState<PremiumStatus>({ type: 'None', endDate: null });
+  const [revenueCatSubscribed, setRevenueCatSubscribed] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const initializeDefaultData = useCallback(() => {
@@ -357,6 +359,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions]);
 
   const isPremiumActive = () => {
+    if (revenueCatSubscribed) return true;
     return premiumStatus.type !== 'None' && premiumStatus.type !== 'Expired';
   };
 
@@ -573,6 +576,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         setSubscriptions,
         premiumStatus,
         setPremiumStatus,
+        setRevenueCatSubscribed,
         applyPremiumCode,
         purchasePremium,
         fetchPremiumStatus,
