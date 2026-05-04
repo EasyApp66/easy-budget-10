@@ -41,7 +41,7 @@ export default function ProfileScreen() {
   const { glassEnabled, setGlassEnabled } = useGlass();
   const { language, setLanguage, t } = useLanguage();
   const { premiumStatus, setPremiumStatus, applyPremiumCode, purchasePremium, fetchPremiumStatus, cancelPremium, setMonths, setSubscriptions, setBudgetName, setActiveMonthId, setHasSeenWelcome } = useBudget();
-  const { packages, purchasePackage, restorePurchases, checkSubscription } = useSubscription();
+  const { packages, purchasePackage, restorePurchases, checkSubscription, isSubscribed } = useSubscription();
 
   // Fade-in animations
   const [fadeAnims] = useState(() => ({
@@ -530,6 +530,9 @@ export default function ProfileScreen() {
   };
 
   const getPremiumStatusText = () => {
+    if (isSubscribed && (premiumStatus.type === 'None' || premiumStatus.type === 'Expired')) {
+      return t('premiumForever');
+    }
     if (premiumStatus.type === 'Lifetime') {
       return t('premiumForever');
     } else if (premiumStatus.type === 'Trial' && premiumStatus.endDate) {

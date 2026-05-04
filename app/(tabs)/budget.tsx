@@ -911,7 +911,8 @@ const styles = StyleSheet.create({
   budgetHeader: {
     backgroundColor: '#2C2C2E',
     borderRadius: 20,
-    padding: 24,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
     marginBottom: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -927,6 +928,8 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
+    textAlign: 'right',
+    minWidth: 120,
   },
   budgetAmountInput: {
     fontSize: 28,
