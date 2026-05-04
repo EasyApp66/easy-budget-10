@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useGlass } from '@/contexts/GlassContext';
+import { getLocaleCurrency } from '@/utils/currency';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -200,7 +201,8 @@ export default function SubscriptionsScreen() {
     );
   };
 
-  const totalCostText = totalCost.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const { locale } = getLocaleCurrency();
+  const totalCostText = totalCost.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   const selectedSub = selectedSubId ? subscriptions.find(s => s.id === selectedSubId) : null;
 
   return (
@@ -485,7 +487,8 @@ function SubscriptionCard({
     };
   });
 
-  const amountText = subscription.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const { locale: subLocale } = getLocaleCurrency();
+  const amountText = subscription.amount.toLocaleString(subLocale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   return (
     <View style={styles.cardWrapper}>

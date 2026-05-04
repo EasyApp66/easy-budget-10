@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useGlass } from '@/contexts/GlassContext';
+import { getLocaleCurrency } from '@/utils/currency';
 import { IconSymbol } from '@/components/IconSymbol';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -46,7 +47,7 @@ export default function BudgetScreen() {
   } = useBudget();
 
   const { glassEnabled } = useGlass();
-  const [editingBudgetAmount, setEditingBudgetAmount] = useState(false);
+  const [showBudgetEditModal, setShowBudgetEditModal] = useState(false);
   const [tempBudgetAmount, setTempBudgetAmount] = useState('0');
 
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
@@ -124,16 +125,6 @@ export default function BudgetScreen() {
   const budgetAmount = activeMonth?.budgetAmount || 0;
   const totalExpenses = activeMonth?.expenses.reduce((sum, e) => sum + e.amount, 0) || 0;
   const remaining = budgetAmount - totalExpenses;
-
-  const saveBudgetAmount = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const amount = parseFloat(tempBudgetAmount);
-    if (!isNaN(amount) && amount >= 0 && activeMonthId) {
-      updateMonthBudget(activeMonthId, amount);
-      console.log('Budget amount saved for month:', amount);
-    }
-    setEditingBudgetAmount(false);
-  };
 
   const handleAddExpense = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -353,10 +344,11 @@ export default function BudgetScreen() {
     console.log('View mode changed to:', expenseViewMode === 'grid' ? 'list' : 'grid');
   };
 
+  const { locale } = getLocaleCurrency();
   const remainingColor = remaining >= 0 ? '#BFFE84' : '#FF3B30';
-  const totalText = totalExpenses.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-  const remainingText = Math.abs(remaining).toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-  const budgetText = budgetAmount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const totalText = totalExpenses.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const remainingText = Math.abs(remaining).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const budgetText = budgetAmount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   const selectedMonth = selectedMonthId ? months.find(m => m.id === selectedMonthId) : null;
   const selectedExpense = selectedExpenseId && activeMonth ? activeMonth.expenses.find(e => e.id === selectedExpenseId) : null;
@@ -378,27 +370,16 @@ export default function BudgetScreen() {
         <Animated.View style={[styles.budgetHeader, glassEnabled && styles.glassCard, { opacity: fadeAnims.header }]}>
           <Text style={styles.budgetLabel}>{t('budget')}</Text>
 
-          {editingBudgetAmount ? (
-            <TextInput
-              style={styles.budgetAmountInput}
-              value={tempBudgetAmount}
-              onChangeText={setTempBudgetAmount}
-              onBlur={saveBudgetAmount}
-              keyboardType="decimal-pad"
-              autoFocus
-              selectTextOnFocus
-              adjustsFontSizeToFit
-              numberOfLines={1}
-            />
-          ) : (
-            <TouchableOpacity onPress={async () => {
-              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setTempBudgetAmount(budgetAmount.toString());
-              setEditingBudgetAmount(true);
-            }}>
-              <Text style={styles.budgetAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>{budgetText.replace(/\s/g, "'")}</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity onPress={async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            console.log('[Budget] Budget amount tapped — opening edit modal');
+            setTempBudgetAmount(budgetAmount.toString());
+            setShowBudgetEditModal(true);
+          }}>
+            <Text style={styles.budgetAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>
+              {budgetText.replace(/\s/g, "'")}
+            </Text>
+          </TouchableOpacity>
         </Animated.View>
 
         <Animated.View style={[styles.summaryCard, glassEnabled && styles.glassCard, { opacity: fadeAnims.summary }]}>
@@ -497,7 +478,7 @@ export default function BudgetScreen() {
                         <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
                       </TouchableOpacity>
                     </View>
-                    <Text style={styles.expenseAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.4}>{expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
+                    <Text style={styles.expenseAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.4}>{expense.amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
                   </Pressable>
                   </React.Fragment>
                 );
@@ -506,7 +487,7 @@ export default function BudgetScreen() {
           ) : (
             <View style={styles.expensesListSection}>
               {sortedExpenses.map((expense) => {
-                const expenseAmountText = expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                const expenseAmountText = expense.amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
                 return (
                   <React.Fragment key={expense.id}>
                   <ExpenseListCard
@@ -582,6 +563,55 @@ export default function BudgetScreen() {
                 activeOpacity={0.8}
               >
                 <Text style={styles.compactSubmitButtonText}>{t('add')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showBudgetEditModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowBudgetEditModal(false)}
+      >
+        <View style={styles.centeredModalOverlay}>
+          <View style={[styles.compactModal, glassEnabled && styles.glassModal]}>
+            <Text style={styles.compactModalTitle}>{t('budget')}</Text>
+            <TextInput
+              style={styles.compactInput}
+              value={tempBudgetAmount}
+              onChangeText={setTempBudgetAmount}
+              keyboardType="decimal-pad"
+              autoFocus
+              selectTextOnFocus
+              placeholder="0"
+              placeholderTextColor="#666666"
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonCancel]}
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  console.log('[Budget] Budget edit modal cancelled');
+                  setShowBudgetEditModal(false);
+                }}
+              >
+                <Text style={styles.modalButtonCancelText}>{t('cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonConfirm]}
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  const amount = parseFloat(tempBudgetAmount);
+                  if (!isNaN(amount) && amount >= 0 && activeMonthId) {
+                    updateMonthBudget(activeMonthId, amount);
+                    console.log('[Budget] Budget amount updated:', amount);
+                  }
+                  setShowBudgetEditModal(false);
+                }}
+              >
+                <Text style={styles.modalButtonConfirmText}>OK</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -834,7 +864,8 @@ function ExpenseListCard({
     };
   });
 
-  const amountText = expense.amount.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const { locale: expenseLocale } = getLocaleCurrency();
+  const amountText = expense.amount.toLocaleString(expenseLocale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   return (
     <View style={styles.cardWrapper}>
@@ -1196,5 +1227,32 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+  },
+  modalButton: {
+    flex: 1,
+    borderRadius: 10,
+    padding: 14,
+    alignItems: 'center',
+  },
+  modalButtonCancel: {
+    backgroundColor: '#3A3A3C',
+  },
+  modalButtonCancelText: {
+    fontSize: 15,
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  modalButtonConfirm: {
+    backgroundColor: '#BFFE84',
+  },
+  modalButtonConfirmText: {
+    fontSize: 15,
+    color: '#000000',
+    fontWeight: 'bold',
   },
 });
