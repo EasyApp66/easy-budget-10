@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/fce41322-c8c9-4671-b22c-79d10867ec8b.jpeg",
       "resizeMode": "contain",
-      "backgroundColor": "#1a1a1a"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "icon": "./assets/images/591d508b-941d-4fe6-a4e1-741690930094.jpeg",

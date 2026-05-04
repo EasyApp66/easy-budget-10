@@ -5,7 +5,7 @@
  * On web, displays features and prompts user to download the app.
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import {
   Platform,
   Dimensions,
   Linking,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -142,14 +143,38 @@ export default function PaywallScreen() {
     }
   };
 
-  // Already subscribed
+  // Already subscribed — auto-dismiss after 3 seconds
+  const subscribedProgressAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!isSubscribed) return;
+    console.log('[Paywall] Already subscribed — starting 3s auto-dismiss timer');
+    Animated.timing(subscribedProgressAnim, {
+      toValue: 1,
+      duration: 3000,
+      useNativeDriver: false,
+    }).start();
+    const timer = setTimeout(() => {
+      console.log('[Paywall] Auto-dismissing subscribed screen after 3s');
+      router.replace('/(tabs)/budget');
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [isSubscribed]);
+
+  const handleSubscribedDismiss = () => {
+    console.log('[Paywall] Subscribed screen tapped — dismissing early');
+    router.replace('/(tabs)/budget');
+  };
+
+  const progressBarWidth = subscribedProgressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
+
   if (isSubscribed) {
     return (
-      <View style={styles.container}>
+      <TouchableOpacity style={styles.container} activeOpacity={1} onPress={handleSubscribedDismiss}>
         <SafeAreaView edges={["top", "bottom"]} style={styles.safeArea}>
-          <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-            <Text style={styles.closeButtonText}>✕</Text>
-          </TouchableOpacity>
           <View style={styles.subscribedContent}>
             <View style={styles.starCircle}>
               <Text style={styles.starIcon}>✓</Text>
@@ -163,12 +188,15 @@ export default function PaywallScreen() {
                 </View>
               ))}
             </View>
-            <TouchableOpacity style={styles.payButton} onPress={handleClose}>
+            <TouchableOpacity style={styles.payButton} onPress={handleSubscribedDismiss}>
               <Text style={styles.payButtonText}>{t('paywallContinue')}</Text>
             </TouchableOpacity>
           </View>
+          <View style={styles.progressBarContainer}>
+            <Animated.View style={[styles.progressBar, { width: progressBarWidth }]} />
+          </View>
         </SafeAreaView>
-      </View>
+      </TouchableOpacity>
     );
   }
 
@@ -594,6 +622,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
+  },
+  progressBarContainer: {
+    height: 4,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    width: "100%",
+  },
+  progressBar: {
+    height: 4,
+    backgroundColor: GREEN,
   },
 
   // Web mock dialog

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -68,6 +68,8 @@ export default function BudgetScreen() {
   const [monthCounter, setMonthCounter] = useState(1);
   const [skipConfirmations, setSkipConfirmations] = useState(false);
   const [expenseViewMode, setExpenseViewMode] = useState<'grid' | 'list'>('grid');
+  const [pressedExpenseId, setPressedExpenseId] = useState<string | null>(null);
+  const flashAnim = useRef(new Animated.Value(0)).current;
 
   const [fadeAnims] = useState(() => ({
     header: new Animated.Value(0),
@@ -152,7 +154,7 @@ export default function BudgetScreen() {
 
   const handleAddMonth = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const newMonthName = `Neu ${monthCounter}`;
+    const newMonthName = `${t('newMonth')} ${monthCounter}`;
     const added = addMonth(newMonthName, 0);
     if (!added) {
       console.log('[Paywall] Month limit reached — navigating to paywall');
@@ -252,9 +254,16 @@ export default function BudgetScreen() {
 
   const handleExpenseLongPress = async (expenseId: string) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    console.log('Expense long pressed:', expenseId);
+    setPressedExpenseId(expenseId);
+    Animated.sequence([
+      Animated.timing(flashAnim, { toValue: 1, duration: 120, useNativeDriver: true }),
+      Animated.timing(flashAnim, { toValue: 0, duration: 120, useNativeDriver: true }),
+    ]).start(() => {
+      setPressedExpenseId(null);
+    });
     setSelectedExpenseId(expenseId);
     setShowExpenseOptionsModal(true);
-    console.log('Expense long pressed:', expenseId);
   };
 
   const handleExpenseEdit = async () => {
@@ -463,22 +472,24 @@ export default function BudgetScreen() {
                       glassEnabled && styles.glassCard,
                     ]}
                   >
-                    <View style={styles.expenseHeader}>
-                      <Text style={styles.expenseName}>{expense.name.toUpperCase()}</Text>
-                      <TouchableOpacity
-                        style={styles.deleteButton}
-                        onPress={async () => {
-                          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                          if (activeMonthId) {
-                            deleteExpense(activeMonthId, expense.id);
-                            console.log('Expense deleted:', expense.id);
-                          }
-                        }}
-                      >
-                        <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
-                      </TouchableOpacity>
-                    </View>
-                    <Text style={styles.expenseAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.4}>{expense.amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
+                    <Animated.View style={{ opacity: pressedExpenseId === expense.id ? flashAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0.4] }) : 1 }}>
+                      <View style={styles.expenseHeader}>
+                        <Text style={styles.expenseName}>{expense.name.toUpperCase()}</Text>
+                        <TouchableOpacity
+                          style={styles.deleteButton}
+                          onPress={async () => {
+                            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            if (activeMonthId) {
+                              deleteExpense(activeMonthId, expense.id);
+                              console.log('Expense deleted:', expense.id);
+                            }
+                          }}
+                        >
+                          <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={styles.expenseAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.4}>{expense.amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
+                    </Animated.View>
                   </Pressable>
                   </React.Fragment>
                 );
@@ -490,6 +501,7 @@ export default function BudgetScreen() {
                 const expenseAmountText = expense.amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
                 return (
                   <React.Fragment key={expense.id}>
+                  <Animated.View style={{ opacity: pressedExpenseId === expense.id ? flashAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0.4] }) : 1 }}>
                   <ExpenseListCard
                     expense={expense}
                     onDelete={async () => {
@@ -508,6 +520,7 @@ export default function BudgetScreen() {
                     }}
                     onLongPress={() => handleExpenseLongPress(expense.id)}
                   />
+                  </Animated.View>
                   </React.Fragment>
                 );
               })}

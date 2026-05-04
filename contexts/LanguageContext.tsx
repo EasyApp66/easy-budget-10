@@ -209,6 +209,7 @@ const translations = {
     accountDeletionTitle: 'Konto löschen',
     accountDeletionMessage: 'Alle deine Kontodaten werden dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.\n\nEine E-Mail wird geöffnet — sende sie ab um die Löschung zu beantragen.',
     accountDeletionSendEmail: 'E-Mail senden',
+    newMonth: 'Neu',
   },
   en: {
     // Welcome Screen
@@ -403,6 +404,7 @@ const translations = {
     accountDeletionTitle: 'Delete Account',
     accountDeletionMessage: 'All your account data will be permanently deleted. This action cannot be undone.\n\nAn email will open — send it to request deletion.',
     accountDeletionSendEmail: 'Send Email',
+    newMonth: 'New',
   },
   fr: {
     // Welcome Screen
@@ -597,6 +599,7 @@ const translations = {
     accountDeletionTitle: 'Supprimer le compte',
     accountDeletionMessage: "Toutes vos données de compte seront définitivement supprimées. Cette action est irréversible.\n\nUn e-mail s'ouvrira — envoyez-le pour demander la suppression.",
     accountDeletionSendEmail: "Envoyer l'e-mail",
+    newMonth: 'Nouveau',
   },
   es: {
     // Welcome Screen
@@ -791,6 +794,7 @@ const translations = {
     accountDeletionTitle: 'Eliminar cuenta',
     accountDeletionMessage: 'Todos tus datos de cuenta se eliminarán permanentemente. Esta acción no se puede deshacer.\n\nSe abrirá un correo electrónico — envíalo para solicitar la eliminación.',
     accountDeletionSendEmail: 'Enviar correo',
+    newMonth: 'Nuevo',
   },
   ru: {
     // Welcome Screen
@@ -987,6 +991,7 @@ const translations = {
     accountDeletionTitle: 'Удалить аккаунт',
     accountDeletionMessage: 'Все данные вашего аккаунта будут удалены навсегда. Это действие нельзя отменить.\n\nОткроется письмо — отправьте его, чтобы запросить удаление.',
     accountDeletionSendEmail: 'Отправить письмо',
+    newMonth: 'Новый',
   },
 };
 
