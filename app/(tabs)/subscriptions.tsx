@@ -18,7 +18,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useGlass } from '@/contexts/GlassContext';
 import { getLocaleCurrency } from '@/utils/currency';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
+import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, withSpring, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -432,6 +432,7 @@ function SubscriptionCard({
   const translateX = useSharedValue(0);
   const deleteIconOpacity = useSharedValue(0);
   const pinIconOpacity = useSharedValue(0);
+  const scale = useSharedValue(1);
 
   const panGesture = Gesture.Pan()
     .activeOffsetX([-20, 20])
@@ -471,7 +472,7 @@ function SubscriptionCard({
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: translateX.value }],
+      transform: [{ translateX: translateX.value }, { scale: scale.value }],
     };
   });
 
@@ -499,7 +500,16 @@ function SubscriptionCard({
         <MaterialIcons name="push-pin" size={24} color="#BFFE84" />
       </AnimatedReanimated.View>
       <GestureDetector gesture={panGesture}>
-        <Pressable onLongPress={onLongPress}>
+        <Pressable
+          onLongPress={onLongPress}
+          onPressIn={() => {
+            console.log('[SubscriptionCard] Press in:', subscription.name);
+            scale.value = withTiming(0.95, { duration: 80 });
+          }}
+          onPressOut={() => {
+            scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+          }}
+        >
           <AnimatedReanimated.View style={[styles.subscriptionCard, subscription.isPinned && styles.subscriptionCardPinned, glassEnabled && styles.glassCard, animatedStyle]}>
             <Text style={styles.subscriptionName}>{subscription.name}</Text>
             <Text style={styles.subscriptionAmount}>{amountText}</Text>

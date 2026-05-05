@@ -20,7 +20,7 @@ import { getLocaleCurrency } from '@/utils/currency';
 import { IconSymbol } from '@/components/IconSymbol';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
+import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, withSpring, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 function useCountUp(target: number, duration = 700) {
@@ -43,6 +43,128 @@ function useCountUp(target: number, duration = 700) {
   }, [target]);
 
   return display;
+}
+
+// ─── MonthPill ────────────────────────────────────────────────────────────────
+function MonthPill({
+  month,
+  isActive,
+  glassEnabled,
+  onPress,
+  onLongPress,
+  onDelete,
+  canDelete,
+}: {
+  month: { id: string; name: string; isPinned: boolean };
+  isActive: boolean;
+  glassEnabled: boolean;
+  onPress: () => void;
+  onLongPress: () => void;
+  onDelete: () => void;
+  canDelete: boolean;
+}) {
+  const scale = useSharedValue(1);
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const monthNameOnly = month.name.split(' ')[0];
+  const nameDisplay = monthNameOnly.toUpperCase();
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onLongPress={onLongPress}
+      onPressIn={() => {
+        console.log('[MonthPill] Press in:', month.name);
+        scale.value = withTiming(0.95, { duration: 80 });
+      }}
+      onPressOut={() => {
+        scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+      }}
+      style={[
+        styles.monthPill,
+        isActive && styles.monthPillActive,
+        month.isPinned && styles.monthPillPinned,
+        glassEnabled && (isActive ? styles.glassMonthActive : styles.glassMonthInactive),
+      ]}
+    >
+      <AnimatedReanimated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 8 }, animStyle]}>
+        <Text style={[styles.monthPillText, isActive && styles.monthPillTextActive]}>
+          {nameDisplay}
+        </Text>
+        <TouchableOpacity
+          style={styles.monthDeleteButton}
+          onPress={(e) => {
+            e.stopPropagation();
+            if (canDelete) {
+              console.log('[MonthPill] Delete tapped:', month.name);
+              onDelete();
+            }
+          }}
+        >
+          <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
+        </TouchableOpacity>
+      </AnimatedReanimated.View>
+    </Pressable>
+  );
+}
+
+// ─── ExpenseGridCard ──────────────────────────────────────────────────────────
+function ExpenseGridCard({
+  expense,
+  isLeftColumn,
+  glassEnabled,
+  locale,
+  activeMonthId,
+  onLongPress,
+  onDelete,
+}: {
+  expense: { id: string; name: string; amount: number; isPinned: boolean };
+  isLeftColumn: boolean;
+  glassEnabled: boolean;
+  locale: string;
+  activeMonthId: string | null;
+  onLongPress: () => void;
+  onDelete: () => void;
+}) {
+  const scale = useSharedValue(1);
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const amountText = expense.amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const nameDisplay = expense.name.toUpperCase();
+
+  return (
+    <Pressable
+      onLongPress={onLongPress}
+      onPressIn={() => {
+        console.log('[ExpenseGridCard] Press in:', expense.name);
+        scale.value = withTiming(0.95, { duration: 80 });
+      }}
+      onPressOut={() => {
+        scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+      }}
+      style={[
+        styles.expenseCard,
+        expense.isPinned && styles.expenseCardPinned,
+        isLeftColumn ? styles.expenseCardLeft : styles.expenseCardRight,
+        glassEnabled && styles.glassCard,
+      ]}
+    >
+      <AnimatedReanimated.View style={[{ flex: 1, justifyContent: 'space-between' }, animStyle]}>
+        <View style={styles.expenseHeader}>
+          <Text style={styles.expenseName}>{nameDisplay}</Text>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              console.log('[ExpenseGridCard] Delete tapped:', expense.id);
+              onDelete();
+            }}
+          >
+            <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.expenseAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.4}>{amountText}</Text>
+      </AnimatedReanimated.View>
+    </Pressable>
+  );
 }
 
 export default function BudgetScreen() {
@@ -90,8 +212,14 @@ export default function BudgetScreen() {
   const [monthCounter, setMonthCounter] = useState(1);
   const [skipConfirmations, setSkipConfirmations] = useState(false);
   const [expenseViewMode, setExpenseViewMode] = useState<'grid' | 'list'>('grid');
-  const [pressedExpenseId, setPressedExpenseId] = useState<string | null>(null);
-  const flashAnim = useRef(new Animated.Value(0)).current;
+
+  // ─── First-launch intro animation state ──────────────────────────────────
+  const [isFirstLaunch, setIsFirstLaunch] = useState(false);
+  const [introAnimDone, setIntroAnimDone] = useState(false);
+
+  // Intro animation values: [budgetHeader, addMonthBtn, ...monthPills, ...expenseCards]
+  const introScales = useRef<Animated.Value[]>([]);
+  const introOpacities = useRef<Animated.Value[]>([]);
 
   const [fadeAnims] = useState(() => ({
     header: new Animated.Value(0),
@@ -100,7 +228,26 @@ export default function BudgetScreen() {
     expenses: new Animated.Value(0),
   }));
 
+  // Add-month button scale (Reanimated, for press animation)
+  const addMonthScale = useSharedValue(1);
+  const addMonthAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: addMonthScale.value }] }));
+
+  // ─── First-launch check ───────────────────────────────────────────────────
   useEffect(() => {
+    AsyncStorage.getItem('@easy_budget_first_launch').then(val => {
+      if (!val) {
+        console.log('[Intro] First launch detected — will run intro animation');
+        setIsFirstLaunch(true);
+        AsyncStorage.setItem('@easy_budget_first_launch', 'done');
+      } else {
+        setIntroAnimDone(true);
+      }
+    });
+  }, []);
+
+  // ─── Normal fade-in (skip when first launch) ──────────────────────────────
+  useEffect(() => {
+    if (isFirstLaunch) return; // intro animation handles visibility instead
     Animated.stagger(80, [
       Animated.timing(fadeAnims.header, {
         toValue: 1,
@@ -123,7 +270,81 @@ export default function BudgetScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, [activeMonthId, fadeAnims.header, fadeAnims.summary, fadeAnims.months, fadeAnims.expenses]);
+  }, [activeMonthId, fadeAnims.header, fadeAnims.summary, fadeAnims.months, fadeAnims.expenses, isFirstLaunch]);
+
+  // ─── Intro animation (first launch only) ─────────────────────────────────
+  useEffect(() => {
+    if (!isFirstLaunch) return;
+
+    const monthCount = months.length;
+    const expenseCount = activeMonth?.expenses.length ?? 0;
+    // Elements: budgetHeader(0), addMonthBtn(1), monthPills(2..2+monthCount-1), expenseCards(2+monthCount..end)
+    const totalElements = 2 + monthCount + expenseCount;
+
+    // Initialize animation values
+    introScales.current = Array.from({ length: totalElements }, () => new Animated.Value(0.85));
+    introOpacities.current = Array.from({ length: totalElements }, () => new Animated.Value(0));
+
+    // Set fadeAnims to 1 immediately so the Animated.View wrappers are visible
+    fadeAnims.header.setValue(1);
+    fadeAnims.summary.setValue(1);
+    fadeAnims.months.setValue(1);
+    fadeAnims.expenses.setValue(1);
+
+    const staggerDelays = [
+      0,       // budgetHeader
+      150,     // addMonthBtn
+      ...Array.from({ length: monthCount }, (_, i) => 300 + i * 100),
+      ...Array.from({ length: expenseCount }, (_, i) => 300 + monthCount * 100 + i * 80),
+    ];
+
+    const animations = introScales.current.map((scaleVal, i) =>
+      Animated.delay(
+        staggerDelays[i],
+        Animated.parallel([
+          Animated.spring(scaleVal, {
+            toValue: 1,
+            friction: 6,
+            tension: 120,
+            useNativeDriver: true,
+          }),
+          Animated.timing(introOpacities.current[i], {
+            toValue: 1,
+            duration: 350,
+            useNativeDriver: true,
+          }),
+        ])
+      )
+    );
+
+    console.log('[Intro] Starting staggered entrance animation');
+    Animated.parallel(animations).start(() => {
+      console.log('[Intro] Entrance animation complete — running hint pulses');
+      setIntroAnimDone(true);
+
+      // Hint pulse: scale 1.0 → 0.95 → 1.0 on first few elements
+      const pulseTargets = [
+        introScales.current[0], // budget header
+        introScales.current[1], // add month btn
+        introScales.current[2], // first month pill (if exists)
+        introScales.current[2 + monthCount], // first expense card (if exists)
+      ].filter(Boolean);
+
+      const pulseAnims = pulseTargets.map((val, i) =>
+        Animated.delay(
+          i * 100,
+          Animated.sequence([
+            Animated.timing(val, { toValue: 0.95, duration: 150, useNativeDriver: true }),
+            Animated.timing(val, { toValue: 1.0, duration: 150, useNativeDriver: true }),
+          ])
+        )
+      );
+      Animated.parallel(pulseAnims).start(() => {
+        console.log('[Intro] Hint pulses complete');
+      });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFirstLaunch]);
 
   useEffect(() => {
     if (params.triggerAdd) {
@@ -281,13 +502,6 @@ export default function BudgetScreen() {
   const handleExpenseLongPress = async (expenseId: string) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     console.log('Expense long pressed:', expenseId);
-    setPressedExpenseId(expenseId);
-    Animated.sequence([
-      Animated.timing(flashAnim, { toValue: 1, duration: 120, useNativeDriver: true }),
-      Animated.timing(flashAnim, { toValue: 0, duration: 120, useNativeDriver: true }),
-    ]).start(() => {
-      setPressedExpenseId(null);
-    });
     setSelectedExpenseId(expenseId);
     setShowExpenseOptionsModal(true);
   };
@@ -394,6 +608,26 @@ export default function BudgetScreen() {
     return 0;
   }) : [];
 
+  // Intro animation style helpers
+  const getIntroStyle = (index: number) => {
+    if (!isFirstLaunch || introAnimDone) return {};
+    const scaleVal = introScales.current[index];
+    const opacityVal = introOpacities.current[index];
+    if (!scaleVal || !opacityVal) return {};
+    return {
+      opacity: opacityVal,
+      transform: [{ scale: scaleVal }],
+    };
+  };
+
+  const budgetHeaderIntroStyle = getIntroStyle(0);
+  const addMonthBtnIntroStyle = getIntroStyle(1);
+
+  const budgetAmountDisplay = animatedBudget.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'");
+  const animatedTotalDisplay = animatedTotal.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'");
+  const remainingSign = remaining < 0 ? '-' : '';
+  const animatedRemainingDisplay = animatedRemaining.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'");
+
   return (
     <View style={styles.container}>
       <View style={styles.safeZone} />
@@ -402,7 +636,7 @@ export default function BudgetScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View style={[styles.budgetHeader, glassEnabled && styles.glassCard, { opacity: fadeAnims.header }]}>
+        <Animated.View style={[styles.budgetHeader, glassEnabled && styles.glassCard, { opacity: fadeAnims.header }, budgetHeaderIntroStyle]}>
           <Text style={styles.budgetLabel}>{t('budget')}</Text>
 
           <TouchableOpacity onPress={async () => {
@@ -412,7 +646,7 @@ export default function BudgetScreen() {
             setShowBudgetEditModal(true);
           }}>
             <Text style={styles.budgetAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>
-              {animatedBudget.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'")}
+              {budgetAmountDisplay}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -420,20 +654,35 @@ export default function BudgetScreen() {
         <Animated.View style={[styles.summaryCard, glassEnabled && styles.glassCard, { opacity: fadeAnims.summary }]}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('total')}</Text>
-            <Text style={styles.summaryValue} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>{animatedTotal.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'")}</Text>
+            <Text style={styles.summaryValue} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>{animatedTotalDisplay}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('remaining')}</Text>
             <Text style={[styles.summaryValue, { color: remainingColor }]} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>
-              {remaining < 0 ? '-' : ''}{animatedRemaining.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'")}
+              {remainingSign}{animatedRemainingDisplay}
             </Text>
           </View>
         </Animated.View>
 
         <Animated.View style={[styles.monthsRow, { opacity: fadeAnims.months }]}>
-          <TouchableOpacity style={[styles.addMonthButton, glassEnabled && styles.glassButton]} onPress={handleAddMonth} activeOpacity={0.7}>
-            <IconSymbol android_material_icon_name="add" ios_icon_name="plus" size={24} color="#000000" />
-          </TouchableOpacity>
+          <Animated.View style={addMonthBtnIntroStyle}>
+            <AnimatedReanimated.View style={addMonthAnimStyle}>
+              <TouchableOpacity
+                style={[styles.addMonthButton, glassEnabled && styles.glassButton]}
+                onPress={handleAddMonth}
+                onPressIn={() => {
+                  console.log('[AddMonthButton] Press in');
+                  addMonthScale.value = withTiming(0.95, { duration: 80 });
+                }}
+                onPressOut={() => {
+                  addMonthScale.value = withSpring(1, { damping: 15, stiffness: 300 });
+                }}
+                activeOpacity={1}
+              >
+                <IconSymbol android_material_icon_name="add" ios_icon_name="plus" size={24} color="#000000" />
+              </TouchableOpacity>
+            </AnimatedReanimated.View>
+          </Animated.View>
           
           <ScrollView 
             horizontal 
@@ -443,40 +692,26 @@ export default function BudgetScreen() {
           >
             {months.map((month, index) => {
               const isActive = month.id === activeMonthId;
-              const monthNameOnly = month.name.split(' ')[0];
+              const pillIntroStyle = getIntroStyle(2 + index);
               return (
-                <React.Fragment key={month.id}>
-                <Pressable
-                  onPress={async () => {
-                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setActiveMonthId(month.id);
-                    console.log('Month selected:', month.name);
-                  }}
-                  onLongPress={() => handleMonthLongPress(month.id)}
-                  style={[
-                    styles.monthPill,
-                    isActive && styles.monthPillActive,
-                    month.isPinned && styles.monthPillPinned,
-                    glassEnabled && (isActive ? styles.glassMonthActive : styles.glassMonthInactive),
-                  ]}
-                >
-                  <Text style={[styles.monthPillText, isActive && styles.monthPillTextActive]}>
-                    {monthNameOnly.toUpperCase()}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.monthDeleteButton}
-                    onPress={async (e) => {
-                      e.stopPropagation();
+                <Animated.View key={month.id} style={pillIntroStyle}>
+                  <MonthPill
+                    month={month}
+                    isActive={isActive}
+                    glassEnabled={glassEnabled}
+                    onPress={async () => {
                       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      if (months.length > 1) {
-                        deleteMonth(month.id);
-                      }
+                      setActiveMonthId(month.id);
+                      console.log('Month selected:', month.name);
                     }}
-                  >
-                    <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
-                  </TouchableOpacity>
-                </Pressable>
-                </React.Fragment>
+                    onLongPress={() => handleMonthLongPress(month.id)}
+                    onDelete={async () => {
+                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      deleteMonth(month.id);
+                    }}
+                    canDelete={months.length > 1}
+                  />
+                </Animated.View>
               );
             })}
           </ScrollView>
@@ -487,37 +722,24 @@ export default function BudgetScreen() {
             <View style={styles.expensesSection}>
               {sortedExpenses.map((expense, index) => {
                 const isLeftColumn = index % 2 === 0;
+                const cardIntroStyle = getIntroStyle(2 + months.length + index);
                 return (
-                  <React.Fragment key={expense.id}>
-                  <Pressable
-                    onLongPress={() => handleExpenseLongPress(expense.id)}
-                    style={[
-                      styles.expenseCard,
-                      expense.isPinned && styles.expenseCardPinned,
-                      isLeftColumn ? styles.expenseCardLeft : styles.expenseCardRight,
-                      glassEnabled && styles.glassCard,
-                    ]}
-                  >
-                    <Animated.View style={{ flex: 1, justifyContent: 'space-between', opacity: pressedExpenseId === expense.id ? flashAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0.4] }) : 1 }}>
-                      <View style={styles.expenseHeader}>
-                        <Text style={styles.expenseName}>{expense.name.toUpperCase()}</Text>
-                        <TouchableOpacity
-                          style={styles.deleteButton}
-                          onPress={async () => {
-                            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            if (activeMonthId) {
-                              deleteExpense(activeMonthId, expense.id);
-                              console.log('Expense deleted:', expense.id);
-                            }
-                          }}
-                        >
-                          <IconSymbol android_material_icon_name="close" ios_icon_name="xmark" size={16} color="#FF3B30" />
-                        </TouchableOpacity>
-                      </View>
-                      <Text style={styles.expenseAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.4}>{expense.amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
-                    </Animated.View>
-                  </Pressable>
-                  </React.Fragment>
+                  <Animated.View key={expense.id} style={[{ width: '48%' }, cardIntroStyle]}>
+                    <ExpenseGridCard
+                      expense={expense}
+                      isLeftColumn={isLeftColumn}
+                      glassEnabled={glassEnabled}
+                      locale={locale}
+                      activeMonthId={activeMonthId}
+                      onLongPress={() => handleExpenseLongPress(expense.id)}
+                      onDelete={() => {
+                        if (activeMonthId) {
+                          deleteExpense(activeMonthId, expense.id);
+                          console.log('Expense deleted:', expense.id);
+                        }
+                      }}
+                    />
+                  </Animated.View>
                 );
               })}
             </View>
@@ -527,7 +749,6 @@ export default function BudgetScreen() {
                 const expenseAmountText = expense.amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
                 return (
                   <React.Fragment key={expense.id}>
-                  <Animated.View style={{ opacity: pressedExpenseId === expense.id ? flashAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0.4] }) : 1 }}>
                   <ExpenseListCard
                     expense={expense}
                     onDelete={async () => {
@@ -546,7 +767,6 @@ export default function BudgetScreen() {
                     }}
                     onLongPress={() => handleExpenseLongPress(expense.id)}
                   />
-                  </Animated.View>
                   </React.Fragment>
                 );
               })}
@@ -848,6 +1068,7 @@ function ExpenseListCard({
   const translateX = useSharedValue(0);
   const deleteIconOpacity = useSharedValue(0);
   const pinIconOpacity = useSharedValue(0);
+  const scale = useSharedValue(1);
 
   const panGesture = Gesture.Pan()
     .activeOffsetX([-20, 20])
@@ -887,7 +1108,7 @@ function ExpenseListCard({
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: translateX.value }],
+      transform: [{ translateX: translateX.value }, { scale: scale.value }],
     };
   });
 
@@ -920,7 +1141,16 @@ function ExpenseListCard({
         />
       </AnimatedReanimated.View>
       <GestureDetector gesture={panGesture}>
-        <Pressable onLongPress={onLongPress}>
+        <Pressable
+          onLongPress={onLongPress}
+          onPressIn={() => {
+            console.log('[ExpenseListCard] Press in:', expense.name);
+            scale.value = withTiming(0.95, { duration: 80 });
+          }}
+          onPressOut={() => {
+            scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+          }}
+        >
           <AnimatedReanimated.View style={[styles.expenseListCard, expense.isPinned && styles.expenseListCardPinned, animatedStyle]}>
             <Text style={styles.expenseListName}>{expense.name}</Text>
             <Text style={styles.expenseListAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>{amountText}</Text>
@@ -1062,7 +1292,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 12,
-    width: '48%',
+    width: '100%',
     aspectRatio: 1,
     justifyContent: 'space-between',
   },
