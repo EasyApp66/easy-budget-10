@@ -25,10 +25,9 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 function useCountUp(target: number, duration = 700) {
   const animRef = useRef(new Animated.Value(0)).current;
-  const [display, setDisplay] = useState(target);
+  const [display, setDisplay] = useState(0);
 
   useEffect(() => {
-    animRef.setValue(0);
     const anim = Animated.timing(animRef, {
       toValue: target,
       duration,
