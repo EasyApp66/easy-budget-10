@@ -212,138 +212,28 @@ export default function BudgetScreen() {
   const [skipConfirmations, setSkipConfirmations] = useState(false);
   const [expenseViewMode, setExpenseViewMode] = useState<'grid' | 'list'>('grid');
 
-  // ─── First-launch intro animation state ──────────────────────────────────
-  const [isFirstLaunch, setIsFirstLaunch] = useState(false);
-  const [introAnimDone, setIntroAnimDone] = useState(false);
-
-  // Intro animation values: [budgetHeader, addMonthBtn, ...monthPills, ...expenseCards]
-  const introScales = useRef<Animated.Value[]>([]);
-  const introOpacities = useRef<Animated.Value[]>([]);
-
-  const [fadeAnims] = useState(() => ({
-    header: new Animated.Value(0),
-    summary: new Animated.Value(0),
-    months: new Animated.Value(0),
-    expenses: new Animated.Value(0),
-  }));
-
   // Add-month button scale (Reanimated, for press animation)
   const addMonthScale = useSharedValue(1);
   const addMonthAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: addMonthScale.value }] }));
 
-  // ─── First-launch check ───────────────────────────────────────────────────
-  useEffect(() => {
-    AsyncStorage.getItem('@easy_budget_first_launch').then(val => {
-      if (!val) {
-        console.log('[Intro] First launch detected — will run intro animation');
-        setIsFirstLaunch(true);
-        AsyncStorage.setItem('@easy_budget_first_launch', 'done');
-      } else {
-        setIntroAnimDone(true);
-      }
-    });
-  }, []);
+  // Simple fade+slide entrance animation
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(24)).current;
 
-  // ─── Normal fade-in (skip when first launch) ──────────────────────────────
   useEffect(() => {
-    if (isFirstLaunch) return; // intro animation handles visibility instead
-    Animated.stagger(80, [
-      Animated.timing(fadeAnims.header, {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 400,
+        duration: 350,
         useNativeDriver: true,
       }),
-      Animated.timing(fadeAnims.summary, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnims.months, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnims.expenses, {
-        toValue: 1,
-        duration: 400,
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 350,
         useNativeDriver: true,
       }),
     ]).start();
-  }, [activeMonthId, fadeAnims.header, fadeAnims.summary, fadeAnims.months, fadeAnims.expenses, isFirstLaunch]);
-
-  // ─── Intro animation (first launch only) ─────────────────────────────────
-  useEffect(() => {
-    if (!isFirstLaunch) return;
-
-    const monthCount = months.length;
-    const expenseCount = activeMonth?.expenses.length ?? 0;
-    // Elements: budgetHeader(0), addMonthBtn(1), monthPills(2..2+monthCount-1), expenseCards(2+monthCount..end)
-    const totalElements = 2 + monthCount + expenseCount;
-
-    // Initialize animation values
-    introScales.current = Array.from({ length: totalElements }, () => new Animated.Value(0.85));
-    introOpacities.current = Array.from({ length: totalElements }, () => new Animated.Value(0));
-
-    // Set fadeAnims to 1 immediately so the Animated.View wrappers are visible
-    fadeAnims.header.setValue(1);
-    fadeAnims.summary.setValue(1);
-    fadeAnims.months.setValue(1);
-    fadeAnims.expenses.setValue(1);
-
-    const staggerDelays = [
-      0,       // budgetHeader
-      150,     // addMonthBtn
-      ...Array.from({ length: monthCount }, (_, i) => 300 + i * 100),
-      ...Array.from({ length: expenseCount }, (_, i) => 300 + monthCount * 100 + i * 80),
-    ];
-
-    const animations = introScales.current.map((scaleVal, i) =>
-      Animated.delay(
-        staggerDelays[i],
-        Animated.parallel([
-          Animated.spring(scaleVal, {
-            toValue: 1,
-            friction: 6,
-            tension: 120,
-            useNativeDriver: true,
-          }),
-          Animated.timing(introOpacities.current[i], {
-            toValue: 1,
-            duration: 350,
-            useNativeDriver: true,
-          }),
-        ])
-      )
-    );
-
-    console.log('[Intro] Starting staggered entrance animation');
-    Animated.parallel(animations).start(() => {
-      console.log('[Intro] Entrance animation complete — running hint pulses');
-      setIntroAnimDone(true);
-
-      // Hint pulse: scale 1.0 → 0.95 → 1.0 on first few elements
-      const pulseTargets = [
-        introScales.current[0], // budget header
-        introScales.current[1], // add month btn
-        introScales.current[2], // first month pill (if exists)
-        introScales.current[2 + monthCount], // first expense card (if exists)
-      ].filter(Boolean);
-
-      const pulseAnims = pulseTargets.map((val, i) =>
-        Animated.delay(
-          i * 100,
-          Animated.sequence([
-            Animated.timing(val, { toValue: 0.95, duration: 150, useNativeDriver: true }),
-            Animated.timing(val, { toValue: 1.0, duration: 150, useNativeDriver: true }),
-          ])
-        )
-      );
-      Animated.parallel(pulseAnims).start(() => {
-        console.log('[Intro] Hint pulses complete');
-      });
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFirstLaunch]);
+  }, []);
 
   useEffect(() => {
     if (params.triggerAdd) {
@@ -607,21 +497,6 @@ export default function BudgetScreen() {
     return 0;
   }) : [];
 
-  // Intro animation style helpers
-  const getIntroStyle = (index: number) => {
-    if (!isFirstLaunch || introAnimDone) return {};
-    const scaleVal = introScales.current[index];
-    const opacityVal = introOpacities.current[index];
-    if (!scaleVal || !opacityVal) return {};
-    return {
-      opacity: opacityVal,
-      transform: [{ scale: scaleVal }],
-    };
-  };
-
-  const budgetHeaderIntroStyle = getIntroStyle(0);
-  const addMonthBtnIntroStyle = getIntroStyle(1);
-
   const budgetAmountDisplay = animatedBudget.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'");
   const animatedTotalDisplay = animatedTotal.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'");
   const remainingSign = remaining < 0 ? '-' : '';
@@ -629,13 +504,14 @@ export default function BudgetScreen() {
 
   return (
     <View style={styles.container}>
+      <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
       <View style={styles.safeZone} />
       <ScrollView 
         style={styles.scrollView} 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View style={[styles.budgetHeader, glassEnabled && styles.glassCard, { opacity: fadeAnims.header }, budgetHeaderIntroStyle]}>
+        <Animated.View style={[styles.budgetHeader, glassEnabled && styles.glassCard]}>
           <Text style={styles.budgetLabel}>{t('budget')}</Text>
 
           <TouchableOpacity onPress={async () => {
@@ -650,7 +526,7 @@ export default function BudgetScreen() {
           </TouchableOpacity>
         </Animated.View>
 
-        <Animated.View style={[styles.summaryCard, glassEnabled && styles.glassCard, { opacity: fadeAnims.summary }]}>
+        <Animated.View style={[styles.summaryCard, glassEnabled && styles.glassCard]}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('total')}</Text>
             <Text style={styles.summaryValue} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>{animatedTotalDisplay}</Text>
@@ -663,25 +539,23 @@ export default function BudgetScreen() {
           </View>
         </Animated.View>
 
-        <Animated.View style={[styles.monthsRow, { opacity: fadeAnims.months }]}>
-          <Animated.View style={addMonthBtnIntroStyle}>
-            <AnimatedReanimated.View style={addMonthAnimStyle}>
-              <TouchableOpacity
-                style={[styles.addMonthButton, glassEnabled && styles.glassButton]}
-                onPress={handleAddMonth}
-                onPressIn={() => {
-                  console.log('[AddMonthButton] Press in');
-                  addMonthScale.value = withTiming(0.95, { duration: 80 });
-                }}
-                onPressOut={() => {
-                  addMonthScale.value = withSpring(1, { damping: 15, stiffness: 300 });
-                }}
-                activeOpacity={1}
-              >
-                <IconSymbol android_material_icon_name="add" ios_icon_name="plus" size={24} color="#000000" />
-              </TouchableOpacity>
-            </AnimatedReanimated.View>
-          </Animated.View>
+        <Animated.View style={[styles.monthsRow]}>
+          <AnimatedReanimated.View style={addMonthAnimStyle}>
+            <TouchableOpacity
+              style={[styles.addMonthButton, glassEnabled && styles.glassButton]}
+              onPress={handleAddMonth}
+              onPressIn={() => {
+                console.log('[AddMonthButton] Press in');
+                addMonthScale.value = withTiming(0.95, { duration: 80 });
+              }}
+              onPressOut={() => {
+                addMonthScale.value = withSpring(1, { damping: 15, stiffness: 300 });
+              }}
+              activeOpacity={1}
+            >
+              <IconSymbol android_material_icon_name="add" ios_icon_name="plus" size={24} color="#000000" />
+            </TouchableOpacity>
+          </AnimatedReanimated.View>
           
           <ScrollView 
             horizontal 
@@ -689,41 +563,38 @@ export default function BudgetScreen() {
             contentContainerStyle={styles.monthsScrollContent}
             showsHorizontalScrollIndicator={false}
           >
-            {months.map((month, index) => {
+            {months.map((month) => {
               const isActive = month.id === activeMonthId;
-              const pillIntroStyle = getIntroStyle(2 + index);
               return (
-                <Animated.View key={month.id} style={pillIntroStyle}>
-                  <MonthPill
-                    month={month}
-                    isActive={isActive}
-                    glassEnabled={glassEnabled}
-                    onPress={async () => {
-                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      setActiveMonthId(month.id);
-                      console.log('Month selected:', month.name);
-                    }}
-                    onLongPress={() => handleMonthLongPress(month.id)}
-                    onDelete={async () => {
-                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      deleteMonth(month.id);
-                    }}
-                    canDelete={months.length > 1}
-                  />
-                </Animated.View>
+                <MonthPill
+                  key={month.id}
+                  month={month}
+                  isActive={isActive}
+                  glassEnabled={glassEnabled}
+                  onPress={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setActiveMonthId(month.id);
+                    console.log('Month selected:', month.name);
+                  }}
+                  onLongPress={() => handleMonthLongPress(month.id)}
+                  onDelete={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    deleteMonth(month.id);
+                  }}
+                  canDelete={months.length > 1}
+                />
               );
             })}
           </ScrollView>
         </Animated.View>
 
-        <Animated.View style={{ opacity: fadeAnims.expenses }}>
+        <View>
           {expenseViewMode === 'grid' ? (
             <View style={styles.expensesSection}>
               {sortedExpenses.map((expense, index) => {
                 const isLeftColumn = index % 2 === 0;
-                const cardIntroStyle = getIntroStyle(2 + months.length + index);
                 return (
-                  <Animated.View key={expense.id} style={[{ width: '48%' }, cardIntroStyle]}>
+                  <View key={expense.id} style={{ width: '48%' }}>
                     <ExpenseGridCard
                       expense={expense}
                       isLeftColumn={isLeftColumn}
@@ -738,14 +609,13 @@ export default function BudgetScreen() {
                         }
                       }}
                     />
-                  </Animated.View>
+                  </View>
                 );
               })}
             </View>
           ) : (
             <View style={styles.expensesListSection}>
               {sortedExpenses.map((expense) => {
-                const expenseAmountText = expense.amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
                 return (
                   <React.Fragment key={expense.id}>
                   <ExpenseListCard
@@ -771,7 +641,7 @@ export default function BudgetScreen() {
               })}
             </View>
           )}
-        </Animated.View>
+        </View>
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
@@ -1049,6 +919,7 @@ export default function BudgetScreen() {
         </View>
       </Modal>
 
+      </Animated.View>
     </View>
   );
 }
