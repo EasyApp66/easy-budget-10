@@ -27,10 +27,10 @@ export default function TabLayout() {
       const currentIndex = TAB_ORDER.indexOf(currentTab);
       if (dx < 0 && currentIndex < TAB_ORDER.length - 1) {
         console.log('[TabSwipe] Navigating to next tab:', TAB_ORDER[currentIndex + 1]);
-        router.push(TAB_ORDER[currentIndex + 1] as any);
+        router.replace(TAB_ORDER[currentIndex + 1] as any);
       } else if (dx > 0 && currentIndex > 0) {
         console.log('[TabSwipe] Navigating to previous tab:', TAB_ORDER[currentIndex - 1]);
-        router.push(TAB_ORDER[currentIndex - 1] as any);
+        router.replace(TAB_ORDER[currentIndex - 1] as any);
       }
     },
   });
@@ -75,12 +75,13 @@ export default function TabLayout() {
   ];
 
   return (
-    <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+    <View style={{ flex: 1, backgroundColor: '#000000' }} {...panResponder.panHandlers}>
       <Tabs
         screenOptions={{
           headerShown: false,
           tabBarStyle: { display: 'none' },
-          animation: 'fade',
+          animation: 'shift',
+          sceneStyle: { backgroundColor: '#000000' },
         }}
       >
         <Tabs.Screen name="budget" options={{ headerShown: false }} />
