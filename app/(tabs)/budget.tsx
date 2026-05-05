@@ -23,6 +23,28 @@ import * as Haptics from 'expo-haptics';
 import AnimatedReanimated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, withSequence } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
+function useCountUp(target: number, duration = 700) {
+  const animRef = useRef(new Animated.Value(0)).current;
+  const [display, setDisplay] = useState(target);
+
+  useEffect(() => {
+    animRef.setValue(0);
+    const anim = Animated.timing(animRef, {
+      toValue: target,
+      duration,
+      useNativeDriver: false,
+    });
+    anim.start();
+    const id = animRef.addListener(({ value }) => setDisplay(Math.round(value)));
+    return () => {
+      animRef.removeListener(id);
+      anim.stop();
+    };
+  }, [target]);
+
+  return display;
+}
+
 export default function BudgetScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
@@ -127,6 +149,10 @@ export default function BudgetScreen() {
   const budgetAmount = activeMonth?.budgetAmount || 0;
   const totalExpenses = activeMonth?.expenses.reduce((sum, e) => sum + e.amount, 0) || 0;
   const remaining = budgetAmount - totalExpenses;
+
+  const animatedBudget = useCountUp(budgetAmount);
+  const animatedTotal = useCountUp(totalExpenses);
+  const animatedRemaining = useCountUp(Math.abs(remaining));
 
   const handleAddExpense = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -386,7 +412,7 @@ export default function BudgetScreen() {
             setShowBudgetEditModal(true);
           }}>
             <Text style={styles.budgetAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>
-              {budgetText.replace(/\s/g, "'")}
+              {animatedBudget.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'")}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -394,12 +420,12 @@ export default function BudgetScreen() {
         <Animated.View style={[styles.summaryCard, glassEnabled && styles.glassCard, { opacity: fadeAnims.summary }]}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('total')}</Text>
-            <Text style={styles.summaryValue} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>{totalText.replace(/\s/g, "'")}</Text>
+            <Text style={styles.summaryValue} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>{animatedTotal.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'")}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('remaining')}</Text>
             <Text style={[styles.summaryValue, { color: remainingColor }]} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>
-              {remaining < 0 ? '-' : ''}{remainingText.replace(/\s/g, "'")}
+              {remaining < 0 ? '-' : ''}{animatedRemaining.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\s/g, "'")}
             </Text>
           </View>
         </Animated.View>
@@ -472,7 +498,7 @@ export default function BudgetScreen() {
                       glassEnabled && styles.glassCard,
                     ]}
                   >
-                    <Animated.View style={{ opacity: pressedExpenseId === expense.id ? flashAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0.4] }) : 1 }}>
+                    <Animated.View style={{ flex: 1, justifyContent: 'space-between', opacity: pressedExpenseId === expense.id ? flashAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0.4] }) : 1 }}>
                       <View style={styles.expenseHeader}>
                         <Text style={styles.expenseName}>{expense.name.toUpperCase()}</Text>
                         <TouchableOpacity
