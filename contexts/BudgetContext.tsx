@@ -45,7 +45,6 @@ interface BudgetContextType {
   premiumStatus: PremiumStatus;
   setPremiumStatus: (status: PremiumStatus) => void;
   setRevenueCatSubscribed: (value: boolean) => void;
-  applyPremiumCode: (code: string) => Promise<boolean>;
   purchasePremium: (purchaseType: 'lifetime' | 'monthly', appleTransactionId?: string) => Promise<boolean>;
   fetchPremiumStatus: () => Promise<void>;
   cancelPremium: () => Promise<boolean>;
@@ -185,92 +184,6 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       saveData();
     }
   }, [saveData, isLoaded]);
-
-  const applyPremiumCode = useCallback(async (code: string): Promise<boolean> => {
-    console.log('Applying premium code:', code);
-
-    // Check for downgrade code before backend call
-    const normalizedCode = code.toLowerCase().trim();
-    if (normalizedCode === 'nonono') {
-      const resetStatus: PremiumStatus = { type: 'None', endDate: null };
-      setPremiumStatus(resetStatus);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
-        hasSeenWelcome,
-        budgetName,
-        months,
-        activeMonthId,
-        subscriptions,
-        premiumStatus: resetStatus,
-      }));
-      console.log('Premium removed with downgrade code: nonono');
-      return true;
-    }
-
-    // Try backend first
-    try {
-      console.log('[API] Requesting /api/premium/verify-code...');
-      const result = await authenticatedPost<{
-        success: boolean;
-        premiumType: 'monthly' | 'lifetime';
-        expiryDate: string | null;
-      }>('/api/premium/verify-code', { code });
-
-      if (result.success) {
-        let newPremiumStatus: PremiumStatus;
-        if (result.premiumType === 'lifetime') {
-          newPremiumStatus = { type: 'Lifetime', endDate: null };
-          console.log('Lifetime premium activated via backend');
-        } else {
-          newPremiumStatus = { type: 'Monthly', endDate: result.expiryDate };
-          console.log('Monthly premium activated via backend, expires:', result.expiryDate);
-        }
-        setPremiumStatus(newPremiumStatus);
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
-          hasSeenWelcome,
-          budgetName,
-          months,
-          activeMonthId,
-          subscriptions,
-          premiumStatus: newPremiumStatus,
-        }));
-        return true;
-      }
-      return false;
-    } catch (backendError) {
-      console.warn('[API] Backend verify-code failed, falling back to local check:', backendError);
-      // Fallback to local code check if backend is unavailable or user not authenticated
-      const now = new Date();
-      let newPremiumStatus: PremiumStatus;
-      const normalizedCode = code.toLowerCase().trim();
-
-      if (normalizedCode === 'easy2033') {
-        newPremiumStatus = { type: 'Lifetime', endDate: null };
-        console.log('Lifetime premium activated with local code: easy2033');
-      } else if (normalizedCode === 'easy2') {
-        const oneMonthLater = new Date(now);
-        oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
-        newPremiumStatus = { type: 'Monthly', endDate: oneMonthLater.toISOString() };
-        console.log('1-month premium activated with local code: easy2');
-      } else if (normalizedCode === 'nonono') {
-        newPremiumStatus = { type: 'None', endDate: null };
-        console.log('Premium removed with local downgrade code: nonono');
-      } else {
-        console.log('Invalid premium code:', code);
-        return false;
-      }
-
-      setPremiumStatus(newPremiumStatus);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
-        hasSeenWelcome,
-        budgetName,
-        months,
-        activeMonthId,
-        subscriptions,
-        premiumStatus: newPremiumStatus,
-      }));
-      return true;
-    }
-  }, [hasSeenWelcome, budgetName, months, activeMonthId, subscriptions]);
 
   const purchasePremium = useCallback(async (purchaseType: 'lifetime' | 'monthly', appleTransactionId?: string): Promise<boolean> => {
     console.log('[API] Requesting /api/premium/purchase...', purchaseType);
@@ -577,7 +490,6 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         premiumStatus,
         setPremiumStatus,
         setRevenueCatSubscribed,
-        applyPremiumCode,
         purchasePremium,
         fetchPremiumStatus,
         cancelPremium,

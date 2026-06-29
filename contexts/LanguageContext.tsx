@@ -86,15 +86,10 @@ const translations = {
     getPremium: 'Premium holen',
     cancelPremium: 'Premium Abo beenden',
     cancelSubscription: 'Premium Abo beenden',
-    enterPremiumCode: 'Premium Code eingeben',
-    premiumCodePlaceholder: 'Code eingeben',
-    codePlaceholder: 'Code eingeben',
     apply: 'Einlösen',
     success: 'Erfolg',
     error: 'Fehler',
     premiumActivated: 'Premium wurde aktiviert!',
-    invalidCode: 'Ungültiger Code',
-    enterCode: 'Bitte Code eingeben',
     
     // Premium Modal
     premiumTitle: 'Premium holen',
@@ -148,10 +143,6 @@ const translations = {
     tabSubs: 'Abos',
     tabProfile: 'Profil',
 
-    // Promo Code Popup
-    promoCodeTitle: 'Gratis Premium!',
-    promoCodeMessage: 'Erhalte einen Monat gratis Premium mit dem Code easy2',
-
     // Terms & Privacy
     termsAndPrivacy: 'AGB & Datenschutz',
     termsAndPrivacyView: 'AGB und Datenschutz ansehen',
@@ -161,7 +152,6 @@ const translations = {
     deleteAllDataMessage: 'Möchtest du wirklich alle Daten löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
     deleteAllDataError: 'Daten konnten nicht gelöscht werden.',
     requestAccountDeletion: 'Vollständige Kontolöschung anfragen',
-    promoCode: 'Promo Code',
     copy: 'Kopieren',
     cancelInfo: 'Abo kündigen: Einstellungen → Apple ID → Abonnements → Easy Budget → Kündigen',
     appGuide: 'App Guide',
@@ -171,7 +161,7 @@ const translations = {
     appGuideSubsTitle: '🔄 Abos',
     appGuideSubsContent: '• Tippe auf + um ein neues Abo hinzuzufügen\n• Gib Name, Betrag und nächstes Zahlungsdatum ein\n• Langes Drücken: Abo bearbeiten oder löschen\n• Der Gesamtbetrag aller Abos wird oben angezeigt\n• Abos werden nach dem nächsten Zahlungsdatum sortiert\n• Alle Daten werden offline gespeichert',
     appGuideProfileTitle: '👤 Profil',
-    appGuideProfileContent: '• Ändere die App-Sprache (DE, EN, FR, ES, RU)\n• Aktiviere Premium für unbegrenzte Ausgaben, Abos und Monate\n• Käufe wiederherstellen falls du das Gerät gewechselt hast\n• Promo Code eingeben für gratis Premium\n• Support kontaktieren oder Bug melden\n• Spende um die Entwicklung zu unterstützen',
+    appGuideProfileContent: '• Ändere die App-Sprache (DE, EN, FR, ES, RU)\n• Aktiviere Premium für unbegrenzte Ausgaben, Abos und Monate\n• Käufe wiederherstellen falls du das Gerät gewechselt hast\n• Support kontaktieren oder Bug melden\n• Spende um die Entwicklung zu unterstützen',
     cancelPremiumConfirmMessage: 'Dein Abo wird zum Ende des aktuellen Zeitraums gekündigt. Du behältst Premium bis dahin.',
     youHavePremium: 'Du hast Premium!',
     paywallTitle: 'Premium holen',
@@ -196,7 +186,6 @@ const translations = {
     skipConfirmationsLabel: 'Bestätigungen deaktivieren',
     premiumEndsOn: 'Dein Premium läuft bis zum {date}.',
     donationDisclaimer: 'Dies ist eine freiwillige Spende und schaltet keine App-Funktionen frei.',
-    premiumCodeHint: 'Code wird beim Einlösen automatisch geprüft',
     paywallRetry: 'Erneut versuchen',
     paywallPriceUnavailableHint: 'Preise konnten nicht geladen werden. Bitte Internetverbindung prüfen.',
     paywallOneTimeDesc: 'Einmalig — kein Abo, kein Ablaufdatum',
@@ -281,15 +270,10 @@ const translations = {
     getPremium: 'Get Premium',
     cancelPremium: 'Cancel Premium Subscription',
     cancelSubscription: 'Cancel Premium Subscription',
-    enterPremiumCode: 'Enter Premium Code',
-    premiumCodePlaceholder: 'Enter code',
-    codePlaceholder: 'Enter code',
     apply: 'Apply',
     success: 'Success',
     error: 'Error',
     premiumActivated: 'Premium has been activated!',
-    invalidCode: 'Invalid code',
-    enterCode: 'Please enter code',
     
     // Premium Modal
     premiumTitle: 'Get Premium',
@@ -343,10 +327,6 @@ const translations = {
     tabSubs: 'Subs',
     tabProfile: 'Profile',
 
-    // Promo Code Popup
-    promoCodeTitle: 'Free Premium!',
-    promoCodeMessage: 'Get one month free Premium with code easy2',
-
     // Terms & Privacy
     termsAndPrivacy: 'Terms & Privacy',
     termsAndPrivacyView: 'View Terms & Privacy',
@@ -356,7 +336,6 @@ const translations = {
     deleteAllDataMessage: 'Do you really want to delete all data? This action cannot be undone.',
     deleteAllDataError: 'Data could not be deleted.',
     requestAccountDeletion: 'Request full account deletion',
-    promoCode: 'Promo Code',
     copy: 'Copy',
     cancelInfo: 'Cancel subscription: Settings → Apple ID → Subscriptions → Easy Budget → Cancel',
     appGuide: 'App Guide',
@@ -366,7 +345,7 @@ const translations = {
     appGuideSubsTitle: '🔄 Subscriptions',
     appGuideSubsContent: '• Tap + to add a new subscription\n• Enter name, amount and next payment date\n• Long press: edit or delete a subscription\n• Total amount of all subscriptions shown at the top\n• Subscriptions sorted by next payment date\n• All data saved offline',
     appGuideProfileTitle: '👤 Profile',
-    appGuideProfileContent: '• Change the app language (DE, EN, FR, ES, RU)\n• Activate Premium for unlimited expenses, subscriptions and months\n• Restore purchases if you changed your device\n• Enter a promo code for free Premium\n• Contact support or report a bug\n• Donate to support development',
+    appGuideProfileContent: '• Change the app language (DE, EN, FR, ES, RU)\n• Activate Premium for unlimited expenses, subscriptions and months\n• Restore purchases if you changed your device\n• Contact support or report a bug\n• Donate to support development',
     cancelPremiumConfirmMessage: 'Your subscription will be cancelled at the end of the current period. You keep Premium until then.',
     youHavePremium: 'You have Premium!',
     paywallTitle: 'Get Premium',
@@ -391,7 +370,6 @@ const translations = {
     skipConfirmationsLabel: 'Disable confirmations',
     premiumEndsOn: 'Your Premium is active until {date}.',
     donationDisclaimer: 'This is a voluntary donation and does not unlock any app features.',
-    premiumCodeHint: 'Code will be verified automatically when applied',
     paywallRetry: 'Try again',
     paywallPriceUnavailableHint: 'Prices could not be loaded. Please check your internet connection.',
     paywallOneTimeDesc: 'One-time — no subscription, no expiry',
@@ -476,15 +454,10 @@ const translations = {
     getPremium: 'Obtenir Premium',
     cancelPremium: 'Annuler l\'Abonnement Premium',
     cancelSubscription: 'Annuler l\'Abonnement Premium',
-    enterPremiumCode: 'Entrer le Code Premium',
-    premiumCodePlaceholder: 'Entrer le code',
-    codePlaceholder: 'Entrer le code',
     apply: 'Appliquer',
     success: 'Succès',
     error: 'Erreur',
     premiumActivated: 'Premium a été activé!',
-    invalidCode: 'Code invalide',
-    enterCode: 'Veuillez entrer le code',
     
     // Premium Modal
     premiumTitle: 'Obtenir Premium',
@@ -538,10 +511,6 @@ const translations = {
     tabSubs: 'Abos',
     tabProfile: 'Profil',
 
-    // Promo Code Popup
-    promoCodeTitle: 'Premium Gratuit!',
-    promoCodeMessage: 'Obtenez un mois de Premium gratuit avec le code easy2',
-
     // Terms & Privacy
     termsAndPrivacy: 'CGV & Confidentialité',
     termsAndPrivacyView: 'Voir CGV & Confidentialité',
@@ -551,7 +520,6 @@ const translations = {
     deleteAllDataMessage: 'Voulez-vous vraiment supprimer toutes les données ? Cette action est irréversible.',
     deleteAllDataError: 'Les données n\'ont pas pu être supprimées.',
     requestAccountDeletion: 'Demander la suppression complète du compte',
-    promoCode: 'Code Promo',
     copy: 'Copier',
     cancelInfo: "Annuler l'abonnement: Réglages → Identifiant Apple → Abonnements → Easy Budget → Annuler",
     appGuide: 'Guide App',
@@ -561,7 +529,7 @@ const translations = {
     appGuideSubsTitle: '🔄 Abonnements',
     appGuideSubsContent: '• Appuyez sur + pour ajouter un nouvel abonnement\n• Entrez le nom, le montant et la prochaine date de paiement\n• Appui long: modifier ou supprimer un abonnement\n• Le montant total de tous les abonnements est affiché en haut\n• Abonnements triés par prochaine date de paiement\n• Toutes les données sauvegardées hors ligne',
     appGuideProfileTitle: '👤 Profil',
-    appGuideProfileContent: '• Changez la langue de l\'application (DE, EN, FR, ES, RU)\n• Activez Premium pour des dépenses, abonnements et mois illimités\n• Restaurez les achats si vous avez changé d\'appareil\n• Entrez un code promo pour Premium gratuit\n• Contactez le support ou signalez un bug\n• Faites un don pour soutenir le développement',
+    appGuideProfileContent: '• Changez la langue de l\'application (DE, EN, FR, ES, RU)\n• Activez Premium pour des dépenses, abonnements et mois illimités\n• Restaurez les achats si vous avez changé d\'appareil\n• Contactez le support ou signalez un bug\n• Faites un don pour soutenir le développement',
     cancelPremiumConfirmMessage: 'Votre abonnement sera annulé à la fin de la période en cours. Vous gardez Premium jusque-là.',
     youHavePremium: 'Vous avez Premium!',
     paywallTitle: 'Obtenir Premium',
@@ -586,7 +554,6 @@ const translations = {
     skipConfirmationsLabel: 'Désactiver les confirmations',
     premiumEndsOn: "Votre Premium est actif jusqu'au {date}.",
     donationDisclaimer: "Il s'agit d'un don volontaire et ne débloque aucune fonctionnalité de l'application.",
-    premiumCodeHint: "Le code sera vérifié automatiquement lors de l'application",
     paywallRetry: 'Réessayer',
     paywallPriceUnavailableHint: 'Les prix n\'ont pas pu être chargés. Veuillez vérifier votre connexion.',
     paywallOneTimeDesc: "Unique — pas d'abonnement, pas d'expiration",
@@ -671,15 +638,10 @@ const translations = {
     getPremium: 'Obtener Premium',
     cancelPremium: 'Cancelar Suscripción Premium',
     cancelSubscription: 'Cancelar Suscripción Premium',
-    enterPremiumCode: 'Ingresar Código Premium',
-    premiumCodePlaceholder: 'Ingresar código',
-    codePlaceholder: 'Ingresar código',
     apply: 'Aplicar',
     success: 'Éxito',
     error: 'Error',
     premiumActivated: '¡Premium ha sido activado!',
-    invalidCode: 'Código inválido',
-    enterCode: 'Por favor ingrese el código',
     
     // Premium Modal
     premiumTitle: 'Obtener Premium',
@@ -733,10 +695,6 @@ const translations = {
     tabSubs: 'Subs',
     tabProfile: 'Perfil',
 
-    // Promo Code Popup
-    promoCodeTitle: '¡Premium Gratis!',
-    promoCodeMessage: 'Obtén un mes de Premium gratis con el código easy2',
-
     // Terms & Privacy
     termsAndPrivacy: 'Términos & Privacidad',
     termsAndPrivacyView: 'Ver Términos & Privacidad',
@@ -746,7 +704,6 @@ const translations = {
     deleteAllDataMessage: '¿Realmente deseas eliminar todos los datos? Esta acción no se puede deshacer.',
     deleteAllDataError: 'Los datos no se pudieron eliminar.',
     requestAccountDeletion: 'Solicitar eliminación completa de la cuenta',
-    promoCode: 'Código Promocional',
     copy: 'Copiar',
     cancelInfo: 'Cancelar suscripción: Ajustes → Apple ID → Suscripciones → Easy Budget → Cancelar',
     appGuide: 'Guía App',
@@ -756,7 +713,7 @@ const translations = {
     appGuideSubsTitle: '🔄 Suscripciones',
     appGuideSubsContent: '• Toca + para agregar una nueva suscripción\n• Ingresa nombre, monto y próxima fecha de pago\n• Mantén presionado: editar o eliminar una suscripción\n• El monto total de todas las suscripciones se muestra arriba\n• Suscripciones ordenadas por próxima fecha de pago\n• Todos los datos guardados sin conexión',
     appGuideProfileTitle: '👤 Perfil',
-    appGuideProfileContent: '• Cambia el idioma de la aplicación (DE, EN, FR, ES, RU)\n• Activa Premium para gastos, suscripciones y meses ilimitados\n• Restaura compras si cambiaste de dispositivo\n• Ingresa un código promocional para Premium gratis\n• Contacta soporte o reporta un error\n• Dona para apoyar el desarrollo',
+    appGuideProfileContent: '• Cambia el idioma de la aplicación (DE, EN, FR, ES, RU)\n• Activa Premium para gastos, suscripciones y meses ilimitados\n• Restaura compras si cambiaste de dispositivo\n• Contacta soporte o reporta un error\n• Dona para apoyar el desarrollo',
     cancelPremiumConfirmMessage: 'Tu suscripción se cancelará al final del período actual. Mantienes Premium hasta entonces.',
     youHavePremium: '¡Tienes Premium!',
     paywallTitle: 'Obtener Premium',
@@ -781,7 +738,6 @@ const translations = {
     skipConfirmationsLabel: 'Desactivar confirmaciones',
     premiumEndsOn: 'Tu Premium está activo hasta el {date}.',
     donationDisclaimer: 'Esta es una donación voluntaria y no desbloquea ninguna función de la aplicación.',
-    premiumCodeHint: 'El código se verificará automáticamente al aplicarlo',
     paywallRetry: 'Intentar de nuevo',
     paywallPriceUnavailableHint: 'No se pudieron cargar los precios. Por favor verifica tu conexión.',
     paywallOneTimeDesc: 'Único — sin suscripción, sin vencimiento',
@@ -866,15 +822,10 @@ const translations = {
     getPremium: 'Получить Premium',
     cancelPremium: 'Отменить подписку Premium',
     cancelSubscription: 'Отменить подписку Premium',
-    enterPremiumCode: 'Ввести код Premium',
-    premiumCodePlaceholder: 'Введите код',
-    codePlaceholder: 'Введите код',
     apply: 'Применить',
     success: 'Успех',
     error: 'Ошибка',
     premiumActivated: 'Premium активирован!',
-    invalidCode: 'Неверный код',
-    enterCode: 'Пожалуйста, введите код',
 
     // Premium Modal
     premiumTitle: 'Получить Premium',
@@ -928,10 +879,6 @@ const translations = {
     tabSubs: 'Подписки',
     tabProfile: 'Профиль',
 
-    // Promo Code Popup
-    promoCodeTitle: 'Бесплатный Premium!',
-    promoCodeMessage: 'Получите один месяц Premium бесплатно с кодом easy2',
-
     // Terms & Privacy
     termsAndPrivacy: 'Условия и конфиденциальность',
     termsAndPrivacyView: 'Просмотреть условия и конфиденциальность',
@@ -941,7 +888,6 @@ const translations = {
     deleteAllDataMessage: 'Вы действительно хотите удалить все данные? Это действие нельзя отменить.',
     deleteAllDataError: 'Данные не удалось удалить.',
     requestAccountDeletion: 'Запросить полное удаление аккаунта',
-    promoCode: 'Промокод',
     copy: 'Копировать',
     cancelInfo: 'Отменить подписку: Настройки → Apple ID → Подписки → Easy Budget → Отменить',
 
@@ -953,7 +899,7 @@ const translations = {
     appGuideSubsTitle: '🔄 Подписки',
     appGuideSubsContent: '• Нажмите + чтобы добавить новую подписку\n• Введите название, сумму и дату следующего платежа\n• Долгое нажатие: редактировать или удалить подписку\n• Общая сумма всех подписок отображается вверху\n• Подписки сортируются по дате следующего платежа\n• Все данные сохраняются офлайн',
     appGuideProfileTitle: '👤 Профиль',
-    appGuideProfileContent: '• Смените язык приложения (DE, EN, FR, ES, RU)\n• Активируйте Premium для неограниченных расходов, подписок и месяцев\n• Восстановите покупки если сменили устройство\n• Введите промокод для бесплатного Premium\n• Свяжитесь с поддержкой или сообщите об ошибке\n• Сделайте пожертвование чтобы поддержать разработку',
+    appGuideProfileContent: '• Смените язык приложения (DE, EN, FR, ES, RU)\n• Активируйте Premium для неограниченных расходов, подписок и месяцев\n• Восстановите покупки если сменили устройство\n• Свяжитесь с поддержкой или сообщите об ошибке\n• Сделайте пожертвование чтобы поддержать разработку',
     cancelPremiumConfirmMessage: 'Ваша подписка будет отменена в конце текущего периода. До этого момента Premium остаётся активным.',
     youHavePremium: 'У вас Premium!',
     paywallTitle: 'Получить Premium',
@@ -978,7 +924,6 @@ const translations = {
     skipConfirmationsLabel: 'Отключить подтверждения',
     premiumEndsOn: 'Ваш Premium активен до {date}.',
     donationDisclaimer: 'Это добровольное пожертвование и не открывает никаких функций приложения.',
-    premiumCodeHint: 'Код будет автоматически проверен при применении',
     paywallRetry: 'Попробовать снова',
     paywallPriceUnavailableHint: 'Не удалось загрузить цены. Проверьте подключение к интернету.',
     paywallOneTimeDesc: 'Единоразово — без подписки, без срока действия',

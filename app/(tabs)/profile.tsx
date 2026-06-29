@@ -21,13 +21,11 @@ export default function ProfileScreen() {
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
-  const [showPromoModal, setShowPromoModal] = useState(false);
   const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showAppGuideModal, setShowAppGuideModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
-  const [premiumCode, setPremiumCode] = useState('');
   const [selectedDonationAmount, setSelectedDonationAmount] = useState(5);
   const [username, setUsername] = useState('');
   const [editingUsername, setEditingUsername] = useState(false);
@@ -40,13 +38,12 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { glassEnabled, setGlassEnabled } = useGlass();
   const { language, setLanguage, t } = useLanguage();
-  const { premiumStatus, setPremiumStatus, applyPremiumCode, purchasePremium, fetchPremiumStatus, cancelPremium, setMonths, setSubscriptions, setBudgetName, setActiveMonthId, setHasSeenWelcome } = useBudget();
+  const { premiumStatus, setPremiumStatus, purchasePremium, fetchPremiumStatus, cancelPremium, setMonths, setSubscriptions, setBudgetName, setActiveMonthId, setHasSeenWelcome } = useBudget();
   const { packages, purchasePackage, restorePurchases, checkSubscription, isSubscribed } = useSubscription();
 
   // Fade-in animations
   const [fadeAnims] = useState(() => ({
     header: new Animated.Value(0),
-    code: new Animated.Value(0),
     menu: new Animated.Value(0),
   }));
 
@@ -58,18 +55,13 @@ export default function ProfileScreen() {
         duration: 400,
         useNativeDriver: true,
       }),
-      Animated.timing(fadeAnims.code, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
       Animated.timing(fadeAnims.menu, {
         toValue: 1,
         duration: 400,
         useNativeDriver: true,
       }),
     ]).start();
-  }, [fadeAnims.header, fadeAnims.code, fadeAnims.menu]);
+  }, [fadeAnims.header, fadeAnims.menu]);
 
   useEffect(() => {
     loadUsername();
@@ -224,36 +216,6 @@ export default function ProfileScreen() {
     const newLanguage = langCycle[nextIndex];
     setLanguage(newLanguage);
     console.log('Language changed to:', newLanguage);
-  };
-
-  const handleApplyCode = async () => {
-    Keyboard.dismiss();
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (!premiumCode.trim()) {
-      setModalMessage(t('enterCode'));
-      closeAllModals();
-      setShowErrorModal(true);
-      return;
-    }
-    try {
-      const success = await applyPremiumCode(premiumCode.trim());
-      if (success) {
-        setModalMessage(t('premiumActivated'));
-        closeAllModals();
-        setShowSuccessModal(true);
-        setPremiumCode('');
-        fetchPremiumStatus().catch(err => console.warn('[Profile] fetchPremiumStatus after code:', err));
-      } else {
-        setModalMessage(t('invalidCode'));
-        closeAllModals();
-        setShowErrorModal(true);
-      }
-    } catch (error) {
-      console.error('[Profile] Error applying code:', error);
-      setModalMessage(t('invalidCode'));
-      closeAllModals();
-      setShowErrorModal(true);
-    }
   };
 
   const handleDonation = async () => {
@@ -465,12 +427,6 @@ export default function ProfileScreen() {
     }
   };
 
-  const handlePromoCodePress = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    closeAllModals();
-    setShowPromoModal(true);
-  };
-
   const handleDeleteLocalData = async () => {
     console.log('[Profile] Delete Local Data pressed');
     Alert.alert(
@@ -554,7 +510,6 @@ export default function ProfileScreen() {
     setShowLegalModal(false);
     setShowPremiumModal(false);
     setShowDonationModal(false);
-    setShowPromoModal(false);
     setShowCancelConfirmModal(false);
     setShowSuccessModal(false);
     setShowErrorModal(false);
@@ -598,36 +553,6 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           )}
           <Text style={styles.premiumBadge}>{premiumStatusText}</Text>
-        </Animated.View>
-
-        <Animated.View style={[styles.premiumCodeSection, glassEnabled && styles.glassCard, { opacity: fadeAnims.code }]}>
-          <Text style={styles.premiumCodeLabel}>{t('enterPremiumCode')}</Text>
-          <View style={styles.premiumCodeRow}>
-            <TextInput
-              style={styles.premiumCodeInput}
-              value={premiumCode}
-              onChangeText={setPremiumCode}
-              placeholder={t('premiumCodePlaceholder')}
-              placeholderTextColor="#666666"
-              autoCapitalize="none"
-              maxLength={20}
-            />
-            <TouchableOpacity 
-              style={styles.applyCodeButton} 
-              onPress={handleApplyCode}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.applyCodeButtonText}>{t('apply')}</Text>
-            </TouchableOpacity>
-          </View>
-          {premiumCode.length > 0 && (
-            <Text style={{ fontSize: 11, color: '#666666', marginTop: 4, textAlign: 'right' }}>
-              {premiumCode.length}/20
-            </Text>
-          )}
-          <Text style={{ fontSize: 11, color: '#666666', marginTop: 4 }}>
-            {t('premiumCodeHint')}
-          </Text>
         </Animated.View>
 
         <Animated.View style={[styles.menuSection, { opacity: fadeAnims.menu }]}>
@@ -815,18 +740,6 @@ export default function ProfileScreen() {
             <View style={styles.menuItemLeft}>
               <MaterialIcons name="menu-book" size={24} color="#BFFE84" />
               <Text style={styles.menuItemText}>{t('appGuide')}</Text>
-            </View>
-            <MaterialIcons name="chevron-right" size={24} color="#666666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.menuItem, styles.promoButton]} 
-            onPress={handlePromoCodePress}
-            activeOpacity={0.7}
-          >
-            <View style={styles.menuItemLeft}>
-              <MaterialIcons name="card-giftcard" size={24} color="#BFFE84" />
-              <Text style={styles.menuItemText}>{t('promoCode')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={24} color="#666666" />
           </TouchableOpacity>
@@ -1118,52 +1031,6 @@ export default function ProfileScreen() {
         </View>
       </Modal>
 
-      {/* Promo Modal */}
-      <Modal
-        visible={showPromoModal}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setShowPromoModal(false)}
-      >
-        <View style={styles.centeredModalOverlay}>
-          <View style={[styles.promoModal, glassEnabled && styles.glassModal]}>
-            <TouchableOpacity 
-              style={styles.closeModalButton}
-              onPress={async () => {
-                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setShowPromoModal(false);
-              }}
-            >
-              <MaterialIcons name="close" size={18} color="#FFFFFF" />
-            </TouchableOpacity>
-
-            <View style={styles.promoIconContainer}>
-              <MaterialIcons name="card-giftcard" size={40} color="#BFFE84" />
-            </View>
-
-            <Text style={styles.promoModalTitle}>{t('promoCodeTitle')}</Text>
-            <Text style={styles.promoModalMessage}>{t('promoCodeMessage')}</Text>
-
-            <View style={styles.promoCodeBox}>
-              <Text style={styles.promoCodeText}>easy2</Text>
-            </View>
-
-            <TouchableOpacity 
-              style={styles.promoOkButton}
-              onPress={async () => {
-                console.log('[Profile] Copy promo code pressed');
-                await Clipboard.setStringAsync('easy2');
-                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setShowPromoModal(false);
-              }}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.promoOkButtonText}>{t('copy')}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
       {/* Cancel Confirm Modal */}
       <Modal
         visible={showCancelConfirmModal}
@@ -1387,43 +1254,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#BFFE84',
     fontWeight: '600',
-  },
-  premiumCodeSection: {
-    backgroundColor: '#2C2C2E',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    marginHorizontal: 2,
-  },
-  premiumCodeLabel: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    marginBottom: 12,
-    fontWeight: '600',
-  },
-  premiumCodeRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  premiumCodeInput: {
-    flex: 1,
-    backgroundColor: '#000000',
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  applyCodeButton: {
-    backgroundColor: '#BFFE84',
-    borderRadius: 12,
-    paddingHorizontal: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  applyCodeButtonText: {
-    fontSize: 16,
-    color: '#000000',
-    fontWeight: 'bold',
   },
   menuSection: {
     marginBottom: 30,
