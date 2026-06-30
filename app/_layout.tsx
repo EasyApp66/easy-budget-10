@@ -1,6 +1,9 @@
 
 import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
+import { Platform } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BudgetProvider, useBudget } from '@/contexts/BudgetContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SubscriptionProvider, useSubscription } from "@/contexts/SubscriptionContext";
@@ -28,21 +31,29 @@ function RevenueCatSync({ children }: { children: React.ReactNode }) {
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SubscriptionProvider>
-        <LanguageProvider>
-          <BudgetProvider>
-            <RevenueCatSync>
-              <GlassProviderWithPremium>
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="index" />
-                  <Stack.Screen name="(tabs)" />
-                  <Stack.Screen name="paywall" options={{ headerShown: false }} />
-                </Stack>
-              </GlassProviderWithPremium>
-            </RevenueCatSync>
-          </BudgetProvider>
-        </LanguageProvider>
-      </SubscriptionProvider>
+      <SafeAreaProvider>
+        {/* Android: translucent status bar for edge-to-edge; iOS: light-content on dark bg */}
+        <StatusBar
+          style="light"
+          backgroundColor="transparent"
+          translucent={Platform.OS === 'android'}
+        />
+        <SubscriptionProvider>
+          <LanguageProvider>
+            <BudgetProvider>
+              <RevenueCatSync>
+                <GlassProviderWithPremium>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="index" />
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen name="paywall" options={{ headerShown: false }} />
+                  </Stack>
+                </GlassProviderWithPremium>
+              </RevenueCatSync>
+            </BudgetProvider>
+          </LanguageProvider>
+        </SubscriptionProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert, Animated, ActivityIndicator, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, TextInput, Alert, Animated, ActivityIndicator, Keyboard, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
@@ -18,6 +19,8 @@ const SUPPORT_EMAIL = 'ivanmirosnic006@gmail.com';
 const TERMS_URL = 'https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9';
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
+  const topInset = insets.top || (Platform.OS === 'android' ? 24 : 44);
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
@@ -526,7 +529,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.safeZone} />
+      <View style={{ height: topInset + 10, backgroundColor: '#000000' }} />
       <ScrollView 
         style={styles.scrollView} 
         contentContainerStyle={styles.scrollContent}
@@ -785,7 +788,7 @@ export default function ProfileScreen() {
       <Modal
         visible={showLegalModal}
         animationType="slide"
-        presentationStyle="pageSheet"
+        presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : 'fullScreen'}
         onRequestClose={() => setShowLegalModal(false)}
       >
         <View style={styles.modalContainer}>
@@ -802,7 +805,7 @@ export default function ProfileScreen() {
           <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
             <Text style={styles.sectionTitle}>{t('imprint')}</Text>
             <Text style={styles.sectionText}>
-              Easy Budget 10{'\n'}
+              Easy Budget 2{'\n'}
               Ivan Mirosnic{'\n'}
               Ahornstrasse{'\n'}
               8600 Dübendorf{'\n'}
@@ -811,7 +814,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.sectionTitle}>{t('privacyPolicy')}</Text>
             <Text style={styles.sectionText}>
-              Easy Budget 10 respektiert Ihre Privatsphäre. Alle Ihre Finanzdaten werden ausschliesslich lokal auf Ihrem Gerät gespeichert.
+              Easy Budget 2 respektiert Ihre Privatsphäre. Alle Ihre Finanzdaten werden ausschliesslich lokal auf Ihrem Gerät gespeichert.
             </Text>
             <Text style={styles.sectionText}>
               Wir sammeln, übertragen oder speichern keine persönlichen Daten auf externen Servern. Es werden keine Benutzerdaten gesammelt - nur Ihre Eingaben werden lokal gespeichert.
@@ -822,7 +825,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.sectionTitle}>{t('termsOfUse')}</Text>
             <Text style={styles.sectionText}>
-              Durch die Nutzung von Easy Budget 10 erklären Sie sich mit folgenden Bedingungen einverstanden:
+              Durch die Nutzung von Easy Budget 2 erklären Sie sich mit folgenden Bedingungen einverstanden:
             </Text>
             <Text style={styles.sectionText}>
               1. Die App wird "wie besehen" bereitgestellt ohne jegliche Garantien.{'\n'}
@@ -836,7 +839,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.sectionTitle}>Allgemeine Geschäftsbedingungen (AGB)</Text>
             <Text style={styles.sectionText}>
-              1. Geltungsbereich: Diese AGB gelten für die Nutzung der Easy Budget 10 App.{'\n\n'}
+              1. Geltungsbereich: Diese AGB gelten für die Nutzung der Easy Budget 2 App.{'\n\n'}
               2. Leistungen: Die App bietet Funktionen zur Verwaltung von Budgets, Ausgaben und Abonnements.{'\n\n'}
               3. Nutzungsrechte: Sie erhalten ein nicht-exklusives, nicht-übertragbares Recht zur Nutzung der App.{'\n\n'}
               4. Haftung: Die Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt.{'\n\n'}
@@ -1207,10 +1210,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
-  safeZone: {
-    height: 60,
-    backgroundColor: '#000000',
-  },
   scrollView: {
     flex: 1,
   },
@@ -1311,7 +1310,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: Platform.OS === 'android' ? 24 : 60,
     paddingBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#2C2C2E',

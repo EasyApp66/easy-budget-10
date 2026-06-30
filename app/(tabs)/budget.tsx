@@ -11,7 +11,9 @@ import {
   Pressable,
   Animated,
   Alert,
+  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -170,6 +172,8 @@ export default function BudgetScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { t } = useLanguage();
+  const insets = useSafeAreaInsets();
+  const topInset = insets.top || (Platform.OS === 'android' ? 24 : 44);
   const {
     budgetName,
     months,
@@ -505,7 +509,7 @@ export default function BudgetScreen() {
   return (
     <View style={styles.container}>
       <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-      <View style={styles.safeZone} />
+      <View style={{ height: topInset + 10, backgroundColor: '#000000' }} />
       <ScrollView 
         style={styles.scrollView} 
         contentContainerStyle={styles.scrollContent}
@@ -1034,10 +1038,6 @@ function ExpenseListCard({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
-  },
-  safeZone: {
-    height: 70,
     backgroundColor: '#000000',
   },
   scrollView: {

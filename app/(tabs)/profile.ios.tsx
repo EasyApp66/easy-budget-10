@@ -844,7 +844,7 @@ export default function ProfileScreen() {
           <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
             <Text style={styles.sectionTitle}>{t('imprint')}</Text>
             <Text style={styles.sectionText}>
-              Easy Budget 10{'\n'}
+              Easy Budget 2{'\n'}
               Ivan Mirosnic{'\n'}
               Ahornstrasse{'\n'}
               8600 Dübendorf{'\n'}
@@ -853,7 +853,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.sectionTitle}>{t('privacyPolicy')}</Text>
             <Text style={styles.sectionText}>
-              Easy Budget 10 respektiert Ihre Privatsphäre. Alle Ihre Finanzdaten werden ausschliesslich lokal auf Ihrem Gerät gespeichert.
+              Easy Budget 2 respektiert Ihre Privatsphäre. Alle Ihre Finanzdaten werden ausschliesslich lokal auf Ihrem Gerät gespeichert.
             </Text>
             <Text style={styles.sectionText}>
               Wir sammeln, übertragen oder speichern keine persönlichen Daten auf externen Servern. Es werden keine Benutzerdaten gesammelt - nur Ihre Eingaben werden lokal gespeichert.
@@ -864,7 +864,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.sectionTitle}>{t('termsOfUse')}</Text>
             <Text style={styles.sectionText}>
-              Durch die Nutzung von Easy Budget 10 erklären Sie sich mit folgenden Bedingungen einverstanden:
+              Durch die Nutzung von Easy Budget 2 erklären Sie sich mit folgenden Bedingungen einverstanden:
             </Text>
             <Text style={styles.sectionText}>
               1. Die App wird "wie besehen" bereitgestellt ohne jegliche Garantien.{'\n'}
@@ -878,7 +878,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.sectionTitle}>Allgemeine Geschäftsbedingungen (AGB)</Text>
             <Text style={styles.sectionText}>
-              1. Geltungsbereich: Diese AGB gelten für die Nutzung der Easy Budget 10 App.{'\n\n'}
+              1. Geltungsbereich: Diese AGB gelten für die Nutzung der Easy Budget 2 App.{'\n\n'}
               2. Leistungen: Die App bietet Funktionen zur Verwaltung von Budgets, Ausgaben und Abonnements.{'\n\n'}
               3. Nutzungsrechte: Sie erhalten ein nicht-exklusives, nicht-übertragbares Recht zur Nutzung der App.{'\n\n'}
               4. Haftung: Die Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt.{'\n\n'}

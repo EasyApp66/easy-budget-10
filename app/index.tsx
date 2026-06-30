@@ -1,7 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Animated, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBudget } from '@/contexts/BudgetContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import * as Haptics from 'expo-haptics';
@@ -10,6 +11,9 @@ export default function WelcomeScreen() {
   const router = useRouter();
   const { hasSeenWelcome, setHasSeenWelcome } = useBudget();
   const { t } = useLanguage();
+  const insets = useSafeAreaInsets();
+  const topInset = insets.top || (Platform.OS === 'android' ? 24 : 20);
+  const bottomInset = insets.bottom || (Platform.OS === 'android' ? 16 : 0);
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
@@ -99,7 +103,7 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.safeZone} />
+      <View style={{ height: topInset, backgroundColor: '#000000' }} />
       <View style={styles.content}>
         <View style={styles.titleContainer}>
           <Text style={styles.titleWhite}>{hiIAmText} </Text>
@@ -113,7 +117,7 @@ export default function WelcomeScreen() {
         </View>
       </View>
 
-      <View style={styles.bottomContainer}>
+      <View style={[styles.bottomContainer, { paddingBottom: Math.max(bottomInset + 20, 50) }]}>
         <Text style={styles.premiumText}>{twoWeeksPremiumText}</Text>
         
         <TouchableOpacity 
@@ -134,7 +138,7 @@ export default function WelcomeScreen() {
       <Modal
         visible={showLegalModal}
         animationType="slide"
-        presentationStyle="pageSheet"
+        presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : 'fullScreen'}
         onRequestClose={closeLegalModal}
       >
         <View style={styles.modalContainer}>
@@ -148,7 +152,7 @@ export default function WelcomeScreen() {
           <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
             <Text style={styles.sectionTitle}>{t('imprint')}</Text>
             <Text style={styles.sectionText}>
-              Easy Budget 10{'\n'}
+              Easy Budget 2{'\n'}
               Ivan Mirosnic{'\n'}
               Ahornstrasse{'\n'}
               8600 Dübendorf{'\n'}
@@ -185,10 +189,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
     justifyContent: 'space-between',
-  },
-  safeZone: {
-    height: 20,
-    backgroundColor: '#000000',
   },
   content: {
     flex: 1,
@@ -227,7 +227,6 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     paddingHorizontal: 30,
-    paddingBottom: 50,
     alignItems: 'center',
   },
   premiumText: {
@@ -279,7 +278,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: Platform.OS === 'android' ? 24 : 60,
     paddingBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#2C2C2E',

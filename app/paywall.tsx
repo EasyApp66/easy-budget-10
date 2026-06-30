@@ -19,7 +19,7 @@ import {
   Linking,
   Animated,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { PurchasesPackage } from "react-native-purchases";
 
@@ -36,6 +36,9 @@ const CARD_MID = "#1A1A1A";
 
 export default function PaywallScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  // Close button top offset: respect safe area on both platforms
+  const closeButtonTop = (insets.top || (Platform.OS === 'android' ? 24 : 44)) + 12;
 
   const { t } = useLanguage();
 
@@ -220,7 +223,7 @@ export default function PaywallScreen() {
     <View style={styles.container}>
       <SafeAreaView edges={["top", "bottom"]} style={styles.safeArea}>
         {/* Close button */}
-        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+        <TouchableOpacity style={[styles.closeButton, { top: closeButtonTop }]} onPress={handleClose}>
           <Text style={styles.closeButtonText}>✕</Text>
         </TouchableOpacity>
 
@@ -456,7 +459,6 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: "absolute",
-    top: 56,
     right: 16,
     zIndex: 10,
     width: 32,

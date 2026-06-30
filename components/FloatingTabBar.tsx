@@ -13,6 +13,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Href } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGlass } from '@/contexts/GlassContext';
 
 export interface TabBarItem {
@@ -31,6 +32,9 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
   const router = useRouter();
   const pathname = usePathname();
   const { glassEnabled } = useGlass();
+  const insets = useSafeAreaInsets();
+  // On Android with edge-to-edge, bottom inset covers the navigation bar
+  const bottomPadding = Math.max(insets.bottom, Platform.OS === 'android' ? 8 : 0);
   const [scaleAnims] = React.useState(() => 
     tabs.map(() => new Animated.Value(1))
   );
@@ -164,9 +168,9 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
     </>
   );
 
-  if (glassEnabled) {
+  if (glassEnabled && Platform.OS === 'ios') {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingBottom: bottomPadding }]}>
         <BlurView
           intensity={80}
           tint="dark"
@@ -183,8 +187,23 @@ export default function FloatingTabBar({ tabs, onAddPress }: FloatingTabBarProps
     );
   }
 
+  // On Android, BlurView has poor performance — use solid background instead
+  if (glassEnabled && Platform.OS === 'android') {
+    return (
+      <View style={[styles.container, { paddingBottom: bottomPadding }]}>
+        <View style={[styles.tabBar, {
+          backgroundColor: 'rgba(20,20,20,0.97)',
+          borderWidth: 1,
+          borderColor: 'rgba(255,255,255,0.15)',
+        }]}>
+          {tabsContent}
+        </View>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: bottomPadding }]}>
       <View style={styles.tabBar}>
         {tabsContent}
       </View>
