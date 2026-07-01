@@ -20,7 +20,6 @@ export default function WelcomeScreen() {
   const scaleAnim = useState(new Animated.Value(0.8))[0];
 
   useEffect(() => {
-    console.log('WelcomeScreen mounted, hasSeenWelcome:', hasSeenWelcome);
     if (hasSeenWelcome) {
       console.log('User has seen welcome, redirecting to budget...');
       router.replace('/(tabs)/budget');
@@ -69,6 +68,10 @@ export default function WelcomeScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowLegalModal(false);
   };
+
+  if (hasSeenWelcome) {
+    return null;
+  }
 
   if (showLoading) {
     return (

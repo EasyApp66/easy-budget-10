@@ -9,7 +9,6 @@ import {
   TextInput,
   Modal,
   Pressable,
-  Animated,
   Alert,
   Platform,
 } from 'react-native';
@@ -45,31 +44,7 @@ export default function SubscriptionsScreen() {
   const [editSubName, setEditSubName] = useState('');
   const [editSubAmount, setEditSubAmount] = useState('');
 
-  const [fadeAnims] = useState(() => ({
-    summary: new Animated.Value(0),
-    total: new Animated.Value(0),
-    subscriptions: new Animated.Value(0),
-  }));
 
-  useEffect(() => {
-    Animated.stagger(80, [
-      Animated.timing(fadeAnims.summary, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnims.total, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnims.subscriptions, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [fadeAnims.summary, fadeAnims.total, fadeAnims.subscriptions]);
 
   useEffect(() => {
     if (params.triggerAdd) {
@@ -217,21 +192,21 @@ export default function SubscriptionsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View style={[styles.summaryCard, glassEnabled && styles.glassCard, { opacity: fadeAnims.summary }]}>
+        <View style={[styles.summaryCard, glassEnabled && styles.glassCard]}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t('subscriptionCosts')}</Text>
             <Text style={styles.summaryValue}>{subCount}</Text>
           </View>
-        </Animated.View>
+        </View>
 
-        <Animated.View style={[styles.totalCard, glassEnabled && styles.glassCard, { opacity: fadeAnims.total }]}>
+        <View style={[styles.totalCard, glassEnabled && styles.glassCard]}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>{t('total')}</Text>
             <Text style={styles.totalValue}>{totalCostText}</Text>
           </View>
-        </Animated.View>
+        </View>
 
-        <Animated.View style={[styles.subscriptionsSection, { opacity: fadeAnims.subscriptions }]}>
+        <View style={[styles.subscriptionsSection]}>
           {subscriptions.map((sub, index) => (
             <React.Fragment key={sub.id}>
             <SubscriptionCard
@@ -270,7 +245,7 @@ export default function SubscriptionsScreen() {
             />
             </React.Fragment>
           ))}
-        </Animated.View>
+        </View>
 
         <View style={styles.bottomSpacer} />
       </ScrollView>

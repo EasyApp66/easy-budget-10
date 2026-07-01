@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,6 +14,20 @@ function GlassProviderWithPremium({ children }: { children: React.ReactNode }) {
   const { premiumStatus } = useBudget();
   const isPremium = premiumStatus.type !== 'None' && premiumStatus.type !== 'Expired';
   return <GlassProvider isPremium={isPremium}>{children}</GlassProvider>;
+}
+
+function InitialRedirect() {
+  const router = useRouter();
+  const { hasSeenWelcome } = useBudget();
+
+  useEffect(() => {
+    if (hasSeenWelcome) {
+      console.log('[InitialRedirect] hasSeenWelcome=true, navigating to budget');
+      router.replace('/(tabs)/budget');
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return null;
 }
 
 function RevenueCatSync({ children }: { children: React.ReactNode }) {
@@ -41,6 +55,7 @@ export default function RootLayout() {
         <SubscriptionProvider>
           <LanguageProvider>
             <BudgetProvider>
+              <InitialRedirect />
               <RevenueCatSync>
                 <GlassProviderWithPremium>
                   <Stack screenOptions={{ headerShown: false }}>
