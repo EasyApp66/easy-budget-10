@@ -33,7 +33,7 @@ const TERMS_URL = 'https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723
 export default function ProfileScreen() {
   const { premiumStatus, fetchPremiumStatus, cancelPremium } = useBudget();
   const { language, setLanguage, t } = useLanguage();
-  const { packages, purchasePackage, restorePurchases, checkSubscription } = useSubscription();
+  const { packages, purchasePackage, restorePurchases, checkSubscription, isSubscribed } = useSubscription();
   const router = useRouter();
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
@@ -530,22 +530,34 @@ export default function ProfileScreen() {
     );
   };
 
+  useEffect(() => {
+    if (isSubscribed) {
+      console.log('[Profile] isSubscribed changed to true — refreshing premiumStatus');
+      fetchPremiumStatus().catch(() => {});
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSubscribed]);
+
   const getPremiumStatusText = () => {
+    if (isSubscribed && (premiumStatus.type === 'None' || premiumStatus.type === 'Expired')) {
+      return `Premium: Ja, für immer!`;
+    }
     if (premiumStatus.type === 'Lifetime') {
-      return t('premiumForever');
+      return `Premium: Ja, für immer! ✓`;
     } else if (premiumStatus.type === 'Trial' && premiumStatus.endDate) {
-      const daysLeft = Math.ceil((new Date(premiumStatus.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-      const daysText = t('days');
-      return `${t('trial')} (${daysLeft} ${daysText})`;
+      const daysLeft = Math.ceil((new Date(premiumStatus.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+      const daysText = daysLeft === 1 ? t('day') : t('days');
+      return `${t('premiumTrial')}: ${daysLeft} ${daysText}`;
     } else if (premiumStatus.type === 'Monthly' && premiumStatus.endDate) {
-      const daysLeft = Math.ceil((new Date(premiumStatus.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-      const daysText = t('days');
-      return `${t('premiumActive')} (${daysLeft} ${daysText})`;
+      const renewalDate = new Date(premiumStatus.endDate);
+      const day = renewalDate.getDate().toString().padStart(2, '0');
+      const month = (renewalDate.getMonth() + 1).toString().padStart(2, '0');
+      const year = renewalDate.getFullYear();
+      return `Premium: Aktiv · Verlängerung ${day}.${month}.${year}`;
     } else if (premiumStatus.type === 'Expired') {
-      return t('premiumExpired');
-    } else {
       return `Premium: ${t('premiumNo')}`;
     }
+    return `Premium: ${t('premiumNo')}`;
   };
 
   const closeAllModals = () => {
