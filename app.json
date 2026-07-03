@@ -28,9 +28,10 @@
       }
     },
     "android": {
+      "icon": "./assets/images/816d4c0e-7e73-4321-bc3d-c90b7b2a5496.jpeg",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "foregroundImage": "./assets/images/816d4c0e-7e73-4321-bc3d-c90b7b2a5496.jpeg",
+        "backgroundColor": "#1a1a1a"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.ivanmirosnic.easybudget10"

@@ -1,5 +1,5 @@
 /**
- * RevenueCat Subscription Context
+ * RevenueCat Subscription Context (Anonymous Mode)
  *
  * Provides subscription management for Expo + React Native apps.
  * Reads API keys from app.json (expo.extra) automatically.
@@ -9,9 +9,14 @@
  * - Web preview via RevenueCat REST API (read-only pricing display)
  * - Expo Go via test store keys
  *
+ * NOTE: Running in anonymous mode - purchases won't sync across devices.
+ * To enable cross-device sync:
+ * 1. Set up authentication with setup_auth
+ * 2. Re-run setup_revenuecat to upgrade this file
+ *
  * SETUP:
  * 1. Wrap your app with <SubscriptionProvider>
- * 2. Run: pnpm install react-native-purchases && npx expo prebuild
+ * 2. Run (via the project's package runner — bunx for new projects, npx for legacy): expo install react-native-purchases && expo prebuild
  */
 
 import React, {
@@ -89,7 +94,6 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     useState<PurchasesOffering | null>(null);
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isConfigured, setIsConfigured] = useState(false);
 
     // Fetch offerings via REST API for web platform
   const fetchOfferingsViaRest = async () => {
@@ -97,7 +101,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     const mockPackage = {
       identifier: "$rc_monthly",
       product: {
-        title: "Monthly",
+        title: "Premium",
         priceString: "$1/month",
         description: "Unlock all premium features",
       },
@@ -175,7 +179,6 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
         }
 
         await Purchases.configure({ apiKey });
-        setIsConfigured(true);
 
         // Listen for real-time subscription changes (e.g., purchase from another device)
         customerInfoListener = Purchases.addCustomerInfoUpdateListener(
