@@ -2,7 +2,7 @@
   "expo": {
     "name": "Easy Budget",
     "slug": "easy-budget",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/591d508b-941d-4fe6-a4e1-741690930094.jpeg",
     "userInterfaceStyle": "automatic",
@@ -34,7 +34,7 @@
         "backgroundColor": "#1a1a1a"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.ivanmirosnic.easybudget10"
+      "package": "com.n55.easybudget"
     },
     "web": {
       "favicon": "./assets/images/bda1eed0-70c5-43ec-bfa9-e1708247ffc8.png",
