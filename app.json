@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Easy Budget",
-    "slug": "easy-budget",
-    "version": "1.0.1",
+    "slug": "easy-budget-10",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/591d508b-941d-4fe6-a4e1-741690930094.jpeg",
     "userInterfaceStyle": "automatic",
@@ -35,7 +35,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.ivanmirosnic.easybudget",
-      "versionCode": 3
+      "versionCode": 6
     },
     "web": {
       "favicon": "./assets/images/bda1eed0-70c5-43ec-bfa9-e1708247ffc8.png",
@@ -44,7 +44,13 @@
     "plugins": [
       "expo-font",
       "expo-router",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png"
+        }
+      ]
     ],
     "scheme": "easybudget",
     "experiments": {
@@ -60,8 +66,5 @@
       "revenueCatEntitlementId": "pro",
       "nativelyProjectId": "5227e71f-ce4f-496a-bd7c-96d666543dbf"
     },
-    "notification": {
-      "icon": "./assets/notification-icon.png"
-    }
   }
 }
