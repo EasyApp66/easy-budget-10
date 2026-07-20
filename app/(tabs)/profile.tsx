@@ -14,8 +14,9 @@ import * as MailComposer from 'expo-mail-composer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Purchases from 'react-native-purchases';
 
+import { SUPPORT_EMAIL } from '@/constants/Config';
+
 const USER_NAME_KEY = '@easy_budget_username';
-const SUPPORT_EMAIL = 'ivanmirosnic006@gmail.com';
 const TERMS_URL = 'https://www.termsfeed.com/live/6f7b7674-e830-468a-9f48-24a723dd62e9';
 
 export default function ProfileScreen() {
@@ -42,7 +43,8 @@ export default function ProfileScreen() {
   const { glassEnabled, setGlassEnabled } = useGlass();
   const { language, setLanguage, t } = useLanguage();
   const { premiumStatus, setPremiumStatus, purchasePremium, fetchPremiumStatus, cancelPremium, setMonths, setSubscriptions, setBudgetName, setActiveMonthId, setHasSeenWelcome } = useBudget();
-  const { packages, purchasePackage, restorePurchases, checkSubscription, isSubscribed } = useSubscription();
+  const { packages, loading: packagesLoading, purchasePackage, restorePurchases, checkSubscription, isSubscribed } = useSubscription();
+  const [retryingPackages, setRetryingPackages] = useState(false);
 
   // Fade-in animations
   const [fadeAnims] = useState(() => ({
@@ -530,8 +532,11 @@ export default function ProfileScreen() {
 
   const lifetimePkg = packages.find(p => p.identifier === '$rc_lifetime' || p.packageType === 'LIFETIME');
   const monthlyPkg = packages.find(p => p.identifier === '$rc_monthly' || p.packageType === 'MONTHLY');
-  const lifetimePrice = lifetimePkg?.product?.priceString ?? t('priceNotAvailable');
-  const monthlyPrice = monthlyPkg?.product?.priceString ? `${monthlyPkg.product.priceString}/${t('month')}` : t('priceNotAvailable');
+  const noPackages = !packagesLoading && packages.length === 0;
+  const lifetimePrice = lifetimePkg?.product?.priceString ?? (packagesLoading ? '...' : t('priceNotAvailable'));
+  const monthlyPrice = monthlyPkg?.product?.priceString
+    ? `${monthlyPkg.product.priceString}/${t('month')}`
+    : (packagesLoading ? '...' : t('priceNotAvailable'));
 
   const currentLanguageText = language === 'de' ? 'Deutsch' : language === 'en' ? 'English' : language === 'fr' ? 'Français' : language === 'es' ? 'Español' : 'Русский';
   const premiumStatusText = getPremiumStatusText();
@@ -901,9 +906,9 @@ export default function ProfileScreen() {
                   <Text style={{ fontSize: 10, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={[styles.pricingButton, isPurchasing && styles.pricingButtonDisabled]}
+                  style={[styles.pricingButton, (isPurchasing || packagesLoading || noPackages) && styles.pricingButtonDisabled]}
                   activeOpacity={0.8}
-                  disabled={isPurchasing}
+                  disabled={isPurchasing || packagesLoading || noPackages}
                   onPress={handleOneTimePayment}
                 >
                   {isPurchasing ? (
@@ -923,9 +928,9 @@ export default function ProfileScreen() {
                   <Text style={{ fontSize: 10, color: '#BFFE84', textDecorationLine: 'underline' }}>{t('termsAndPrivacy')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={[styles.pricingButton, isPurchasing && styles.pricingButtonDisabled]}
+                  style={[styles.pricingButton, (isPurchasing || packagesLoading || noPackages) && styles.pricingButtonDisabled]}
                   activeOpacity={0.8}
-                  disabled={isPurchasing}
+                  disabled={isPurchasing || packagesLoading || noPackages}
                   onPress={handleMonthlySubscription}
                 >
                   {isPurchasing ? (
@@ -950,6 +955,35 @@ export default function ProfileScreen() {
                  'Restore Purchases'}
               </Text>
             </TouchableOpacity>
+
+            {packagesLoading && (
+              <ActivityIndicator size="small" color="#BFFE84" style={{ marginTop: 8 }} />
+            )}
+            {noPackages && (
+              <TouchableOpacity
+                style={[styles.restoreButton, { marginTop: 6, borderColor: '#888888' }]}
+                activeOpacity={0.7}
+                disabled={retryingPackages}
+                onPress={async () => {
+                  console.log('[Profile] Retry loading packages pressed');
+                  setRetryingPackages(true);
+                  await checkSubscription();
+                  setRetryingPackages(false);
+                }}
+              >
+                {retryingPackages ? (
+                  <ActivityIndicator size="small" color="#BFFE84" />
+                ) : (
+                  <Text style={[styles.restoreButtonText, { color: '#888888' }]}>
+                    {language === 'de' ? 'Erneut versuchen' :
+                     language === 'fr' ? 'Réessayer' :
+                     language === 'es' ? 'Reintentar' :
+                     'Retry'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            )}
+
             <Text style={{ fontSize: 10, color: '#555555', textAlign: 'center', lineHeight: 14, marginTop: 8, paddingHorizontal: 4 }}>
               {'Abo kündigen: Einstellungen → Apple ID → Abonnements → Easy Budget'}
             </Text>
