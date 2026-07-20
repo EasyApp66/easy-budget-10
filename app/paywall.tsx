@@ -70,10 +70,10 @@ export default function PaywallScreen() {
     (p) => p.identifier === "$rc_monthly" || p.packageType === "MONTHLY"
   ) ?? (packages.length > 0 ? packages[0] : null);
 
-  const lifetimePrice = lifetimePkg?.product?.priceString ?? t('priceNotAvailable');
+  const lifetimePrice = lifetimePkg?.product?.priceString ?? (loading ? null : t('priceNotAvailable'));
   const monthlyPrice = monthlyPkg?.product?.priceString
     ? `${monthlyPkg.product.priceString}/${t('month')}`
-    : t('priceNotAvailable');
+    : (loading ? null : t('priceNotAvailable'));
 
   const handlePurchase = async (pkg: PurchasesPackage | null, label: string) => {
     console.log(`[Paywall] Bezahlen pressed — package: ${label}`);
@@ -266,7 +266,14 @@ export default function PaywallScreen() {
           {/* Lifetime card */}
           <View style={styles.pricingCard}>
             <Text style={styles.pricingLabel}>{t('paywallOneTime')}</Text>
-            <Text style={styles.pricingPrice}>{lifetimePrice}</Text>
+            {lifetimePrice === null ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 8 }}>
+                <ActivityIndicator size="small" color={GREEN} />
+                <Text style={[styles.pricingPrice, { fontSize: 14, color: '#888888', marginBottom: 0 }]}>Preis wird geladen...</Text>
+              </View>
+            ) : (
+              <Text style={styles.pricingPrice}>{lifetimePrice}</Text>
+            )}
             {!noPackages && lifetimePkg && (
               <Text style={{ fontSize: 11, color: '#888888', marginBottom: 8 }}>{t('paywallOneTimeDesc')}</Text>
             )}
@@ -298,7 +305,14 @@ export default function PaywallScreen() {
           {/* Monthly card */}
           <View style={styles.pricingCard}>
             <Text style={styles.pricingLabel}>{t('paywallMonthly')}</Text>
-            <Text style={styles.pricingPrice}>{monthlyPrice}</Text>
+            {monthlyPrice === null ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 8 }}>
+                <ActivityIndicator size="small" color={GREEN} />
+                <Text style={[styles.pricingPrice, { fontSize: 14, color: '#888888', marginBottom: 0 }]}>Preis wird geladen...</Text>
+              </View>
+            ) : (
+              <Text style={styles.pricingPrice}>{monthlyPrice}</Text>
+            )}
             {!noPackages && monthlyPkg && (
               <Text style={{ fontSize: 11, color: '#888888', marginBottom: 8 }}>{t('paywallMonthlyDesc')}</Text>
             )}
@@ -364,8 +378,8 @@ export default function PaywallScreen() {
         </ScrollView>
       </SafeAreaView>
 
-      {/* Web Mock Purchase Dialog */}
-      {isWeb && webMockDialogState !== "hidden" && (
+      {/* Web Mock Purchase Dialog — development only */}
+      {__DEV__ && isWeb && webMockDialogState !== "hidden" && (
         <View style={styles.webDialogOverlay}>
           <View style={styles.webDialogBox}>
             {webMockDialogState === "selecting" && (

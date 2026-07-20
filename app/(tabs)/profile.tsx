@@ -484,6 +484,11 @@ export default function ProfileScreen() {
             } else {
               Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=Easy%20Budget%20-%20Account%20Deletion`);
             }
+            Alert.alert(
+              '',
+              'Eine E-Mail wurde geöffnet. Bitte sende sie ab, um dein Konto zu löschen.',
+              [{ text: 'OK' }]
+            );
           },
         },
       ]
